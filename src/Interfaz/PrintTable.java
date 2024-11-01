@@ -20,6 +20,7 @@ public class PrintTable {
 
     public DynamicJasperPrint printTable(TableModel model, String title, PageFormat pageFormat) {
         DynamicJasperPrint dynamicJasperPrint = new DynamicJasperPrint();
+        pageFormat = null;
         Template_Report_Master_Detail tem = pageFormat == null ? new Template_Report_Master_Detail(title) : new Template_Report_Master_Detail(title, pageFormat);
         //  setup column report
         int column = model.getColumnCount();
@@ -27,8 +28,8 @@ public class PrintTable {
             tem.addColumn(new Column(model.getColumnName(i), "ex_" + i, Column.Type.STRING));
         }
         //  setup header report
-        tem.addLabelHeader(new Label());
-        tem.addLabelHeader(new Label("Developer :", "dev", Label.Type.STRING));
+        //tem.addLabelHeader(new Label());
+        //tem.addLabelHeader(new Label("Developer :", "dev", Label.Type.STRING));
         dynamicJasperPrint.setTemplate(tem);
 
         //  init data
@@ -45,7 +46,7 @@ public class PrintTable {
             dataSource.add(row);
         }
         dynamicJasperPrint.setDataSource(dataSource);
-        dynamicJasperPrint.addParameter("dev", "Raven");
+        //dynamicJasperPrint.addParameter("dev", "Raven");
         return dynamicJasperPrint;
     }
 

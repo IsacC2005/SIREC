@@ -256,17 +256,20 @@ public class demografia {
     }
 
     //
+    //@Esta funcion verifica si el nombre que se le pasa por parametro 
+    // ya esta registrado como una calle, si es asi retorna true 
     //
     public static boolean estStrike(String nombre) {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         boolean resultado = false;
+        String axs = "HOla mundo xddd";
 
         try {
 
             query = con.prepareStatement("SELECT COUNT(*) FROM `demografia` dm WHERE dm.calle = '" + nombre + "';");
-
+            axs = query.toString();
             rs = query.executeQuery();
 
             while (rs.next()) {
@@ -280,6 +283,7 @@ public class demografia {
         } finally {
             conect.OpenBd.desconectar();
         }
+        System.out.println(axs);
         return resultado;
     }
 

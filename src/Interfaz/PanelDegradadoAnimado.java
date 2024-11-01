@@ -5,7 +5,6 @@
  */
 package Interfaz;
 
-import Clases.*;
 import java.awt.Color;
 import javax.swing.*;
 import java.awt.*;
@@ -323,7 +322,7 @@ public class PanelDegradadoAnimado extends JPanel {
 
     // Método para iniciar y detener la animación
     public void startAnimation() {
-        timer = new Timer(100, new ActionListener() {
+        timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 calculoSuperior();

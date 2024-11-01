@@ -66,29 +66,29 @@ public class Template_Report_Master_Detail implements Template {
         labelsHeader = new ArrayList<>();
         labelsSummary = new ArrayList<>();
         title = "Template Report Master Detail";
-        date = new SimpleDateFormat("dd/MM/yyyy - hh:mm aa").format(new Date());
+        //date = new SimpleDateFormat("dd/MM/yyyy - hh:mm aa").format(new Date());
     }
 
     private JasperReportBuilder initReport() {
         JasperReportBuilder report = DynamicReports.report();
-        report.setWhenNoDataType(WhenNoDataType.ALL_SECTIONS_NO_DETAIL);
-        if (pageFormat.getPageType() != null) {
-            report.setPageFormat(pageFormat.getPageType(), pageFormat.getPageOrientation());
-        } else {
-            report.setPageFormat(pageFormat.getPageWidth(), pageFormat.getPageHeight(), pageFormat.getPageOrientation());
-        }
-        report.setPageMargin(DynamicReports.margin(20));
-        report.setPageHeaderStyle(stylePageHeader);
-        report.setColumnTitleStyle(styleColumnTitle);
-        report.setColumnStyle(styleColumn);
-        report.setDetailStyle(styleDetail);
-        report.setPageFooterStyle(stylePageFooter);
+        //report.setWhenNoDataType(WhenNoDataType.ALL_SECTIONS_NO_DETAIL);
+        //if (pageFormat.getPageType() != null) {
+           // report.setPageFormat(pageFormat.getPageType(), pageFormat.getPageOrientation());
+        //} else {
+           // report.setPageFormat(pageFormat.getPageWidth(), pageFormat.getPageHeight(), pageFormat.getPageOrientation());
+        //}
+        //report.setPageMargin(DynamicReports.margin(0));
+       // report.setPageHeaderStyle(stylePageHeader);
+       // report.setColumnTitleStyle(styleColumnTitle);
+        //report.setColumnStyle(styleColumn);
+       // report.setDetailStyle(styleDetail);
+      //  report.setPageFooterStyle(stylePageFooter);
         //  init components
-        report.pageFooter(DynamicReports.cmp.horizontalFlowList(DynamicReports.cmp.text(date).setStyle(stylePageFooter).setHorizontalAlignment(HorizontalAlignment.LEFT), DynamicReports.cmp.pageXofY().setFormatExpression(PAGE_X_Y_FORMAT).setStyle(stylePageFooter)));
+        //report.pageFooter(DynamicReports.cmp.horizontalFlowList(DynamicReports.cmp.text(date).setStyle(stylePageFooter).setHorizontalAlignment(HorizontalAlignment.LEFT), DynamicReports.cmp.pageXofY().setFormatExpression(PAGE_X_Y_FORMAT).setStyle(stylePageFooter)));
         report.title(DynamicReports.cmp.text(title).setStyle(styleTitle));
-        report.pageHeader(DynamicReports.cmp.line().setPen(DynamicReports.stl.pen(0.5f, LineStyle.SOLID)));
-        initLabelHeader(report);
-        initLabelSummary(report);
+        //report.pageHeader(DynamicReports.cmp.line().setPen(DynamicReports.stl.pen(0.5f, LineStyle.SOLID)));
+        //initLabelHeader(report);
+        //initLabelSummary(report);
         new BuildColumn().initColumns(report, columns, styleColumn, styleColumnTitle);
         return report;
     }
@@ -102,9 +102,9 @@ public class Template_Report_Master_Detail implements Template {
                 if (i + j < labelsHeader.size()) {
                     Label label = labelsHeader.get(i + j);
                     if (label.getType() == Label.Type.NUMBER) {
-                        h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(stylePageHeader), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setPattern("#,##0.##").setStyle(stylePageHeader).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
+                       // h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(stylePageHeader), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setPattern("#,##0.##").setStyle(stylePageHeader).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
                     } else {
-                        h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(stylePageHeader), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setStyle(stylePageHeader).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
+                       // h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(stylePageHeader), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setStyle(stylePageHeader).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
                     }
                 } else {
                     h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(""), DynamicReports.cmp.text("")));
@@ -124,9 +124,9 @@ public class Template_Report_Master_Detail implements Template {
                 if (i + j < labelsSummary.size()) {
                     Label label = labelsSummary.get(i + j);
                     if (label.getType() == Label.Type.NUMBER) {
-                        h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(styleSummary), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setPattern("#,##0.##").setStyle(styleSummary).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
+                       // h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(styleSummary), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setPattern("#,##0.##").setStyle(styleSummary).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
                     } else {
-                        h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(styleSummary), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setStyle(styleSummary).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
+                       // h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(label.getLabelTitle()).setStyle(styleSummary), DynamicReports.cmp.text(new ParameterExpression(label.getLabelName())).setStyle(styleSummary).setHorizontalAlignment(HorizontalAlignment.RIGHT)));
                     }
                 } else {
                     h_header.add(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(""), DynamicReports.cmp.text("")));

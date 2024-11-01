@@ -15,6 +15,7 @@ import java.util.ArrayList;
  * @author Ezequiel Isacc
  */
 public class relacionesForaneas {
+
     public static int id_sexo;
     public static String sexo;
     public static int id_rolFamiliar;
@@ -141,28 +142,28 @@ public class relacionesForaneas {
     public static void setDiscapacidad(String discapacidad) {
         relacionesForaneas.discapacidad = discapacidad;
     }
- 
-    public static String nSexo(){
+
+    public static String nSexo() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         String lista = "";
         try {
-            query = con.prepareStatement("SELECT * FROM `sexo` WHERE id ="+getId_sexo()+";");
+            query = con.prepareStatement("SELECT * FROM `sexo` WHERE id =" + getId_sexo() + ";");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                lista = rs.getString("sexo");                
+
+            while (rs.next()) {
+                lista = rs.getString("sexo");
             }
         } catch (Exception e) {
             System.out.println(e);
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return lista;
     }
-    
-    public static ArrayList<String[]> rsSexo(){
+
+    public static ArrayList<String[]> rsSexo() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
@@ -170,398 +171,395 @@ public class relacionesForaneas {
         try {
             query = con.prepareStatement("SELECT * FROM `sexo`");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                
+
+            while (rs.next()) {
+
                 String[] aux = new String[2];
                 aux[0] = String.valueOf(rs.getInt("id"));
                 aux[1] = rs.getString("sexo");
-                
+
                 lista.add(aux);
             }
         } catch (Exception e) {
             System.out.println(e);
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return lista;
     }
-    
-    public static int buscarSexo(){
+
+    public static int buscarSexo() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         int resultado = 0;
-        
+
         try {
-            query = con.prepareStatement("SELECT * FROM sexo WHERE sexo = '"+getSexo()+"'");
+            query = con.prepareStatement("SELECT * FROM sexo WHERE sexo = '" + getSexo() + "'");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 resultado = rs.getInt("id");
             }
         } catch (Exception e) {
             System.out.println(e);
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return resultado;
     }
-    
-    public static ArrayList<String[]> rsRolFamiar(){
+
+    public static ArrayList<String[]> rsRolFamiar() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-         ArrayList<String[]> lista = new ArrayList<>();
-         
-         try {
+        ArrayList<String[]> lista = new ArrayList<>();
+
+        try {
             query = con.prepareStatement("SELECT * FROM `rolfamiliar`");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                String[] resultado = new String [2];
+
+            while (rs.next()) {
+                String[] resultado = new String[2];
                 resultado[0] = String.valueOf(rs.getInt("id"));
                 resultado[1] = rs.getString("rolFamiliar");
-                
-                lista.add(resultado); 
+
+                lista.add(resultado);
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         
-         
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
+        return lista;
     }
-     public static String nRolFamiliar(){
+
+    public static String nRolFamiliar() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         String lista = "";
-         
-         try {
-            query = con.prepareStatement("SELECT * FROM `rolfamiliar` WHERE id = "+getId_rolFamiliar()+";");
+
+        try {
+            query = con.prepareStatement("SELECT * FROM `rolfamiliar` WHERE id = " + getId_rolFamiliar() + ";");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                lista = rs.getString("rolFamiliar"); 
+
+            while (rs.next()) {
+                lista = rs.getString("rolFamiliar");
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+        return lista;
     }
-    
-    public static int buscarRolFamiliar(){
+
+    public static int buscarRolFamiliar() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         int resultado = 0;
-        
+
         try {
-            query = con.prepareStatement("SELECT * FROM `rolfamiliar` WHERE rolfamiliar = '"+getRolFamiliar()+"'");
+            query = con.prepareStatement("SELECT * FROM `rolfamiliar` WHERE rolfamiliar = '" + getRolFamiliar() + "'");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 resultado = rs.getInt("id");
             }
         } catch (Exception e) {
             System.out.println(e);
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return resultado;
     }
-    
-    public static String nNacionalidad(){
+
+    public static String nNacionalidad() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         String lista = "";
-         
-         try {
-            query = con.prepareStatement("SELECT * FROM `nacionalidad` WHERE id = "+getId_nacionalidad()+";");
+
+        try {
+            query = con.prepareStatement("SELECT * FROM `nacionalidad` WHERE id = " + getId_nacionalidad() + ";");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                lista = rs.getString("nacionalidad"); 
+
+            while (rs.next()) {
+                lista = rs.getString("nacionalidad");
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+        return lista;
     }
-        public static ArrayList<String[]> rsNacionalidad(){
+
+    public static ArrayList<String[]> rsNacionalidad() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-         ArrayList<String[]> lista = new ArrayList<>();
-         
-         try {
+        ArrayList<String[]> lista = new ArrayList<>();
+
+        try {
             query = con.prepareStatement("SELECT * FROM `nacionalidad`");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                String[] resultado = new String [2];
+
+            while (rs.next()) {
+                String[] resultado = new String[2];
                 resultado[0] = String.valueOf(rs.getInt("id"));
                 resultado[1] = rs.getString("nacionalidad");
-                
-                lista.add(resultado); 
+
+                lista.add(resultado);
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         
-         
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
+        return lista;
     }
-    
-    public static int buscarNacionalidad(){
+
+    public static int buscarNacionalidad() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         int resultado = 0;
-        
+
         try {
-            query = con.prepareStatement("SELECT * FROM `nacionalidad` WHERE nacionalidad = '"+getNacinalidad()+"'");
+            query = con.prepareStatement("SELECT * FROM `nacionalidad` WHERE nacionalidad = '" + getNacinalidad() + "'");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 resultado = rs.getInt("id");
             }
         } catch (Exception e) {
             System.out.println(e);
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return resultado;
     }
-    public static ArrayList<String[]> rsMgAcademico(){
+
+    public static ArrayList<String[]> rsMgAcademico() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-         ArrayList<String[]> lista = new ArrayList<>();
-         
-         try {
+        ArrayList<String[]> lista = new ArrayList<>();
+
+        try {
             query = con.prepareStatement("SELECT * FROM `mgacademico`");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                String[] resultado = new String [2];
+
+            while (rs.next()) {
+                String[] resultado = new String[2];
                 resultado[0] = String.valueOf(rs.getInt("id"));
                 resultado[1] = rs.getString("mgAcademico");
-                
-                lista.add(resultado); 
+
+                lista.add(resultado);
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         
-         
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
+        return lista;
     }
-    
-    public static String nMgAcademico(){
+
+    public static String nMgAcademico() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         String lista = "";
-         
-         try {
-            query = con.prepareStatement("SELECT * FROM `mgacademico` WHERE id = "+getId_mgAcademico()+";");
+
+        try {
+            query = con.prepareStatement("SELECT * FROM `mgacademico` WHERE id = " + getId_mgAcademico() + ";");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 lista = rs.getString("mgAcademico");
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         
-         
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
+        return lista;
     }
-    
-    public static int buscarMgAcademico(){
+
+    public static int buscarMgAcademico() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         int resultado = 0;
-        
+
         try {
-            query = con.prepareStatement("SELECT * FROM `mgacademico` WHERE mgacademico = '"+getMgAcademico()+"'");
+            query = con.prepareStatement("SELECT * FROM `mgacademico` WHERE mgacademico = '" + getMgAcademico() + "'");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 resultado = rs.getInt("id");
             }
         } catch (Exception e) {
             System.out.println("buscar id maximo grado academico, esta dando error :((");
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return resultado;
     }
-    public static ArrayList<String[]> rsStadoCasa(){
+
+    public static ArrayList<String[]> rsStadoCasa() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-         ArrayList<String[]> lista = new ArrayList<>();
-         
-         try {
+        ArrayList<String[]> lista = new ArrayList<>();
+
+        try {
             query = con.prepareStatement("SELECT * FROM `estdcasa`");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                String[] resultado = new String [2];
+
+            while (rs.next()) {
+                String[] resultado = new String[2];
                 resultado[0] = String.valueOf(rs.getInt("id"));
                 resultado[1] = rs.getString("estdCasa");
-                
-                lista.add(resultado); 
+
+                lista.add(resultado);
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         
-         
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
+        return lista;
     }
-    
-    public static int buscarStadoCasa(){
+
+    public static int buscarStadoCasa() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         int resultado = 0;
-        
+
         try {
-            query = con.prepareStatement("SELECT * FROM `estdcasa` WHERE estdCasa = '"+getStadoCasa()+"'");
+            query = con.prepareStatement("SELECT * FROM `estdcasa` WHERE estdCasa = '" + getStadoCasa() + "'");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 resultado = rs.getInt("id");
             }
         } catch (Exception e) {
             System.out.println(e);
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return resultado;
     }
-    public static String nDemografia(){
+
+    public static String nDemografia() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         String lista = "";
-         
-         try {
-            query = con.prepareStatement("SELECT * FROM `demografia` WHERE id ="+getId_demografia()+"; ");
+
+        try {
+            query = con.prepareStatement("SELECT * FROM `demografia` WHERE id =" + getId_demografia() + "; ");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                lista = rs.getString("calle");                 
+
+            while (rs.next()) {
+                lista = rs.getString("calle");
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+        return lista;
     }
-    
-    public static int buscarDemografia(){
+
+    public static int buscarDemografia() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         int resultado = 0;
         try {
-            query = con.prepareStatement("SELECT * FROM `demografia` WHERE calle = '"+getDemografia()+"'; ");
+            query = con.prepareStatement("SELECT * FROM `demografia` WHERE calle = '" + getDemografia() + "'; ");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 resultado = rs.getInt("id");
             }
         } catch (Exception e) {
             System.out.println(e);
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-       
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
         return resultado;
     }
-        public static ArrayList<String[]> rsDiscapacidad(){
+
+    public static ArrayList<String[]> rsDiscapacidad() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-         ArrayList<String[]> lista = new ArrayList<>();
-         
-         try {
+        ArrayList<String[]> lista = new ArrayList<>();
+
+        try {
             query = con.prepareStatement("SELECT * FROM `discapacidad`");
             rs = query.executeQuery();
-            
-            while(rs.next()){
-                String[] resultado = new String [2];
+
+            while (rs.next()) {
+                String[] resultado = new String[2];
                 resultado[0] = String.valueOf(rs.getInt("id"));
                 resultado[1] = rs.getString("mgAcademico");
-                
-                lista.add(resultado); 
+
+                lista.add(resultado);
             }
         } catch (Exception e) {
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         
-         
-         return lista;
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
+        return lista;
     }
-    
-    public static String nDiscapacidad(){
+
+    public static String nDiscapacidad() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         String lista = "";
-         
-         try {
-            query = con.prepareStatement("SELECT * FROM `discapacidad` WHERE id = "+getId_discapacidad()+";");
+
+        try {
+            query = con.prepareStatement("SELECT * FROM `discapacidad` WHERE id = " + getId_discapacidad() + ";");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 lista = rs.getString("discapacidad");
             }
         } catch (Exception e) {
-             System.out.println("erroo ///////// auida");
-        }finally{
-             conect.OpenBd.desconectar();
-         }
-         
-         
-         return lista;
+            System.out.println("erroo ///////// auida");
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+
+        return lista;
     }
-    
-    public static int buscarDiscapacidad(){
+
+    public static int buscarDiscapacidad() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
         int resultado = 0;
-        
+
         try {
-            query = con.prepareStatement("SELECT * FROM `discapacidad` WHERE discapacidad = '"+getDiscapacidad()+"'");
+            query = con.prepareStatement("SELECT * FROM `discapacidad` WHERE discapacidad = '" + getDiscapacidad() + "'");
             rs = query.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 resultado = rs.getInt("id");
             }
         } catch (Exception e) {
             System.out.println("buscar id discapacidad, esta dando error :((");
-        }finally{
+        } finally {
             conect.OpenBd.desconectar();
         }
         return resultado;
     }
 }
-
-

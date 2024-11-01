@@ -80,6 +80,7 @@
                 </Property>
               </Properties>
               <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="//panelDegradadoAnimado1.stopAnimation();"/>
                 <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="panelDegradadoAnimado1.setColorInicial(new java.awt.Color(47,135,203));"/>
               </AuxValues>
               <Constraints>

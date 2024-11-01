@@ -77,8 +77,9 @@ public class persona {
         familia[11] = getCorreo();
         familia[12] = String.valueOf(getTelefono());
         familia[13] = String.valueOf(getRolFamiliar());
-        familia[14] = String.valueOf(getIdd());
-
+        familia[14] = String.valueOf(getIdd());        
+        
+        System.out.println(idd + " este es el idd");
         idd++;
         persona.familia.add(familia);
     }
@@ -317,9 +318,10 @@ public class persona {
             if (rs.next()) {
                 id = rs.getInt("id");
             }
-            for (Integer aux : discapacidades.getpDiscapacidad().keySet()) {
-                if (discapacidades.getpDiscapacidad().get(aux) == getIdd()) {
-                    discapacidades.addDisapacidadPers(id, aux);
+            for (Integer[] aux : discapacidades.getpDiscapacidad()) {
+                //System.out.println(discapacidades.getpDiscapacidad().get(aux) + " es igual a "+ getIdd());
+                if (aux[0] == getIdd()) {
+                    discapacidades.addDisapacidadPers(id, aux[1]);
                 }
             }
         } catch (Exception e) {
@@ -518,6 +520,7 @@ public class persona {
 
                 persona.agregar();
             } catch (Exception e) {
+                System.out.println(e);
             }
         }
     }
@@ -701,7 +704,7 @@ public class persona {
     public static void deletePersona(int id) {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
-        String salida = "";
+        
         try {
             query = con.prepareStatement("DELETE FROM p_discapacidad WHERE idPersona = " + id + " ;");
             query.execute();
@@ -709,13 +712,12 @@ public class persona {
             query = con.prepareStatement(" DELETE FROM `persona`  "
                     + " WHERE persona.id = " + id + " ;");
             query.execute();
-
-            salida = "Persona eliminada correctamente";
+            
+            JOptionPane.showMessageDialog(null, "Persona eliminada correctamente");
         } catch (Exception e) {
             System.out.println(e);
         } finally {
             conect.OpenBd.desconectar();
-            JOptionPane.showMessageDialog(null, salida);
         }
     }
 
@@ -891,5 +893,6 @@ public class persona {
         idIntitucion = 0;
         intitucion = "";
         familia = new ArrayList<>();
+        modelos.discapacidades.cleanDD();
     }
 }

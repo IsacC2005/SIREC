@@ -121,7 +121,7 @@ public class house {
             query.setString(1, getNumCasa());
             query.setInt(2, getId_estdCasa());
             query.setInt(3, getId_direccion());
-            query.setBoolean(4, false);
+            query.setBoolean(4, isrModuloCLP());
             query.setBoolean(5, isAgua());
             query.setBoolean(6, isAguasN());
             query.setBoolean(7, isLuz());
@@ -242,33 +242,7 @@ public class house {
         }
         return lista;
     }
-
-    /* public static ArrayList<int[]> rescullHause() {
-        Connection con = conect.OpenBd.conectar();
-        PreparedStatement query = null;
-        ResultSet rs = null;
-        ArrayList<int[]> lista = new ArrayList<>();
-        int i = 0;
-        try {
-            query = con.prepareStatement("SELECT * FROM casa WHERE id_direccion = ?");
-            query.setInt(1, getId_direccion());
-            rs = query.executeQuery();
-
-            while (rs.next()) {
-                int[] aux = new int[1];
-                aux[0] = rs.getInt("id");
-                lista.add(aux);
-                i++;
-
-            }
-        } catch (Exception e) {
-        } finally {
-            conect.OpenBd.desconectar();
-        }
-        System.out.println("esta es la buena " + i);
-
-        return lista;
-    }*/
+    
     public static void ClanAll() {
         idCasa = 0;
         numCasa = "";

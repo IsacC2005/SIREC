@@ -179,6 +179,58 @@ public class usuario {
         return lista;
     }
 
+    public static boolean comprobarTipoUser(String tipo) {
+        Connection con = conect.OpenBd.conectar();
+        PreparedStatement query = null;
+        ResultSet rs = null;
+        boolean resultado = false;
+        System.out.println(tipo);
+
+        try {
+
+            query = con.prepareStatement("SELECT COUNT(*) FROM usuario u where u.user = '" + getUsuarioo() + "' AND u.tipo = '" + tipo + "'");
+            rs = query.executeQuery();
+            
+            while (rs.next()) {
+                if (rs.getInt("COUNT(*)") != 0) {
+
+                    resultado = true;
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            conect.OpenBd.desconectar();
+        }
+        return resultado;
+    }
+    public static boolean esistUsuario(String user){
+        Connection con = conect.OpenBd.conectar();
+        PreparedStatement query = null;
+        ResultSet rs = null;
+        boolean resultado = true;
+        
+        try {
+            query = con.prepareStatement("SELECT COUNT(*) FROM usuario u WHERE u.user = '"+user+"' ");  
+            System.out.println(query.toString());
+            rs = query.executeQuery();
+            
+            while(rs.next()){
+                if(rs.getInt("COUNT(*)") != 0){
+                    resultado = false;
+                }
+            }
+            
+        } catch (Exception e) {
+            System.out.println(e);
+        }finally{
+            conect.OpenBd.desconectar();
+        }
+        System.out.println(resultado + " Este es el valor de resultado");
+        return resultado;
+    }
+
     public static String buscarPregunta(String user) {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
@@ -262,7 +314,7 @@ public class usuario {
         ResultSet rs = null;
         boolean resultado = false;
         try {
-            query = con.prepareStatement("SELECT * FROM `usuario` us WHERE  us.user = '"+user+"'");
+            query = con.prepareStatement("SELECT * FROM `usuario` us WHERE  us.user = '" + user + "'");
             rs = query.executeQuery();
             while (rs.next()) {
                 if (rs.getString("pregunta").equals("") == false && rs.getString("respuesta").equals("") == false) {
@@ -277,6 +329,7 @@ public class usuario {
         }
         return resultado;
     }
+
     public static boolean stdControlDeLogin() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;

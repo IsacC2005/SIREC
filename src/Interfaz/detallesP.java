@@ -146,22 +146,22 @@ public class detallesP extends javax.swing.JFrame {
         dc.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, 110, -1));
 
         jLabel23.setText("00");
-        dc.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 160, 20, -1));
+        dc.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 160, -1, -1));
 
         jLabel24.setText("00");
-        dc.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 80, 20, -1));
+        dc.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 80, -1, -1));
 
         jLabel25.setText("00");
-        dc.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 120, 20, -1));
+        dc.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 120, -1, -1));
 
         jLabel26.setText("00");
-        dc.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 160, 20, -1));
+        dc.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 160, -1, -1));
 
         jLabel27.setText("00");
-        dc.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 120, 20, -1));
+        dc.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 120, -1, -1));
 
         jLabel28.setText("00");
-        dc.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 80, 20, -1));
+        dc.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 80, -1, -1));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {

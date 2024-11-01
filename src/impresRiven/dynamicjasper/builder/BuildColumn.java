@@ -21,10 +21,12 @@ import impresRiven.dynamicjasper.template.Column;
  * @author Raven
  */
 public class BuildColumn {
-
+ 
     public void initColumns(JasperReportBuilder report, List<Column> columns, StyleBuilder styleColumn, StyleBuilder styleColumnTitle) {
+        int i = 0;
         for (Column c : columns) {
-            if (c.getType() == Column.Type.REPORT_DETAIL) {
+            i ++;
+            if (c.getType() == Column.Type.REPORT_DETAIL) {                
                 report.addColumn(getSubReport(c, styleColumn, styleColumnTitle));
                 FieldBuilder field = DynamicReports.field(c.getColumnName(), DRDataSource.class);
                 report.addField(field);
@@ -71,7 +73,7 @@ public class BuildColumn {
             c.setHeight(column.getHeight());
         }
         if (column.getColumnTitle() != null) {
-            c.setTitle(column.getColumnTitle());
+                c.setTitle(column.getColumnTitle());
         }
         return c;
     }

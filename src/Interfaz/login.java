@@ -24,7 +24,6 @@ public class login extends javax.swing.JFrame {
     /**
      * Creates new form login
      */
-
     int contador = 0;
     int cronometro = 0;
     Timer timer;
@@ -309,6 +308,7 @@ public class login extends javax.swing.JFrame {
         panelDegradadoAnimado1.setColorFinal(new java.awt.Color(153,0, 204));
         panelDegradadoAnimado1.setMncFinal(new java.awt.Color(204, 0, 153));
         panelDegradadoAnimado1.setMncInicial(new java.awt.Color(47, 203, 193));
+        //panelDegradadoAnimado1.stopAnimation();
         panelDegradadoAnimado1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel33.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -1401,13 +1401,13 @@ public class login extends javax.swing.JFrame {
         switch (aux1) {
             case 0:
                 aux1 = 1;
-                jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/folder1/esconder.png")));
+                jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/esconder.png")));
                 jLabel23.setText("esconder");
                 enPasworLoginM.setEchoChar((char) 0);
                 break;
             case 1:
                 enPasworLoginM.setEchoChar(i);
-                jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/folder1/mostrar.png")));
+                jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
                 jLabel23.setText("mostrar");
                 aux1 = 0;
                 break;
@@ -2320,17 +2320,15 @@ public void dinami(int aux) {
                 });
                 estadoContador = false;
             }
-
             timer.start();
         } else {
             String usr = enUsuarioLogin.getText();
             usuario.setUsuarioo(usr);
+            System.out.println(usuario.getUsuarioo());
             String psw = enPasworLogin.getText();
             mensajePasworErr.setVisible(false);
             String[] datos = modelos.usuario.login();
-            System.out.println(datos[1]);
 
-            //String a = "Root";
             if (usr.equals(datos[0])) {
 
                 mensajeUsuarioErr.setVisible(false);
@@ -2440,6 +2438,7 @@ public void dinami(int aux) {
                 if (usr.equals(datos[0])) {
                     mensajeUsuarioErr1.setVisible(false);
                     if (psw.equals(datos[1])) {
+                        usuario.setPsw(psw);
                         mensajePasworErr1.setVisible(false);
                         uAnl.setText("nuevo");
                         cAnl.setText("nuevo");
@@ -2457,18 +2456,33 @@ public void dinami(int aux) {
                 break;
 
             case "nuevo":
+                System.out.println(usuario.esistUsuario(usr));
+                if (usuario.esistUsuario(usr)) {
+                    usuario.modificar(usr, psw);
+                    uAnl.setText("anterior");
+                    cAnl.setText("anterior");
+                    enUsuarioLoginM.setText("");
+                    dmUsuario(0);
+                    enPasworLoginM.setText("");
+                    dmPsw(0);
 
-                //usuario.setUsuarioo(enUsuarioLoginM.getText());
-                //usuario.setPsw(enPasworLoginM.getText());
-                usuario.modificar(usr, psw);
-                uAnl.setText("anterior");
-                cAnl.setText("anterior");
-                enUsuarioLoginM.setText("");
-                dmUsuario(0);
-                enPasworLoginM.setText("");
-                dmPsw(0);
+                    dinami(0);
+                } else {
+                    if (usuario.getUsuarioo().equals(usr) == true) {
+                        usuario.modificar(usr, psw);
+                        uAnl.setText("anterior");
+                        cAnl.setText("anterior");
+                        enUsuarioLoginM.setText("");
+                        dmUsuario(0);
+                        enPasworLoginM.setText("");
+                        dmPsw(0);
 
-                dinami(0);
+                        dinami(0);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Ya existe un usuario con ese nombre");
+                    }
+                }
+
                 break;
         }
     }

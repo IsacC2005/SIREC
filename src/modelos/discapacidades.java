@@ -9,8 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -25,7 +23,7 @@ public class discapacidades {
     // estas listas son para el manejo de las enfermedades de las personas para registrarlas
     //
     public static ArrayList<String> lDiscapacidad = new ArrayList<>();
-    static Map<Integer, Integer> pDiscapacidad = new HashMap<>();
+    static ArrayList<Integer[]> pDiscapacidad = new ArrayList<>();
 
     public static void setlDiscapacidad(String seleccion) {
         if (lDiscapacidad.contains(seleccion)) {
@@ -39,14 +37,32 @@ public class discapacidades {
         return lDiscapacidad;
     }
 
-    public static Map<Integer, Integer> getpDiscapacidad() {
+    public static void rmvLDiscapacidad(String aux) {
+        lDiscapacidad.remove(aux);
+    }
+
+    public static boolean estLDiscapacidad(String aux) {
+        boolean resultado = false;
+
+        if (lDiscapacidad.contains(aux)) {
+            resultado = true;
+        }
+
+        return resultado;
+    }
+
+    public static void volcarLDiscapacidad() {
+        lDiscapacidad = new ArrayList<>();
+    }
+
+    public static ArrayList<Integer[]> getpDiscapacidad() {
         return pDiscapacidad;
     }
 
     //
     //
-    public static void addDiscapacidad(Integer id, Integer id_persona) {
-        pDiscapacidad.put(id_persona, id);
+    public static void addDiscapacidad(Integer id_persona, Integer id_discapaciad) {
+        pDiscapacidad.add(new Integer[]{id_persona, id_discapaciad});
     }
 
     public static int getId() {
@@ -124,6 +140,30 @@ public class discapacidades {
         } finally {
             conect.OpenBd.desconectar();
         }
+        return lista;
+    }
+    public static ArrayList<String> rescuellTipoDd(){
+        Connection con = conect.OpenBd.conectar();
+        PreparedStatement query = null;
+        ResultSet  rs = null;
+        ArrayList<String> lista = new ArrayList<>();
+        
+        try {
+            
+            query = con.prepareStatement("SELECT * FROM `tipo_discapacidad`");
+            rs = query.executeQuery();
+            
+            while(rs.next()){
+                String aux = rs.getString("tipo");
+                lista.add(aux);
+            }
+            
+        } catch (Exception e) {
+            System.out.println(e);
+        }finally{
+            conect.OpenBd.desconectar();
+        }
+        
         return lista;
     }
 
@@ -213,5 +253,13 @@ public class discapacidades {
         } finally {
             conect.OpenBd.desconectar();
         }
+    }
+
+    public static void cleanDD() {
+        id = 0;
+        discapaciad = "";
+        descripcion = "";
+        lDiscapacidad = new ArrayList<>();
+        pDiscapacidad = new ArrayList<>();
     }
 }
