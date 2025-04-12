@@ -1,4 +1,4 @@
-# SIREC
+# SIREC ![Logo](src/recursos/logoSinFondo110x110.png)
 
 
 ## Contenido del Repositorio
