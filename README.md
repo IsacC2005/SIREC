@@ -1,7 +1,7 @@
 ![Logo](src/recursos/logoSinFondo110x110.png)
 # SIREC 
 
-[Informe de Investigacion] (https://drive.google.com/file/d/1vAf2ojcNhr-LQ9drGeVj53LzdvJFzFSw/view?usp=drive_link)
+[Informe de Investigacion](https://drive.google.com/file/d/1vAf2ojcNhr-LQ9drGeVj53LzdvJFzFSw/view?usp=drive_link)
 
 ## Contenido del Repositorio
 
