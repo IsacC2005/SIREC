@@ -8,6 +8,7 @@ package modelos;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -254,11 +255,11 @@ public class relacionesForaneas {
         return lista;
     }
 
-    public static int buscarRolFamiliar() {
+    public static Integer buscarRolFamiliar() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-        int resultado = 0;
+        Integer resultado = 0;
 
         try {
             query = con.prepareStatement("SELECT * FROM `rolfamiliar` WHERE rolfamiliar = '" + getRolFamiliar() + "'");
@@ -272,6 +273,7 @@ public class relacionesForaneas {
         } finally {
             conect.OpenBd.desconectar();
         }
+        System.out.println(resultado+ "este es el resultado");
         return resultado;
     }
 
@@ -387,19 +389,21 @@ public class relacionesForaneas {
         return lista;
     }
 
-    public static int buscarMgAcademico() {
+    public static Integer buscarMgAcademico() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-        int resultado = 0;
+        Integer resultado = null;
 
         try {
             query = con.prepareStatement("SELECT * FROM `mgacademico` WHERE mgacademico = '" + getMgAcademico() + "'");
             rs = query.executeQuery();
 
+            System.out.println(query.toString());
             while (rs.next()) {
                 resultado = rs.getInt("id");
             }
+            System.out.println(query.toString());
         } catch (Exception e) {
             System.out.println("buscar id maximo grado academico, esta dando error :((");
         } finally {
@@ -433,11 +437,11 @@ public class relacionesForaneas {
         return lista;
     }
 
-    public static int buscarStadoCasa() {
+    public static Integer buscarStadoCasa() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-        int resultado = 0;
+        Integer resultado = null;
 
         try {
             query = con.prepareStatement("SELECT * FROM `estdcasa` WHERE estdCasa = '" + getStadoCasa() + "'");
@@ -468,6 +472,7 @@ public class relacionesForaneas {
                 lista = rs.getString("calle");
             }
         } catch (Exception e) {
+            System.out.println(e);
         } finally {
             conect.OpenBd.desconectar();
         }
@@ -486,7 +491,7 @@ public class relacionesForaneas {
             while (rs.next()) {
                 resultado = rs.getInt("id");
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println(e);
         } finally {
             conect.OpenBd.desconectar();
@@ -512,7 +517,7 @@ public class relacionesForaneas {
 
                 lista.add(resultado);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
         } finally {
             conect.OpenBd.desconectar();
         }
@@ -533,7 +538,7 @@ public class relacionesForaneas {
             while (rs.next()) {
                 lista = rs.getString("discapacidad");
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println("erroo ///////// auida");
         } finally {
             conect.OpenBd.desconectar();

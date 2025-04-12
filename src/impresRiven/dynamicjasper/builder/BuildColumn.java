@@ -41,6 +41,7 @@ public class BuildColumn {
         StyleBuilder title_style = DynamicReports.stl.style(styleColumnTitle);
         HorizontalAlignment h;
         VerticalAlignment v;
+        
         if (column.getHorizontal() == Column.HorizontalAlignment.CENTER) {
             h = HorizontalAlignment.CENTER;
         } else if (column.getHorizontal() == Column.HorizontalAlignment.LEFT) {
@@ -55,6 +56,7 @@ public class BuildColumn {
         } else {
             v = VerticalAlignment.BOTTOM;
         }
+        
         col_style.setHorizontalAlignment(h);
         col_style.setVerticalAlignment(v);
         title_style.setHorizontalAlignment(h);

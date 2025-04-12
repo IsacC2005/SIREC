@@ -100,6 +100,7 @@ public class demografia {
         try {
             if (estStrike(nombre) == false) {
                 query = con.prepareStatement("UPDATE `demografia` SET `calle` = '" + nombre + "' WHERE `demografia`.`id` =  " + id + " ");
+                System.out.println(query.toString());
                 query.execute();
                 JOptionPane.showMessageDialog(null, "La Calle fue modificada correctamente");
             } else {
@@ -142,11 +143,11 @@ public class demografia {
     //@Esta función sirve para encontrar el id de una calle
     //
 
-    public static int idStrike() {
+    public static Integer idStrike() {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-        int resultado = 0;
+        Integer resultado = null;
 
         try {
             query = con.prepareStatement("SELECT * FROM demografia WHERE calle = '" + getStrike() + "'; ");
@@ -197,7 +198,7 @@ public class demografia {
         int i = 0;
 
         try {
-            query = con.prepareStatement("SELECT COUNT(*) FROM `lider_calle` ");
+            query = con.prepareStatement(" SELECT COUNT(*) FROM `demografia` dm WHERE dm.id_lider IS NOT NULL ");
             rs = query.executeQuery();
 
             while (rs.next()) {
@@ -285,6 +286,13 @@ public class demografia {
         }
         System.out.println(axs);
         return resultado;
+    }
+
+    public static void clean() {
+        idStrike = 0;
+        Strike = "";
+        idLider = 0;
+        nombreL = "";
     }
 
 }

@@ -154,6 +154,17 @@ public class login extends javax.swing.JFrame {
     public login() {
         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/recursos/logoSinFondo110x110.png")).getImage());
         initComponents();
+        ArrayList<String[]> lista = usuario.rescueAll();
+        for (String[] aux : lista) {
+            System.out.println(aux[0] + " " + aux[1]);
+        }
+        if (lista.size() >= 1) {
+            dinami(0);
+        } else {
+            dinami(2);
+            jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Seleccion", "_______________________________________________________", "Administrador"}));
+            jLabel21.setVisible(false);
+        }
     }
 
     /**
@@ -189,8 +200,8 @@ public class login extends javax.swing.JFrame {
         panelAgregar = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
         panelCreacion = new javax.swing.JPanel();
-        jTextField2 = new javax.swing.JTextField();
-        jPasswordField2 = new javax.swing.JPasswordField();
+        entrada_usuario_new = new javax.swing.JTextField();
+        entrada_psw_new = new javax.swing.JPasswordField();
         jSeparator2 = new javax.swing.JSeparator();
         jLabel20 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -207,8 +218,8 @@ public class login extends javax.swing.JFrame {
         jLabel38 = new javax.swing.JLabel();
         jLabel39 = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        entrada_pregunta_newUser = new javax.swing.JTextField();
+        entrada_respuesta_newUser = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jLabel40 = new javax.swing.JLabel();
         jLabel41 = new javax.swing.JLabel();
@@ -216,6 +227,8 @@ public class login extends javax.swing.JFrame {
         jLabel42 = new javax.swing.JLabel();
         jTextArea4 = new javax.swing.JTextArea();
         jButton4 = new javax.swing.JButton();
+        d_entrada_pregunta = new javax.swing.JSeparator();
+        d_entrada_respuesta = new javax.swing.JSeparator();
         panleModificar = new javax.swing.JPanel();
         panelDegradadoAnimado3 = new Interfaz.PanelDegradadoAnimado();
         cAnl = new javax.swing.JLabel();
@@ -323,7 +336,7 @@ public class login extends javax.swing.JFrame {
                 jLabel33MouseClicked(evt);
             }
         });
-        panelDegradadoAnimado1.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 300, 60, 50));
+        panelDegradadoAnimado1.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 140, 50));
 
         jLabel3.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -431,14 +444,14 @@ public class login extends javax.swing.JFrame {
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png"))); // NOI18N
         jLabel7.setText("Mostra");
         jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel7MouseClicked(evt);
-            }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 jLabel7MouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 jLabel7MouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jLabel7MousePressed(evt);
             }
         });
         panelLogin.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 260, -1, 20));
@@ -514,39 +527,45 @@ public class login extends javax.swing.JFrame {
         panelCreacion.setBackground(new java.awt.Color(245, 245, 245));
         panelCreacion.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTextField2.setText("Nuevo usuario");
-        jTextField2.setBorder(null);
-        jTextField2.addMouseListener(new java.awt.event.MouseAdapter() {
+        entrada_usuario_new.setText("Nuevo usuario");
+        entrada_usuario_new.setBorder(null);
+        entrada_usuario_new.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jTextField2MouseEntered(evt);
+                entrada_usuario_newMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                jTextField2MouseExited(evt);
+                entrada_usuario_newMouseExited(evt);
             }
         });
-        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+        entrada_usuario_new.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                entrada_usuario_newKeyPressed(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                jTextField2KeyTyped(evt);
+                entrada_usuario_newKeyTyped(evt);
             }
         });
-        panelCreacion.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 160, 270, 30));
+        panelCreacion.add(entrada_usuario_new, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 160, 270, 30));
 
-        jPasswordField2.setText("Ingrese su contraseña");
-        jPasswordField2.setBorder(null);
-        jPasswordField2.addMouseListener(new java.awt.event.MouseAdapter() {
+        entrada_psw_new.setText("Ingrese la contraseña");
+        entrada_psw_new.setBorder(null);
+        entrada_psw_new.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jPasswordField2MouseEntered(evt);
+                entrada_psw_newMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                jPasswordField2MouseExited(evt);
+                entrada_psw_newMouseExited(evt);
             }
         });
-        jPasswordField2.addKeyListener(new java.awt.event.KeyAdapter() {
+        entrada_psw_new.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                entrada_psw_newKeyPressed(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                jPasswordField2KeyTyped(evt);
+                entrada_psw_newKeyTyped(evt);
             }
         });
-        panelCreacion.add(jPasswordField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 220, 270, 30));
+        panelCreacion.add(entrada_psw_new, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 220, 270, 30));
 
         jSeparator2.setBackground(new java.awt.Color(153, 153, 153));
         jSeparator2.setOpaque(true);
@@ -558,7 +577,7 @@ public class login extends javax.swing.JFrame {
                 jLabel20MouseClicked(evt);
             }
         });
-        panelCreacion.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 320, 80, 30));
+        panelCreacion.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 320, -1, 30));
 
         jSeparator1.setBackground(new java.awt.Color(153, 153, 153));
         jSeparator1.setOpaque(true);
@@ -568,8 +587,8 @@ public class login extends javax.swing.JFrame {
         jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png"))); // NOI18N
         jLabel22.setText("Mostrar");
         jLabel22.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel22MouseClicked(evt);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jLabel22MousePressed(evt);
             }
         });
         panelCreacion.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 270, -1, -1));
@@ -580,7 +599,7 @@ public class login extends javax.swing.JFrame {
                 jLabel21MouseClicked(evt);
             }
         });
-        panelCreacion.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 324, 70, 30));
+        panelCreacion.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 324, -1, 30));
 
         jLabel35.setText("Tipo de Usuario");
         panelCreacion.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 80, -1, -1));
@@ -592,7 +611,7 @@ public class login extends javax.swing.JFrame {
                 jComboBox2ActionPerformed(evt);
             }
         });
-        panelCreacion.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 110, 200, -1));
+        panelCreacion.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 98, 200, 30));
 
         panelDegradadoAnimado4.setColorInicial(new java.awt.Color(47,135,203));
         panelDegradadoAnimado4.setColorFinal(new java.awt.Color(153,0, 204));
@@ -627,7 +646,7 @@ public class login extends javax.swing.JFrame {
         panelCrearSeguridad.setVisible(false);
         panelCrearSeguridad.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel38.setText("Crear Cemilla de recuperacion");
+        jLabel38.setText("Crear Semilla de recuperacion");
         panelCrearSeguridad.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 110, -1, 20));
 
         jLabel39.setBackground(new java.awt.Color(153, 153, 153));
@@ -649,13 +668,13 @@ public class login extends javax.swing.JFrame {
         });
         panelCrearSeguridad.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 180, -1, -1));
 
-        jTextField1.setBorder(null);
-        jTextField1.setVisible(false);
-        panelCrearSeguridad.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 230, 210, 20));
+        entrada_pregunta_newUser.setBorder(null);
+        entrada_pregunta_newUser.setVisible(false);
+        panelCrearSeguridad.add(entrada_pregunta_newUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 230, 210, 20));
 
-        jTextField3.setBorder(null);
-        jTextField3.setVisible(false);
-        panelCrearSeguridad.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 290, 210, 20));
+        entrada_respuesta_newUser.setBorder(null);
+        entrada_respuesta_newUser.setVisible(false);
+        panelCrearSeguridad.add(entrada_respuesta_newUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 290, 210, 20));
 
         jButton3.setText("Guardar");
         jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -707,7 +726,17 @@ public class login extends javax.swing.JFrame {
         });
         panelCrearSeguridad.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 320, -1, -1));
 
-        panelAgregar.add(panelCrearSeguridad, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 490, 360));
+        d_entrada_pregunta.setForeground(new java.awt.Color(0, 0, 250));
+        d_entrada_pregunta.setOpaque(true);
+        d_entrada_pregunta.setVisible(false);
+        panelCrearSeguridad.add(d_entrada_pregunta, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 250, 210, 2));
+
+        d_entrada_respuesta.setForeground(new java.awt.Color(0, 0, 250));
+        d_entrada_respuesta.setOpaque(true);
+        d_entrada_respuesta.setVisible(false);
+        panelCrearSeguridad.add(d_entrada_respuesta, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 310, 210, 2));
+
+        panelAgregar.add(panelCrearSeguridad, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 360));
 
         panel_base.add(panelAgregar, "card3");
 
@@ -1304,32 +1333,14 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel19MouseClicked
 
     private void jLabel18MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel18MouseClicked
+        Clean();
         dinami(0);
     }//GEN-LAST:event_jLabel18MouseClicked
 
     private void jLabel21MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel21MouseClicked
+        Clean();
         dinami(0);
     }//GEN-LAST:event_jLabel21MouseClicked
-
-    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
-
-        char i = '*';
-        switch (aux) {
-            case 0:
-                aux = 1;
-                jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/esconder.png")));
-                jLabel7.setText("esconder");
-                enPasworLogin.setEchoChar((char) 0);
-                // enPasworLogin.setEchoChar((char)1);
-                break;
-            case 1:
-                enPasworLogin.setEchoChar(i);
-                jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
-                jLabel7.setText("mostrar");
-                aux = 0;
-                break;
-        }
-    }//GEN-LAST:event_jLabel7MouseClicked
 
     private void enUsuarioLoginMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_enUsuarioLoginMouseExited
         dEntradaUser(0);
@@ -1485,42 +1496,13 @@ public class login extends javax.swing.JFrame {
         dinami(1);
     }//GEN-LAST:event_jLabel33MouseClicked
 
-    private void jLabel22MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel22MouseClicked
-        char a = '*';
-
-        switch (jLabel22.getText()) {
-            case "Mostrar":
-                jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/folder1/esconder.png")));
-                jLabel22.setText("Ocultar");
-                jPasswordField2.setEchoChar((char) 0);
-                System.out.println("Interfaz.login.jLabel22MouseClicked()");
-                break;
-            case "Ocultar":
-                jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
-                jLabel22.setText("Mostrar");
-                jPasswordField2.setEchoChar(a);
-                break;
-
-        }
-    }//GEN-LAST:event_jLabel22MouseClicked
-
     private void jLabel20MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel20MouseClicked
-        if (jComboBox2.getSelectedIndex() > 1) {
-            usuario.setUsuarioo(jTextField2.getText());
-            usuario.setPsw(jPasswordField2.getText());
-            tRecuperacion = 0;
-            dinamicCreacion(panelCrearSeguridad);
-        } else {
-            JOptionPane.showMessageDialog(null, "Selecciona un tipo de usuario");
-        }
+        newUserDinamic();
     }//GEN-LAST:event_jLabel20MouseClicked
 
-    private void jTextField2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField2MouseEntered
-        if (jTextField2.getText().equals("Nuevo usuario")) {
-            jTextField2.setText("");
-        }
-        jSeparator2.setBackground(new Color(0, 0, 150));
-    }//GEN-LAST:event_jTextField2MouseEntered
+    private void entrada_usuario_newMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_entrada_usuario_newMouseEntered
+        dAddUsuario(1);
+    }//GEN-LAST:event_entrada_usuario_newMouseEntered
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
         dinami(3);
@@ -1845,13 +1827,17 @@ public class login extends javax.swing.JFrame {
         if (jCheckBox1.isSelected() == false) {
             jLabel40.setVisible(false);
             jLabel41.setVisible(false);
-            jTextField1.setVisible(false);
-            jTextField3.setVisible(false);
+            d_entrada_pregunta.setVisible(false);
+            d_entrada_respuesta.setVisible(false);
+            entrada_pregunta_newUser.setVisible(false);
+            entrada_respuesta_newUser.setVisible(false);
         } else {
             jLabel40.setVisible(true);
             jLabel41.setVisible(true);
-            jTextField1.setVisible(true);
-            jTextField3.setVisible(true);
+            d_entrada_pregunta.setVisible(true);
+            d_entrada_respuesta.setVisible(true);
+            entrada_pregunta_newUser.setVisible(true);
+            entrada_respuesta_newUser.setVisible(true);
         }
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
@@ -1860,28 +1846,31 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
-        if (jCheckBox1.isSelected()) {
-            if (usuario.getSemilla().equals("") == true) {
-                JOptionPane.showMessageDialog(null, "Es necesario crear una semilla de recuperación para el usuario");
-            } else {
-                if (jCheckBox1.isSelected()) {
-                    if (jTextField1.getText().equals("") == false && jTextField3.getText().equals("") == false) {
-                        usuario.agregar();
-                        //JOptionPane.showMessageDialog(null, "Usuaio registrado correctamente");
-                        dinami(0);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Debes de poner una ‘pregunta’ y una ‘respuesta’");
-                    }
-                } else {
-                    usuario.agregar();
-                    dinami(0);
-                }
 
-            }
-        } else {
-            usuario.agregar();
-            dinami(0);
-        }
+//        if (jCheckBox1.isSelected()) {
+//            if (usuario.getSemilla().equals("") == true) {
+//                JOptionPane.showMessageDialog(null, "Es necesario crear una semilla de recuperación para el usuario");
+//            } else {
+//                if (jCheckBox1.isSelected()) {
+//                    if (jTextField1.getText().trim().equals("") == false && jTextField3.getText().trim().equals("") == false) {
+//                        
+//                        usuario.agregar();
+//                        //JOptionPane.showMessageDialog(null, "Usuaio registrado correctamente");
+//                        dinami(0);
+//                    } else {
+//                        JOptionPane.showMessageDialog(null, "Debes de poner una ‘pregunta’ y una ‘respuesta’");
+//                    }
+//                } else {
+//                    usuario.agregar();
+//                    dinami(0);
+//                }
+//
+//            }
+//        } else {
+//            usuario.agregar();
+//
+//            dinami(0);
+//        }
 
     }//GEN-LAST:event_jButton3MouseClicked
 
@@ -1895,7 +1884,21 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        try {
+            if (usuario.getSemilla().equals("")) {
+                throw new IllegalAccessException("Es necesario crear una semilla de recuperación para el usuario");
+            }
+            if (jCheckBox1.isSelected() == true && (entrada_pregunta_newUser.getText().trim().equals("") == true || entrada_respuesta_newUser.getText().trim().equals("") == true)) {
+                throw new IllegalAccessException("Debes de poner una ‘pregunta’ y una ‘respuesta’");
+            }
+            usuario.setPregunta(entrada_pregunta_newUser.getText());
+            usuario.setRespuesta(entrada_respuesta_newUser.getText());
+            usuario.agregar();
+            Clean(); 
+            dinami(0);                       
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jLabel27MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel27MouseClicked
@@ -1904,53 +1907,43 @@ public class login extends javax.swing.JFrame {
         dinamicRecuperacion(cemilla);
     }//GEN-LAST:event_jLabel27MouseClicked
 
-    private void jTextField2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyTyped
+    private void entrada_usuario_newKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_entrada_usuario_newKeyTyped
         char a = evt.getKeyChar();
 
-        if (jTextField2.getText().length() >= 20) {
+        if (entrada_usuario_new.getText().length() >= 20) {
             evt.consume();
         }
         if (a == ' ') {
             evt.consume();
         }
-    }//GEN-LAST:event_jTextField2KeyTyped
+    }//GEN-LAST:event_entrada_usuario_newKeyTyped
 
     private void enUsuarioLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enUsuarioLoginActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_enUsuarioLoginActionPerformed
 
-    private void jPasswordField2KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField2KeyTyped
+    private void entrada_psw_newKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_entrada_psw_newKeyTyped
         char a = evt.getKeyChar();
 
-        if (jPasswordField2.getText().length() >= 20) {
+        if (entrada_psw_new.getText().length() >= 20) {
             evt.consume();
         }
         if (a == ' ') {
             evt.consume();
         }
-    }//GEN-LAST:event_jPasswordField2KeyTyped
+    }//GEN-LAST:event_entrada_psw_newKeyTyped
 
-    private void jTextField2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField2MouseExited
-        if (jTextField2.getText().equals("")) {
-            jTextField2.setText("Nuevo usuario");
-            jSeparator2.setBackground(new Color(153, 153, 153));
-        }
-    }//GEN-LAST:event_jTextField2MouseExited
+    private void entrada_usuario_newMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_entrada_usuario_newMouseExited
+        dAddUsuario(0);
+    }//GEN-LAST:event_entrada_usuario_newMouseExited
 
-    private void jPasswordField2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPasswordField2MouseEntered
-        if (jPasswordField2.getText().equals("Ingrese su contraseña")) {
-            jPasswordField2.setText("");
-        }
-        jSeparator1.setBackground(new Color(0, 0, 150));
-    }//GEN-LAST:event_jPasswordField2MouseEntered
+    private void entrada_psw_newMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_entrada_psw_newMouseEntered
+        dAddPsw(1);
+    }//GEN-LAST:event_entrada_psw_newMouseEntered
 
-    private void jPasswordField2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPasswordField2MouseExited
-        if (jPasswordField2.getText().equals("")) {
-            jPasswordField2.setText("Ingrese su contraseña");
-            jSeparator1.setBackground(new Color(153, 153, 153));
-        }
-
-    }//GEN-LAST:event_jPasswordField2MouseExited
+    private void entrada_psw_newMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_entrada_psw_newMouseExited
+        dAddPsw(0);
+    }//GEN-LAST:event_entrada_psw_newMouseExited
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         usuario.setUsuarioo((String) jComboBox1.getSelectedItem());
@@ -2013,6 +2006,56 @@ public class login extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jTextField4MouseExited
 
+    private void jLabel22MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel22MousePressed
+        char a = '*';
+
+        switch (jLabel22.getText()) {
+            case "Mostrar":
+                jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/esconder.png")));
+                jLabel22.setText("Ocultar");
+                entrada_psw_new.setEchoChar((char) 0);
+                System.out.println("Interfaz.login.jLabel22MouseClicked()");
+                break;
+            case "Ocultar":
+                jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
+                jLabel22.setText("Mostrar");
+                entrada_psw_new.setEchoChar(a);
+                break;
+
+        }
+    }//GEN-LAST:event_jLabel22MousePressed
+
+    private void jLabel7MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MousePressed
+        char i = '*';
+        switch (aux) {
+            case 0:
+                aux = 1;
+                jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/esconder.png")));
+                jLabel7.setText("esconder");
+                enPasworLogin.setEchoChar((char) 0);
+                // enPasworLogin.setEchoChar((char)1);
+                break;
+            case 1:
+                enPasworLogin.setEchoChar(i);
+                jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
+                jLabel7.setText("mostrar");
+                aux = 0;
+                break;
+        }
+    }//GEN-LAST:event_jLabel7MousePressed
+
+    private void entrada_usuario_newKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_entrada_usuario_newKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            entrada_psw_new.requestFocusInWindow();
+        }
+    }//GEN-LAST:event_entrada_usuario_newKeyPressed
+
+    private void entrada_psw_newKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_entrada_psw_newKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            newUserDinamic();
+        }
+    }//GEN-LAST:event_entrada_psw_newKeyPressed
+
     /**
      * @param args the command line arguments
      */
@@ -2054,10 +2097,16 @@ public class login extends javax.swing.JFrame {
     private static javax.swing.JLayeredPane cemilla;
     private elaprendiz.gui.varios.ClockDigital clockDigital1;
     private javax.swing.JSeparator dEnUsuario;
+    private javax.swing.JSeparator d_entrada_pregunta;
+    private javax.swing.JSeparator d_entrada_respuesta;
     private javax.swing.JPasswordField enPasworLogin;
     private javax.swing.JPasswordField enPasworLoginM;
     private javax.swing.JTextField enUsuarioLogin;
     private javax.swing.JTextField enUsuarioLoginM;
+    private javax.swing.JTextField entrada_pregunta_newUser;
+    private javax.swing.JPasswordField entrada_psw_new;
+    private javax.swing.JTextField entrada_respuesta_newUser;
+    private javax.swing.JTextField entrada_usuario_new;
     private javax.swing.JLayeredPane fCemilla;
     private static javax.swing.JLabel fm1;
     private static javax.swing.JLabel fm10;
@@ -2129,7 +2178,6 @@ public class login extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
-    private javax.swing.JPasswordField jPasswordField2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -2137,9 +2185,6 @@ public class login extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTextArea jTextArea4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JLayeredPane mCemilla;
     private javax.swing.JLabel mensajePasworErr;
@@ -2244,6 +2289,41 @@ public void dinami(int aux) {
         }
     }
 
+    public void dAddUsuario(int i) {
+        switch (i) {
+            case 1:
+                if (entrada_usuario_new.getText().equals("Nuevo usuario")) {
+                    entrada_usuario_new.setText("");
+                }
+                jSeparator2.setBackground(new Color(0, 0, 150));
+                break;
+            case 0:
+                if (entrada_usuario_new.getText().equals("")) {
+                    entrada_usuario_new.setText("Nuevo usuario");
+                    jSeparator2.setBackground(new Color(153, 153, 153));
+                }
+                break;
+        }
+    }
+
+    public void dAddPsw(int i) {
+        switch (i) {
+            case 1:
+                if (entrada_psw_new.getText().equals("Ingrese la contraseña")) {
+                    entrada_psw_new.setText("");
+                }
+                jSeparator1.setBackground(new Color(0, 0, 150));
+                break;
+            case 0:
+                if (entrada_psw_new.getText().equals("")) {
+                    entrada_psw_new.setText("Ingrese la contraseña");
+                    jSeparator1.setBackground(new Color(153, 153, 153));
+                }
+
+                break;
+        }
+    }
+
     public void dmUsuario(int i) {
         switch (i) {
             case 1:
@@ -2290,66 +2370,89 @@ public void dinami(int aux) {
         if (usuario.stdControlDeLogin()) {
             contador = 5;
         }
-        if (((enUsuarioLogin.getText().equals("Ingrese su usuario") == false) && (enPasworLogin.getText().equals("Ingrese su contraseña") == false))) {
-            contador++;
-            System.out.println("se esta haciendo");
-        } else {
-            JOptionPane.showMessageDialog(null, "Los campos de datos estan vacios por favor ingrese los datos");
-        }
-
-        if (contador >= 5) {
-            JOptionPane.showMessageDialog(null, "Has realizado demaciados intentos por favor espere 60s");
-            usuario.controlDeLogin(1);
-
-            if (estadoContador) {
-                timer = new Timer(1000, (ae) -> {
-                    jLabel50.setVisible(true);
-
-                    cronometro++;
-                    jLabel50.setText("0" + String.valueOf(cronometro) + "s");
-                    if (cronometro >= 60) {
-                        contador = 0;
-                        usuario.controlDeLogin(0);
-                        JOptionPane.showMessageDialog(null, "ya puedes volver a intentar");
-                        jLabel50.setVisible(false);
-                        cronometro = 0;
-                        timer.stop();
-                        estadoContador = true;
-                    }
-
-                });
-                estadoContador = false;
+        contador++;
+        try {
+            if (enUsuarioLogin.getText().equals("Ingrese su usuario") || enUsuarioLogin.getText().equals("") || enPasworLogin.getText().equals("Ingrese su contraseña") || enPasworLogin.getText().equals("")) {
+                throw new IllegalAccessException("Los campos de datos estan vacios por favor ingrese los datos");
             }
-            timer.start();
-        } else {
+
+            if (contador > 5) {
+                if (estadoContador == true) {
+                    timer = new Timer(1000, (ae) -> {
+                        jLabel50.setVisible(true);
+
+                        cronometro++;
+                        jLabel50.setText("0" + String.valueOf(cronometro) + "s");
+                        if (cronometro >= 60) {
+                            contador = 0;
+                            usuario.controlDeLogin(0);
+                            JOptionPane.showMessageDialog(null, "ya puedes volver a intentar");
+                            jLabel50.setVisible(false);
+                            cronometro = 0;
+                            timer.stop();
+                            estadoContador = true;
+                        }
+                    });
+                    estadoContador = false;
+                    timer.start();
+                    usuario.controlDeLogin(1);
+                }
+                throw new IllegalAccessException("Has realizado demaciados intentos por favor espere 60s");
+            }
             String usr = enUsuarioLogin.getText();
-            usuario.setUsuarioo(usr);
-            System.out.println(usuario.getUsuarioo());
             String psw = enPasworLogin.getText();
-            mensajePasworErr.setVisible(false);
+
+            usuario.setUsuarioo(usr);
             String[] datos = modelos.usuario.login();
 
-            if (usr.equals(datos[0])) {
-
-                mensajeUsuarioErr.setVisible(false);
-                if (psw.equals(datos[1])) {
-                    mensajePasworErr.setVisible(false);
-                    principal.setVisible(true);
-                    principal.setLogin(this);
-                    principal.openUser(usr);
-                    this.setVisible(false);
-
-                    enUsuarioLogin.setText("");
-                    dEntradaUser(0);
-                    jLabel9.requestFocusInWindow();
-                    enPasworLogin.setText("");
-                    dEntradaPsw(0);
-                } else {
-                    mensajePasworErr.setVisible(true);
-                }
-            } else {
+            if (!usr.equals(datos[0])) {
                 mensajeUsuarioErr.setVisible(true);
+                throw new IllegalAccessException("");
             }
+
+            if (!psw.equals(datos[1])) {
+                mensajePasworErr.setVisible(true);
+                throw new IllegalAccessException("");
+            }
+            contador = 0;
+
+            mensajePasworErr.setVisible(false);
+            mensajeUsuarioErr.setVisible(false);
+
+            principal.setVisible(true);
+            principal.setLogin(this);
+            principal.openUser(usr);
+
+            this.setVisible(false);
+            Clean();
+            // throw new IllegalAccessError("error");
+        } catch (Exception e) {
+            if (!e.getMessage().equals("")) {
+                JOptionPane.showMessageDialog(null, e.getMessage());
+            }
+            if (e.getMessage().equals("error") && contador > 1) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void newUserDinamic() {
+        try {
+            usuario.setUsuarioo(entrada_usuario_new.getText());
+            usuario.setPsw(entrada_psw_new.getText());
+            if (jComboBox2.getSelectedIndex() <= 1) {
+                throw new IllegalAccessException("Selecciona un tipo de usuario");
+            }
+            if (entrada_usuario_new.getText().equals("Nuevo usuario") == true || entrada_psw_new.getText().equals("Ingrese la contraseña") == true) {
+                throw new IllegalAccessException("Tiense que ingresar un 'Usuario' y una Contraseña");
+            }
+            if (!usuario.esistUsuario(usuario.getUsuarioo())) {
+                throw new IllegalAccessException("Ya existe una usario con ese nombre\nPor favor usa otro nombre para este usuario");
+            }
+            tRecuperacion = 0;
+            dinamicCreacion(panelCrearSeguridad);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
     }
 
@@ -2456,34 +2559,71 @@ public void dinami(int aux) {
                 break;
 
             case "nuevo":
-                System.out.println(usuario.esistUsuario(usr));
-                if (usuario.esistUsuario(usr)) {
-                    usuario.modificar(usr, psw);
-                    uAnl.setText("anterior");
-                    cAnl.setText("anterior");
-                    enUsuarioLoginM.setText("");
-                    dmUsuario(0);
-                    enPasworLoginM.setText("");
-                    dmPsw(0);
-
-                    dinami(0);
-                } else {
-                    if (usuario.getUsuarioo().equals(usr) == true) {
-                        usuario.modificar(usr, psw);
-                        uAnl.setText("anterior");
-                        cAnl.setText("anterior");
-                        enUsuarioLoginM.setText("");
-                        dmUsuario(0);
-                        enPasworLoginM.setText("");
-                        dmPsw(0);
-
-                        dinami(0);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Ya existe un usuario con ese nombre");
+                try {
+                    if (!usuario.esistUsuario(usr)) {
+                        if (!usuario.getUsuarioo().equals(usr)) {
+                            throw new IllegalAccessException("Ya existe un usuario con ese nombre");
+                        }
                     }
-                }
+                    usuario.modificar(usr, psw);
+                    Clean();
+                    dinami(0);
 
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, e.getMessage());
+                }
                 break;
         }
+    }
+
+    public void Clean() {
+        char i = '*';
+
+        enUsuarioLogin.setText("");
+        enPasworLogin.setText("");
+        enUsuarioLoginM.setText("");
+        enPasworLoginM.setText("");
+        dEntradaUser(0);
+        dEntradaPsw(0);
+        dmUsuario(0);
+        dmPsw(0);
+
+        enPasworLogin.setEchoChar(i);
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
+        jLabel7.setText("mostrar");
+        aux = 0;
+        enPasworLoginM.setEchoChar(i);
+        jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
+        jLabel23.setText("mostrar");
+        aux1 = 0;
+
+        uAnl.setText("anterior");
+        cAnl.setText("anterior");
+        forma = 0;
+        fruta = 0;
+        dispocitivo = 0;
+        vehicul = 0;
+        
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(listaUsuarios()));
+        jComboBox1.setSelectedIndex(0);
+        jComboBox2.setSelectedIndex(0);
+
+        entrada_usuario_new.setText("");
+        entrada_psw_new.setText("");
+        dAddUsuario(0);
+        dAddPsw(0);
+
+        jLabel22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mostrar.png")));
+        jLabel22.setText("Mostrar");
+        entrada_psw_new.setEchoChar(i);
+        jCheckBox1.setSelected(false);
+        jLabel40.setVisible(false);
+        jLabel41.setVisible(false);
+        entrada_pregunta_newUser.setVisible(false);
+        entrada_respuesta_newUser.setVisible(false);
+        entrada_pregunta_newUser.setText("");
+        entrada_respuesta_newUser.setText("");
+
+        jLabel21.setVisible(true);
     }
 }

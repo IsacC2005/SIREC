@@ -9,7 +9,6 @@ import java.sql.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -77,8 +76,8 @@ public class persona {
         familia[11] = getCorreo();
         familia[12] = String.valueOf(getTelefono());
         familia[13] = String.valueOf(getRolFamiliar());
-        familia[14] = String.valueOf(getIdd());        
-        
+        familia[14] = String.valueOf(getIdd());
+
         System.out.println(idd + " este es el idd");
         idd++;
         persona.familia.add(familia);
@@ -309,6 +308,7 @@ public class persona {
             query.setInt(12, getRolFamiliar());
             query.setInt(13, house.getIdCasa());
 
+            System.out.println("\n\n" + query.toString() + "\n\n");
             query.execute();
 
             query = con.prepareStatement("SELECT LAST_INSERT_ID() AS id");
@@ -319,7 +319,8 @@ public class persona {
                 id = rs.getInt("id");
             }
             for (Integer[] aux : discapacidades.getpDiscapacidad()) {
-                //System.out.println(discapacidades.getpDiscapacidad().get(aux) + " es igual a "+ getIdd());
+                System.out.println(aux + " Esta es la discapacidad que se esta  agregando");
+                System.out.println("Este es el idd " + getIdd() + "  y se esta comparando con este " + aux[0]);
                 if (aux[0] == getIdd()) {
                     discapacidades.addDisapacidadPers(id, aux[1]);
                 }
@@ -347,7 +348,7 @@ public class persona {
                     + " SELECT * "
                     + " FROM `persona` p "
                     + " JOIN rolfamiliar r ON  r.id = p.id_rolFamiliar "
-                    + " JOIN nacionalidad n ON n.id = P.id_nacionalidad "
+                    + " JOIN nacionalidad n  ON n.id = p.id_nacionalidad  "
                     + " JOIN sexo sx ON sx.id = p.id_sexo "
                     + " JOIN mgacademico mg ON mg.id = p.id_mgAcademico "
                     + " WHERE "
@@ -357,6 +358,7 @@ public class persona {
                     + " sApellido LIKE '%" + buscar + "%'  OR "
                     + " cedula LIKE '%" + buscar + "%' "
                     + " ORDER BY idCasa ASC , id_rolFamiliar ASC ");
+            System.out.println(query.toString());
 
             rs = query.executeQuery();
             while (rs.next()) {
@@ -534,8 +536,6 @@ public class persona {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
         ResultSet rs = null;
-        relacionesForaneas.setRolFamiliar("Jefe de Familia");
-        int i = relacionesForaneas.buscarRolFamiliar();
         try {
             query = con.prepareStatement("SELECT * "
                     + "FROM `persona` p"
@@ -566,7 +566,6 @@ public class persona {
         } finally {
             conect.OpenBd.conectar();
         }
-        System.out.println(i);
         return lista;
     }
 
@@ -634,7 +633,8 @@ public class persona {
                     + " idCasa = " + i + " AND sNombre LIKE '%" + buscar + "%' OR "
                     + " idCasa = " + i + " AND pApellido LIKE '%" + buscar + "%' OR "
                     + " idCasa = " + i + " AND sApellido LIKE '%" + buscar + "%' OR "
-                    + " idCasa = " + i + " AND cedula LIKE '%" + buscar + "%' ");
+                    + " idCasa = " + i + " AND cedula LIKE '%" + buscar + "%' "
+                    + " ORDER BY `p`.`id_rolFamiliar` ASC ");
             rs = query.executeQuery();
 
             while (rs.next()) {
@@ -704,20 +704,38 @@ public class persona {
     public static void deletePersona(int id) {
         Connection con = conect.OpenBd.conectar();
         PreparedStatement query = null;
-        
+
         try {
             query = con.prepareStatement("DELETE FROM p_discapacidad WHERE idPersona = " + id + " ;");
             query.execute();
 
             query = con.prepareStatement(" DELETE FROM `persona`  "
                     + " WHERE persona.id = " + id + " ;");
-            query.execute();
-            
-            JOptionPane.showMessageDialog(null, "Persona eliminada correctamente");
+            query.execute();            
         } catch (Exception e) {
             System.out.println(e);
         } finally {
             conect.OpenBd.desconectar();
+        }
+    }
+
+    public static void deleteFamilia(int idCasa) {
+        ArrayList<String[]> lista = buscarPersonaXhause(idCasa, "");
+        Connection con = conect.OpenBd.conectar();
+        PreparedStatement query = null;
+        PreparedStatement query2 = null;
+        ResultSet rs = null;
+
+        try {
+            for (String[] aux : lista) {
+                query = con.prepareStatement("UPDATE `demografia` SET `id_lider` = NULL WHERE `demografia`.`id_lider` = " + Integer.parseInt(aux[0]) + "");
+                query.execute();
+                deletePersona(Integer.parseInt(aux[0]));
+                System.out.println(aux[0]);
+            }
+            house.deleteHouse(idCasa);
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 

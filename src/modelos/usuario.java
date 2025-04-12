@@ -142,7 +142,7 @@ public class usuario {
             query.execute();
             JOptionPane.showMessageDialog(null, "Usuario creado correctamente");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            System.out.println(e);
         } finally {
             conect.OpenBd.desconectar();
         }
@@ -190,7 +190,7 @@ public class usuario {
 
             query = con.prepareStatement("SELECT COUNT(*) FROM usuario u where u.user = '" + getUsuarioo() + "' AND u.tipo = '" + tipo + "'");
             rs = query.executeQuery();
-            
+            System.out.println(query.toString());
             while (rs.next()) {
                 if (rs.getInt("COUNT(*)") != 0) {
 

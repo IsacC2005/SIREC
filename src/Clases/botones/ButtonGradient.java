@@ -87,7 +87,7 @@ public class ButtonGradient extends JButton {
 
             @Override
             public void mousePressed(MouseEvent me) {
-                if (animacionAct) {
+               /* if (animacionAct) {
                     pressedSize = 0;
                     alphaPressed = 0.5f;
                     pressed = true;
@@ -95,7 +95,7 @@ public class ButtonGradient extends JButton {
                     timerPressed.setDelay(0);
                     timerPressed.start();
                     timerLimit.start();
-                }
+                }*/
             }
         });
         i = 0;

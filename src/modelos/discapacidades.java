@@ -193,10 +193,36 @@ public class discapacidades {
         } finally {
             conect.OpenBd.desconectar();
         }
-
+        System.out.println(resultado);
         return resultado;
     }
-
+    //
+    //Esta funcion va a devolver el id de un tipo de discapacidad 
+    // el cual debe de ser cargado por parametro
+    //
+    public static Integer idTdd(String tipoDd){
+        Connection con = conect.OpenBd.conectar();
+        PreparedStatement query = null;
+        ResultSet rs = null;
+        Integer id = null;
+        
+        try {
+            
+            query = con.prepareStatement("SELECT * FROM tipo_discapacidad WHERE tipo = '"+tipoDd+"'");
+            rs = query.executeQuery();
+            
+            while(rs.next()){
+                id = rs.getInt("id");
+            }
+            
+        } catch (Exception e) {
+            System.out.println(e);
+        }finally{
+            conect.OpenBd.desconectar();
+        }
+        
+        return id;
+    }
     //
     //@Esta función busca las discapacidades de una persona
     //

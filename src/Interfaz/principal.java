@@ -5,13 +5,9 @@
  */
 package Interfaz;
 
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import impresRiven.dynamicjasper.template.PageFormat;
 import java.awt.Color;
 import java.awt.Desktop;
-import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -23,17 +19,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.control.SelectionMode;
+//import javafx.scene.control.SelectionMode;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import modelos.demografia;
 import modelos.discapacidades;
@@ -45,8 +37,12 @@ import net.sf.dynamicreports.report.constant.PageOrientation;
 import net.sf.dynamicreports.report.constant.PageType;
 import net.sf.dynamicreports.report.exception.DRException;
 import Clases.tabla.TableCustom;
+import conect.restaurar;
+import java.time.Period;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JLabel;
 import javax.swing.JTable;
-
+import javax.swing.filechooser.FileNameExtensionFilter;
 /**
  *
  * @author isacc
@@ -63,6 +59,8 @@ public class principal extends javax.swing.JFrame {
 
     int stadeRegistro = 0;
     int stadeRegistroC = 0;
+
+    Integer iDaux = null;
 
     Integer rowSelect = 0;
 
@@ -114,6 +112,7 @@ public class principal extends javax.swing.JFrame {
                 aux[12]
             });
         }
+        jTable1.setModel(modelo);
     }
 
     //
@@ -138,8 +137,8 @@ public class principal extends javax.swing.JFrame {
             } else {
                 minimo = Integer.parseInt(jTextField9.getText());
             }
-            if (jTextField11.getText().equals("")) {
-                maximo = 0;
+            if (jTextField11.getText().equals("") || jTextField11.getText().equals("0")) {
+                maximo = 1000;
             } else {
                 maximo = Integer.parseInt(jTextField11.getText());
             }
@@ -158,6 +157,7 @@ public class principal extends javax.swing.JFrame {
 
     //
     public void filtroNvEdc(String nivel) {
+        System.out.println("filtroNvEdc entrada principal");
         modelos.filtros.setBuscar(jTextField5.getText());
         ArrayList<String[]> lista = modelos.filtros.nivelEd(nivel);
         modelo = new DefaultTableModel() {
@@ -210,19 +210,39 @@ public class principal extends javax.swing.JFrame {
     //
     public void cargarCalles() {
         ArrayList<String[]> lista = modelos.demografia.rsStrike();
-        String[] colums = {"Calle", "Lider"};
-        modeloDemografia = new DefaultTableModel();
+        String[] colums = {"Calle"};
+        modeloDemografia = new DefaultTableModel() {
+            boolean[] canEdit = new boolean[]{
+                false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        };
         modeloDemografia.setColumnIdentifiers(colums);
         for (String[] aux : lista) {
-            modeloDemografia.addRow(aux);
+            modeloDemografia.addRow(new String[]{aux[1]});
         }
         jTable3.setModel(modeloDemografia);
     }
 
     ArrayList<String> listaDd;
 
-    static String[] rolesFm = {"Jefe de Familia", "Esposo(a)", "Hijo(a)"};
+    static String[] rolesFm;
     ArrayList<String[]> ddD = discapacidades.recuperarAll();
+
+    public void cargar_rolesfm() {
+        ArrayList<String[]> lista = relacionesForaneas.rsRolFamiar();
+        rolesFm = new String[lista.size()];
+        int i = 0;
+        //rolesFm[0] = "Roles Familiares";
+        for (String[] aux : lista) {
+            // System.out.println(aux[1]);
+            rolesFm[i] = aux[1];
+            i++;
+        }
+    }
 
     public String[] cargarDdCbbx() {
         String[] lista = new String[ddD.size()];
@@ -238,8 +258,11 @@ public class principal extends javax.swing.JFrame {
 
     public String[] cargarTDdCbbx() {
         ArrayList<String> lista = discapacidades.rescuellTipoDd();
-        String[] tipo = new String[lista.size()];
-        int i = 0;
+        String[] tipo = new String[lista.size() + 1];
+        int i = 1;
+
+        tipo[0] = "Tipo de Discapacidad";
+
         for (String aux : lista) {
             tipo[i] = aux;
             i++;
@@ -253,15 +276,21 @@ public class principal extends javax.swing.JFrame {
         switch (aux) {
             case "Jefe de Familia":
 
+                // rolesFm[0] = "Roles Familiares";
                 rolesFm[0] = "Esposo(a)";
-                rolesFm[1] = "Hijo(a)";
-                rolesFm[2] = "";
+                rolesFm[1] = "Hermano(a)";
+                rolesFm[2] = "Hijo(a)";
+                rolesFm[3] = "Nieto(a)";
+                rolesFm[4] = " ";
                 break;
             case "Esposo(a)":
 
-                rolesFm[0] = "Hijo(a)";
-                rolesFm[1] = "";
-                rolesFm[2] = "";
+                //   rolesFm[0] = "Roles Familiares";                
+                rolesFm[0] = "Hermano(a)";
+                rolesFm[1] = "Hijo(a)";
+                rolesFm[2] = "Nieto(a)";
+                rolesFm[3] = " ";
+                rolesFm[4] = " ";
                 break;
             case "Hijo(a)":
                 break;
@@ -270,12 +299,6 @@ public class principal extends javax.swing.JFrame {
             case "Nieto(a)":
                 break;
             case "Otro":
-                break;
-            case "":
-                rolesFm[0] = "Jefe de Familia";
-                rolesFm[1] = "Esposo(a)";
-                rolesFm[2] = "Hijo(a)";
-
                 break;
         }
         jComboBox7.setModel(new javax.swing.DefaultComboBoxModel<>(rolesFm));
@@ -308,9 +331,11 @@ public class principal extends javax.swing.JFrame {
 
     public String[] cargarStrikeCbbx() {
         ArrayList<String[]> lista = modelos.demografia.rsStrike();
-        String[] Strikes = new String[lista.size()];
+        String[] Strikes = new String[lista.size() + 1];
 
-        int i = 0;
+        int i = 1;
+
+        Strikes[0] = "Direccion";
 
         for (String[] aux : lista) {
             Strikes[i] = aux[1];
@@ -319,21 +344,17 @@ public class principal extends javax.swing.JFrame {
         return Strikes;
     }
 
-    public String[] cargarFechaMesCbbx() {
-        String[] lista = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
-        return lista;
-    }
-
     public String[] cargarNivelesEdcCbbx() {
         ArrayList<String[]> lista = relacionesForaneas.rsMgAcademico();
-        String[] resultado = new String[lista.size()];
-        int i = 0;
+        String[] resultado = new String[lista.size() + 1];
+        int i = 1;
+
+        resultado[0] = "Niveles Educativos";
 
         for (String[] aux : lista) {
             resultado[i] = aux[1];
             i++;
         }
-
         return resultado;
     }
 
@@ -341,17 +362,20 @@ public class principal extends javax.swing.JFrame {
         System.out.println("Interfaz.principal.AgregarDisc()");
         if (discapacidades.estLDiscapacidad(discapacidad) == false) {
             System.out.println("Dentro de la condicion");
+
             seleccionDiscapacidad = "";
             modeloTdiscapacidades = new DefaultTableModel();
             discapacidades.setlDiscapacidad(discapacidad);
             String[] colums = {"Enfermedades"};
             modeloTdiscapacidades.setColumnIdentifiers(colums);
+
             for (String aux : discapacidades.getLDiscapacidad()) {
                 System.out.println("Dentro del for");
                 System.out.println(aux + " hola mundos ");
                 String[] ax = {aux};
                 modeloTdiscapacidades.addRow(ax);
             }
+
             System.out.println("Final por cargar tabla");
             jTable4.setModel(modeloTdiscapacidades);
             int i = 0;
@@ -364,7 +388,7 @@ public class principal extends javax.swing.JFrame {
                 ax[i] = aux;
                 i++;
             }
-            comboBoxSuggestion1.setModel(new javax.swing.DefaultComboBoxModel<>(ax));
+            combo_entradaRdd_listaDiscapacidades.setModel(new javax.swing.DefaultComboBoxModel<>(ax));
             System.out.println("final");
         }
     }
@@ -391,15 +415,17 @@ public class principal extends javax.swing.JFrame {
                 ax[i] = aux;
                 i++;
             }
-            comboBoxSuggestion1.setModel(new javax.swing.DefaultComboBoxModel<>(ax));
+            combo_entradaRdd_listaDiscapacidades.setModel(new javax.swing.DefaultComboBoxModel<>(ax));
         }
     }
 
     public String[] cargarStadoCasaCbbx() {
         ArrayList<String[]> lista = modelos.relacionesForaneas.rsStadoCasa();
-        String[] resultado = new String[lista.size()];
+        String[] resultado = new String[lista.size() + 1];
 
-        int i = 0;
+        int i = 1;
+
+        resultado[0] = "Estado de la Casa";
 
         for (String[] aux : lista) {
             resultado[i] = aux[1];
@@ -414,6 +440,7 @@ public class principal extends javax.swing.JFrame {
 
     public principal() {
         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/recursos/logoSinFondo110x110.png")).getImage());
+        cargar_rolesfm();
         initComponents();
         axdinamicMenu();
         mostrarMenu(true);
@@ -444,12 +471,12 @@ public class principal extends javax.swing.JFrame {
         panel_base = new javax.swing.JPanel();
         btSalie = new javax.swing.JLabel();
         panel_filtro = new javax.swing.JPanel();
-        jLayeredPane9 = new javax.swing.JLayeredPane();
+        menu_impress = new javax.swing.JLayeredPane();
         jLabel110 = new javax.swing.JLabel();
         jLabel107 = new javax.swing.JLabel();
         jLabel108 = new javax.swing.JLabel();
         jLabel109 = new javax.swing.JLabel();
-        jPanel25 = new Clases.PanelRound();
+        menu_impressD = new Clases.PanelRound();
         p_filtroGeneral = new javax.swing.JPanel();
         jLayeredPane8 = new javax.swing.JLayeredPane();
         jLabel3 = new javax.swing.JLabel();
@@ -483,6 +510,9 @@ public class principal extends javax.swing.JFrame {
         combo_filtroPro_tipoDiscapacidad = new Clases.combobox.ComboBoxSuggestion();
         combo_filtroPro_estCasa = new Clases.combobox.ComboBoxSuggestion();
         combo_filtroPro_rolFamiliar = new Clases.combobox.ComboBoxSuggestion();
+        jCheckBox5 = new javax.swing.JCheckBox();
+        jCheckBox6 = new javax.swing.JCheckBox();
+        jCheckBox9 = new javax.swing.JCheckBox();
         jPanel14 = new javax.swing.JPanel();
         jLabel81 = new javax.swing.JLabel();
         jPanel16 = new javax.swing.JPanel();
@@ -512,6 +542,8 @@ public class principal extends javax.swing.JFrame {
         jLabel125 = new javax.swing.JLabel();
         jLabel126 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        totalInfo_filtroPro = new Clases.checkbox.JCheckBoxCustom();
+        totalInfo_filtroPro.setSelected(false);
         jPanel17 = new javax.swing.JPanel();
         jLabel77 = new javax.swing.JLabel();
         p_filtroEdad = new javax.swing.JPanel();
@@ -574,11 +606,9 @@ public class principal extends javax.swing.JFrame {
         panel_registrar = new javax.swing.JPanel();
         Registro3o4 = new javax.swing.JPanel();
         jLabel94 = new javax.swing.JLabel();
-        panelRound18 = new Clases.PanelRound();
-        jLabel91 = new javax.swing.JLabel();
-        panelRound19 = new Clases.PanelRound();
-        jLabel92 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        buttonGradient1 = new Clases.botones.ButtonGradient();
+        buttonGradient2 = new Clases.botones.ButtonGradient();
+        barraLateralD = new javax.swing.JPanel();
         pr1 = new Clases.PanelRound();
         jLabel5 = new javax.swing.JLabel();
         pr2 = new Clases.PanelRound();
@@ -592,70 +622,70 @@ public class principal extends javax.swing.JFrame {
         jLabel61 = new javax.swing.JLabel();
         Registro1 = new javax.swing.JPanel();
         enCorreo = new javax.swing.JTextField();
-        enNacionalidad = new javax.swing.JComboBox<>();
-        jLabel35 = new javax.swing.JLabel();
+        etick_fechaN = new javax.swing.JLabel();
         enpNombre = new javax.swing.JTextField();
         ensNombre = new javax.swing.JTextField();
         enpApellido = new javax.swing.JTextField();
         ensApellido = new javax.swing.JTextField();
         enTelefono = new javax.swing.JTextField();
         enCedula = new javax.swing.JTextField();
-        enSexo = new javax.swing.JComboBox<>();
-        jSeparator1 = new javax.swing.JSeparator();
-        jSeparator3 = new javax.swing.JSeparator();
-        jSeparator4 = new javax.swing.JSeparator();
-        jSeparator5 = new javax.swing.JSeparator();
-        jSeparator6 = new javax.swing.JSeparator();
-        jSeparator7 = new javax.swing.JSeparator();
-        jSeparator8 = new javax.swing.JSeparator();
-        jLabel33 = new javax.swing.JLabel();
-        jLabel31 = new javax.swing.JLabel();
-        jLabel31.setVisible(false);
-        jLabel95 = new javax.swing.JLabel();
-        jLabel95.setVisible(false);
-        jLabel96 = new javax.swing.JLabel();
-        jLabel96.setVisible(false);
-        jLabel97 = new javax.swing.JLabel();
-        jLabel97.setVisible(false);
-        jLabel98 = new javax.swing.JLabel();
-        jLabel98.setVisible(false);
-        jLabel99 = new javax.swing.JLabel();
-        jLabel99.setVisible(false);
-        jLabel100 = new javax.swing.JLabel();
-        jLabel100.setVisible(false);
-        jLabel101 = new javax.swing.JLabel();
-        jLabel101.setVisible(false);
-        jLabel102 = new javax.swing.JLabel();
-        jLabel102.setVisible(false);
-        jTextField14 = new javax.swing.JTextField();
-        buttonShadow1 = new elaprendiz.gui.button.ButtonShadow();
+        dSeparador_pNombre = new javax.swing.JSeparator();
+        dSeparador_sNombre = new javax.swing.JSeparator();
+        dSeparador_pApellido = new javax.swing.JSeparator();
+        dSeparador_sApellido = new javax.swing.JSeparator();
+        dSeparador_cedula = new javax.swing.JSeparator();
+        dSeparador_telefono = new javax.swing.JSeparator();
+        dSeparador_correo = new javax.swing.JSeparator();
+        etick_nacionalidad = new javax.swing.JLabel();
+        etick_nacionalidad.setVisible(false);
+        etick_pNombre = new javax.swing.JLabel();
+        etick_pNombre.setVisible(false);
+        etick_sNombre = new javax.swing.JLabel();
+        etick_sNombre.setVisible(false);
+        etick_pApellido = new javax.swing.JLabel();
+        etick_pApellido.setVisible(false);
+        etick_sApellido = new javax.swing.JLabel();
+        etick_sApellido.setVisible(false);
+        etick_cedula = new javax.swing.JLabel();
+        etick_cedula.setVisible(false);
+        etick_telefono = new javax.swing.JLabel();
+        etick_telefono.setVisible(false);
+        etick_correo = new javax.swing.JLabel();
+        etick_correo.setVisible(false);
+        etick_genero = new javax.swing.JLabel();
+        etick_genero.setVisible(false);
+        entrada_fechaN_registro = new javax.swing.JTextField();
+        bt_fechaN_registro1 = new elaprendiz.gui.button.ButtonShadow();
+        enNacionalidad = new Clases.combobox.ComboBoxSuggestion();
+        enSexo = new Clases.combobox.ComboBoxSuggestion();
+        bt_registro1_siguiente = new javax.swing.JLabel();
         Registro2 = new javax.swing.JPanel();
         jPanel13 = new javax.swing.JPanel();
-        ed2 = new javax.swing.JCheckBox();
-        ed1 = new javax.swing.JCheckBox();
-        ed3 = new javax.swing.JCheckBox();
-        ed4 = new javax.swing.JCheckBox();
-        jLabel48 = new javax.swing.JLabel();
-        jLabel39 = new javax.swing.JLabel();
-        jLabel37 = new javax.swing.JLabel();
-        jLabel27 = new javax.swing.JLabel();
+        checkbox_entradaNVedc_eduacionBasica = new javax.swing.JCheckBox();
+        checkbox_entradaNVedc_educacionInicial = new javax.swing.JCheckBox();
+        checkbox_entradaNVedc_educacionMedia = new javax.swing.JCheckBox();
+        checkbox_entradaNVedc_eduacionSuperior = new javax.swing.JCheckBox();
+        label_entradaNVedc_educacionSuperior = new javax.swing.JLabel();
+        label_entradaNVedc_educacionMedia = new javax.swing.JLabel();
+        label_entradaNVedc_eduacionBasica = new javax.swing.JLabel();
+        label_entradaNVedc_educacionInicial = new javax.swing.JLabel();
+        label_entradaNVedc_sinEducacion = new javax.swing.JLabel();
+        checkbox_entradaNVedc_sinEducacion = new javax.swing.JCheckBox();
         jCheckBox10 = new javax.swing.JCheckBox();
         jLabel49 = new javax.swing.JLabel();
         jLabel50 = new javax.swing.JLabel();
-        jButton7 = new javax.swing.JButton();
         Registro3 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
         jScrollPane4 = new Clases.ScrollPaneWin11();
         jTable4 = new javax.swing.JTable();
-        jTextArea1 = new javax.swing.JTextArea();
+        label_registroP_detallesSs_Descripcion = new javax.swing.JTextArea();
         jLabel103 = new javax.swing.JLabel();
-        jLabel104 = new javax.swing.JLabel();
-        jLabel105 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        comboBoxSuggestion1 = new Clases.combobox.ComboBoxSuggestion();
+        label_registroP_detallesSs_nombre = new javax.swing.JLabel();
+        label_registroP_detallesSs_tipo = new javax.swing.JLabel();
+        combo_entradaRdd_listaDiscapacidades = new Clases.combobox.ComboBoxSuggestion();
+        boton_entradaRdd_agregar = new elaprendiz.gui.button.ButtonAction();
+        buttonAction1 = new elaprendiz.gui.button.ButtonAction();
         jLabel51 = new javax.swing.JLabel();
-        jLabel52 = new javax.swing.JLabel();
         jLabel53 = new javax.swing.JLabel();
         Registro4 = new javax.swing.JPanel();
         jTextField2 = new javax.swing.JTextField();
@@ -670,59 +700,59 @@ public class principal extends javax.swing.JFrame {
         Registro5 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel40 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
-        jCheckBox7 = new javax.swing.JCheckBox();
+        en_nCasa = new javax.swing.JTextField();
+        en_not_nCasa = new javax.swing.JCheckBox();
         jLabel41 = new javax.swing.JLabel();
-        jComboBox8 = new javax.swing.JComboBox<>();
+        en_combo_direccion = new javax.swing.JComboBox<>();
         jPanel12 = new javax.swing.JPanel();
         jLabel42 = new javax.swing.JLabel();
         jLabel43 = new javax.swing.JLabel();
         jLabel44 = new javax.swing.JLabel();
         jLabel45 = new javax.swing.JLabel();
-        jCheckBox8 = new javax.swing.JCheckBox();
-        jCheckBox13 = new javax.swing.JCheckBox();
-        jCheckBox14 = new javax.swing.JCheckBox();
-        jCheckBox15 = new javax.swing.JCheckBox();
-        jCheckBox16 = new javax.swing.JCheckBox();
-        jCheckBox17 = new javax.swing.JCheckBox();
-        jCheckBox18 = new javax.swing.JCheckBox();
-        jCheckBox19 = new javax.swing.JCheckBox();
+        en_serv_agua_s = new javax.swing.JCheckBox();
+        en_serv_agua_s.setSelected(true);
+        en_serv_agua_n = new javax.swing.JCheckBox();
+        en_serv_aguaN_n = new javax.swing.JCheckBox();
+        en_serv_aguaN_s = new javax.swing.JCheckBox();
+        en_serv_elct_n = new javax.swing.JCheckBox();
+        en_serv_elct_s = new javax.swing.JCheckBox();
+        en_serv_cls_n = new javax.swing.JCheckBox();
+        en_serv_cls_s = new javax.swing.JCheckBox();
         jLabel47 = new javax.swing.JLabel();
-        jComboBox10 = new javax.swing.JComboBox<>();
+        en_combo_stdCasa = new javax.swing.JComboBox<>();
         jSeparator18 = new javax.swing.JSeparator();
         jLabel56 = new javax.swing.JLabel();
         jLabel57 = new javax.swing.JLabel();
         panel_demografia = new javax.swing.JPanel();
-        jLayeredPane2 = new javax.swing.JLayeredPane();
+        panel_dmg_strike = new javax.swing.JLayeredPane();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
-        jLabel127 = new javax.swing.JLabel();
-        jLabel128 = new javax.swing.JLabel();
-        jLabel130 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
-        jLabel129 = new javax.swing.JLabel();
-        jLabel131 = new javax.swing.JLabel();
+        bt_dmg_estruc = new javax.swing.JLabel();
+        bt_dmg_addLider = new javax.swing.JLabel();
+        bt_dmg_addStrike = new javax.swing.JLabel();
+        entradaTxt_demografia = new javax.swing.JTextField();
+        bt_dmg_guardar = new javax.swing.JLabel();
+        bt_dmg_descartar = new javax.swing.JLabel();
         jSeparator20 = new javax.swing.JSeparator();
-        jLabel93 = new javax.swing.JLabel();
-        jLayeredPane1 = new javax.swing.JLayeredPane();
+        bt_dmg_stingStrike = new javax.swing.JLabel();
+        panel_dmg_lider = new javax.swing.JLayeredPane();
         jSeparator2 = new javax.swing.JSeparator();
-        jComboBox5 = new javax.swing.JComboBox<>();
         jLabel63 = new javax.swing.JLabel();
         jScrollPane5 = new javax.swing.JScrollPane();
         jTable5 = new javax.swing.JTable();
         jTextField10 = new javax.swing.JTextField();
         jButton6 = new javax.swing.JButton();
+        combo_demografia_asigLider = new Clases.combobox.ComboBoxSuggestion();
         jPanel4 = new javax.swing.JPanel();
         jLabel62 = new javax.swing.JLabel();
         panelBarra = new javax.swing.JPanel();
         panelMenup = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
         bt_menu_agregar = new Clases.botones.ButtonGradient();
         bt_menu_demografia = new Clases.botones.ButtonGradient();
         bt_mn_buscar = new Clases.botones.ButtonGradient();
         bt_menu_modificar = new Clases.botones.ButtonGradient();
         bt_menu_imprimir = new Clases.botones.ButtonGradient();
-        bt_menu_pregunta = new Clases.botones.ButtonGradient();
+        bt_menu_gestionar = new Clases.botones.ButtonGradient();
         bt_menu_usuario = new Clases.botones.ButtonGradient();
         itemM_agregar_persona = new Clases.botones.ButtonGradient();
         itemM_agregar_cargaFamiliar = new Clases.botones.ButtonGradient();
@@ -740,16 +770,18 @@ public class principal extends javax.swing.JFrame {
         itemM_modificar_liderCalle = new Clases.botones.ButtonGradient();
         itemM_imprimir_censo = new Clases.botones.ButtonGradient();
         itemM_imprimir_carta = new Clases.botones.ButtonGradient();
-        itemM_pregunta_ayuda = new Clases.botones.ButtonGradient();
+        itemM_pregunta_respaldarBD = new Clases.botones.ButtonGradient();
+        itemM_pregunta_restaurarBD = new Clases.botones.ButtonGradient();
         itemM_pregunta_manual = new Clases.botones.ButtonGradient();
         itemM_usuario_add = new Clases.botones.ButtonGradient();
         itemM_usuario_modificar = new Clases.botones.ButtonGradient();
         itemM_usuario_close = new Clases.botones.ButtonGradient();
-        jLabel34 = new javax.swing.JLabel();
+        itemM_usuario_exit = new Clases.botones.ButtonGradient();
+        fondo_imagen = new javax.swing.JLabel();
 
         dateChooser1.setForeground(new java.awt.Color(102, 0, 204));
         dateChooser1.setDateFormat("dd-MMMM-yyyy");
-        dateChooser1.setTextRefernce(jTextField14);
+        dateChooser1.setTextRefernce(entrada_fechaN_registro);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(800, 500));
@@ -799,15 +831,15 @@ public class principal extends javax.swing.JFrame {
                 btSalieMouseReleased(evt);
             }
         });
-        panel_base.add(btSalie, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 140, 42));
+        panel_base.add(btSalie, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, 42));
 
         panel_filtro.setBackground(new java.awt.Color(245, 245, 245));
         panel_filtro.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(107, 109, 143)));
         panel_filtro.setVisible(false);
         panel_filtro.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLayeredPane9.setVisible(false);
-        jLayeredPane9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        menu_impress.setVisible(false);
+        menu_impress.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel110.setBackground(new Color(0,0,255,0));
         jLabel110.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -817,7 +849,7 @@ public class principal extends javax.swing.JFrame {
                 jLabel110MouseClicked(evt);
             }
         });
-        jLayeredPane9.add(jLabel110, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 50, 40));
+        menu_impress.add(jLabel110, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 50, 40));
 
         jLabel107.setBackground(new Color(0,0,255,0));
         jLabel107.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -827,7 +859,7 @@ public class principal extends javax.swing.JFrame {
                 jLabel107MouseClicked(evt);
             }
         });
-        jLayeredPane9.add(jLabel107, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 50, 40));
+        menu_impress.add(jLabel107, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 50, 40));
 
         jLabel108.setBackground(new Color(0,0,255,0));
         jLabel108.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -843,7 +875,7 @@ public class principal extends javax.swing.JFrame {
                 jLabel108MouseExited(evt);
             }
         });
-        jLayeredPane9.add(jLabel108, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 40));
+        menu_impress.add(jLabel108, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 40));
 
         jLabel109.setBackground(new Color(0,0,255,0));
         jLabel109.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -853,29 +885,29 @@ public class principal extends javax.swing.JFrame {
                 jLabel109MouseClicked(evt);
             }
         });
-        jLayeredPane9.add(jLabel109, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 0, 50, 40));
+        menu_impress.add(jLabel109, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 0, 50, 40));
 
-        panel_filtro.add(jLayeredPane9, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 200, 40));
+        panel_filtro.add(menu_impress, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 200, 40));
 
-        jPanel25.setBackground(new Color(255,255,255,200));
-        jPanel25.setRoundBottomLeft(15);
-        jPanel25.setRoundBottomRight(15);
-        jPanel25.setRoundTopLeft(15);
-        jPanel25.setRoundTopRight(15);
-        jPanel25.setVisible(false);
+        menu_impressD.setBackground(new Color(255,255,255,200));
+        menu_impressD.setRoundBottomLeft(15);
+        menu_impressD.setRoundBottomRight(15);
+        menu_impressD.setRoundTopLeft(15);
+        menu_impressD.setRoundTopRight(15);
+        menu_impressD.setVisible(false);
 
-        javax.swing.GroupLayout jPanel25Layout = new javax.swing.GroupLayout(jPanel25);
-        jPanel25.setLayout(jPanel25Layout);
-        jPanel25Layout.setHorizontalGroup(
-            jPanel25Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout menu_impressDLayout = new javax.swing.GroupLayout(menu_impressD);
+        menu_impressD.setLayout(menu_impressDLayout);
+        menu_impressDLayout.setHorizontalGroup(
+            menu_impressDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
-        jPanel25Layout.setVerticalGroup(
-            jPanel25Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        menu_impressDLayout.setVerticalGroup(
+            menu_impressDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        panel_filtro.add(jPanel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 200, 40));
+        panel_filtro.add(menu_impressD, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 200, 40));
 
         p_filtroGeneral.setVisible(false);
 
@@ -1044,7 +1076,7 @@ public class principal extends javax.swing.JFrame {
                 jLabel4MouseClicked(evt);
             }
         });
-        jLayeredPane8.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 30, 70, 20));
+        jLayeredPane8.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 30, -1, 20));
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/imprimir 16x16.png"))); // NOI18N
         jLabel2.setText("Imprimir");
@@ -1146,9 +1178,11 @@ public class principal extends javax.swing.JFrame {
         jLayeredPane7.add(jCheckBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 380, -1, -1));
 
         jCheckBox3.setText("Luz electrica");
-        jLayeredPane7.add(jCheckBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 380, -1, -1));
+        jCheckBox3.setBorder(null);
+        jCheckBox3.setBorderPainted(true);
+        jLayeredPane7.add(jCheckBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 380, -1, 20));
 
-        jCheckBox4.setText("jCheckBox4");
+        jCheckBox4.setText("Modulo CLAP");
         jLayeredPane7.add(jCheckBox4, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 380, -1, -1));
 
         jLabel82.setText("Minima");
@@ -1202,7 +1236,34 @@ public class principal extends javax.swing.JFrame {
         jLayeredPane7.add(combo_filtroPro_estCasa, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 290, 29));
 
         combo_filtroPro_rolFamiliar.setModel(new javax.swing.DefaultComboBoxModel<>(rolesFm));
+        combo_filtroPro_rolFamiliar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                combo_filtroPro_rolFamiliarActionPerformed(evt);
+            }
+        });
         jLayeredPane7.add(combo_filtroPro_rolFamiliar, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 300, 218, 32));
+
+        jCheckBox5.setSelected(true);
+        jCheckBox5.setText("Omitir");
+        jLayeredPane7.add(jCheckBox5, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 350, -1, 20));
+
+        jCheckBox6.setSelected(true);
+        jCheckBox6.setText("Omitir");
+        jCheckBox6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox6ActionPerformed(evt);
+            }
+        });
+        jLayeredPane7.add(jCheckBox6, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 350, -1, 20));
+
+        jCheckBox9.setSelected(true);
+        jCheckBox9.setText("Todos");
+        jCheckBox9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox9ActionPerformed(evt);
+            }
+        });
+        jLayeredPane7.add(jCheckBox9, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 260, -1, -1));
 
         p_filtroPro.add(jLayeredPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 780, 430));
 
@@ -1395,6 +1456,14 @@ public class principal extends javax.swing.JFrame {
             }
         });
         jLayeredPane6.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, -1));
+
+        totalInfo_filtroPro.setText("Mostrar mas");
+        totalInfo_filtroPro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                totalInfo_filtroProActionPerformed(evt);
+            }
+        });
+        jLayeredPane6.add(totalInfo_filtroPro, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 60, -1, -1));
 
         p_filtroPro.add(jLayeredPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 780, 430));
 
@@ -1965,83 +2034,28 @@ public class principal extends javax.swing.JFrame {
         });
         Registro3o4.add(jLabel94, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 400, -1, -1));
 
-        panelRound18.setBackground(new Color(255, 51, 71, 120));
-        panelRound18.setRoundBottomLeft(15);
-        panelRound18.setRoundTopLeft(15);
-
-        jLabel91.setFont(new java.awt.Font("Roboto Medium", 0, 24)); // NOI18N
-        jLabel91.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel91.setText("Nuevo Grupo Familiar");
-        jLabel91.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel91MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jLabel91MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jLabel91MouseExited(evt);
+        buttonGradient1.setText("Agregar como carga familiar");
+        buttonGradient1.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        buttonGradient1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonGradient1ActionPerformed(evt);
             }
         });
+        Registro3o4.add(buttonGradient1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 220, 330, 80));
 
-        javax.swing.GroupLayout panelRound18Layout = new javax.swing.GroupLayout(panelRound18);
-        panelRound18.setLayout(panelRound18Layout);
-        panelRound18Layout.setHorizontalGroup(
-            panelRound18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel91, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
-        );
-        panelRound18Layout.setVerticalGroup(
-            panelRound18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound18Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel91, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
-        Registro3o4.add(panelRound18, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 54, 330, 100));
-
-        panelRound19.setBackground(new Color(255, 51, 71, 120));
-        panelRound19.setRoundBottomLeft(15);
-        panelRound19.setRoundTopLeft(15);
-
-        jLabel92.setFont(new java.awt.Font("Roboto Medium", 0, 24)); // NOI18N
-        jLabel92.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel92.setText("Agregar a Grupo Familiar");
-        jLabel92.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel92MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jLabel92MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jLabel92MouseExited(evt);
+        buttonGradient2.setText("Nuevo grupo familiar");
+        buttonGradient2.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        buttonGradient2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonGradient2ActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout panelRound19Layout = new javax.swing.GroupLayout(panelRound19);
-        panelRound19.setLayout(panelRound19Layout);
-        panelRound19Layout.setHorizontalGroup(
-            panelRound19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound19Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel92, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        panelRound19Layout.setVerticalGroup(
-            panelRound19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound19Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel92, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        Registro3o4.add(panelRound19, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 330, 80));
+        Registro3o4.add(buttonGradient2, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 60, 330, 80));
 
         panel_registrar.add(Registro3o4, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 50, 530, 430));
 
-        jPanel2.setBackground(new java.awt.Color(60, 133, 216));
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        barraLateralD.setBackground(new java.awt.Color(60, 133, 216));
+        barraLateralD.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pr1.setBackground(new Color(255, 51, 71, 120));
         pr1.setRoundBottomLeft(15);
@@ -2068,7 +2082,7 @@ public class principal extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel2.add(pr1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 64, 170, -1));
+        barraLateralD.add(pr1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 64, 170, 60));
 
         pr2.setBackground(new Color(51, 153, 255, 100));
         pr2.setRoundBottomLeft(15);
@@ -2096,7 +2110,7 @@ public class principal extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel2.add(pr2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 157, 170, -1));
+        barraLateralD.add(pr2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 157, 170, 60));
 
         pr3.setBackground(new Color(51, 153, 255, 100));
         pr3.setRoundBottomLeft(15);
@@ -2124,7 +2138,7 @@ public class principal extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel2.add(pr3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 240, 170, -1));
+        barraLateralD.add(pr3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 240, 170, 60));
 
         pr4.setBackground(new Color(51, 153, 255, 100));
         pr4.setRoundBottomLeft(15);
@@ -2152,7 +2166,7 @@ public class principal extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel2.add(pr4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 323, 170, -1));
+        barraLateralD.add(pr4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 323, 170, 60));
 
         pr5.setBackground(new Color(51, 153, 255, 100));
         pr5.setRoundBottomLeft(15);
@@ -2180,12 +2194,12 @@ public class principal extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel2.add(pr5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 406, 170, -1));
+        barraLateralD.add(pr5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 406, 170, 60));
 
         jLabel61.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/barraDecoracion.png"))); // NOI18N
-        jPanel2.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        barraLateralD.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
-        panel_registrar.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 500));
+        panel_registrar.add(barraLateralD, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 500));
 
         Registro1.setBackground(new java.awt.Color(245, 245, 245));
         Registro1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)), "¡Agrege los datos de la nueva persona!", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Roboto Light", 2, 12))); // NOI18N
@@ -2215,16 +2229,8 @@ public class principal extends javax.swing.JFrame {
         });
         Registro1.add(enCorreo, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 340, 210, 30));
 
-        enNacionalidad.setModel(new javax.swing.DefaultComboBoxModel<>(cargarNacionalidadCbbx()));
-        enNacionalidad.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                enNacionalidadActionPerformed(evt);
-            }
-        });
-        Registro1.add(enNacionalidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 270, 207, 30));
-
-        jLabel35.setText("Fecha de nacimiendo");
-        Registro1.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 180, 207, -1));
+        etick_fechaN.setText("Fecha de nacimiendo");
+        Registro1.add(etick_fechaN, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 180, 207, -1));
 
         enpNombre.setEditable(false);
         enpNombre.setFont(new java.awt.Font("Roboto Medium", 0, 14)); // NOI18N
@@ -2376,6 +2382,84 @@ public class principal extends javax.swing.JFrame {
         });
         Registro1.add(enCedula, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 207, 30));
 
+        dSeparador_pNombre.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_pNombre.setForeground(new java.awt.Color(153, 153, 153));
+        dSeparador_pNombre.setOpaque(true);
+        Registro1.add(dSeparador_pNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 207, -1));
+
+        dSeparador_sNombre.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_sNombre.setForeground(new java.awt.Color(153, 153, 153));
+        dSeparador_sNombre.setOpaque(true);
+        Registro1.add(dSeparador_sNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 80, 207, -1));
+
+        dSeparador_pApellido.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_pApellido.setForeground(new java.awt.Color(153, 153, 153));
+        dSeparador_pApellido.setOpaque(true);
+        Registro1.add(dSeparador_pApellido, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 207, -1));
+
+        dSeparador_sApellido.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_sApellido.setForeground(new java.awt.Color(153, 153, 153));
+        dSeparador_sApellido.setOpaque(true);
+        Registro1.add(dSeparador_sApellido, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 150, 207, -1));
+
+        dSeparador_cedula.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_cedula.setForeground(new java.awt.Color(153, 153, 153));
+        dSeparador_cedula.setOpaque(true);
+        Registro1.add(dSeparador_cedula, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 207, -1));
+
+        dSeparador_telefono.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_telefono.setForeground(new java.awt.Color(153, 153, 153));
+        dSeparador_telefono.setOpaque(true);
+        Registro1.add(dSeparador_telefono, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 210, -1));
+
+        dSeparador_correo.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_correo.setForeground(new java.awt.Color(153, 153, 153));
+        dSeparador_correo.setOpaque(true);
+        Registro1.add(dSeparador_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 370, 210, -1));
+
+        etick_nacionalidad.setText("nacionalidad");
+        Registro1.add(etick_nacionalidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 250, 120, -1));
+
+        etick_pNombre.setText("Primer Nombre. ¡Necesario!");
+        Registro1.add(etick_pNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
+
+        etick_sNombre.setText("Segundo Nombre. ¡Necesario!");
+        Registro1.add(etick_sNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 30, -1, -1));
+
+        etick_pApellido.setText("Primer Apellido. ¡Necesario!");
+        Registro1.add(etick_pApellido, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, -1, -1));
+
+        etick_sApellido.setText("Segundo Apellido. ¡Necesario!");
+        Registro1.add(etick_sApellido, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 100, -1, -1));
+
+        etick_cedula.setText("cedula de identidad");
+        Registro1.add(etick_cedula, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, -1, -1));
+
+        etick_telefono.setText("Telefono. ¡Opcional!");
+        Registro1.add(etick_telefono, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, 120, -1));
+
+        etick_correo.setText("Correo ¡Opcional!");
+        Registro1.add(etick_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 320, 120, -1));
+
+        etick_genero.setText("genero");
+        Registro1.add(etick_genero, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 120, -1));
+
+        entrada_fechaN_registro.setBorder(null);
+        Registro1.add(entrada_fechaN_registro, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 200, 160, 30));
+
+        bt_fechaN_registro1.setBackground(new java.awt.Color(102, 0, 255));
+        bt_fechaN_registro1.setBorder(null);
+        bt_fechaN_registro1.setText("buttonShadow1");
+        bt_fechaN_registro1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_fechaN_registro1ActionPerformed(evt);
+            }
+        });
+        Registro1.add(bt_fechaN_registro1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 202, 15, 26));
+
+        enNacionalidad.setModel(new javax.swing.DefaultComboBoxModel<>(cargarNacionalidadCbbx()));
+        Registro1.add(enNacionalidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 270, 207, 30));
+
         enSexo.setModel(new javax.swing.DefaultComboBoxModel<>(cargarSexoCbbx()));
         enSexo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2384,89 +2468,14 @@ public class principal extends javax.swing.JFrame {
         });
         Registro1.add(enSexo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 270, 207, 30));
 
-        jSeparator1.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator1.setForeground(new java.awt.Color(153, 153, 153));
-        jSeparator1.setOpaque(true);
-        Registro1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 370, 210, -1));
-
-        jSeparator3.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator3.setForeground(new java.awt.Color(153, 153, 153));
-        jSeparator3.setOpaque(true);
-        Registro1.add(jSeparator3, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 80, 207, -1));
-
-        jSeparator4.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator4.setForeground(new java.awt.Color(153, 153, 153));
-        jSeparator4.setOpaque(true);
-        Registro1.add(jSeparator4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 207, -1));
-
-        jSeparator5.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator5.setForeground(new java.awt.Color(153, 153, 153));
-        jSeparator5.setOpaque(true);
-        Registro1.add(jSeparator5, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 150, 207, -1));
-
-        jSeparator6.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator6.setForeground(new java.awt.Color(153, 153, 153));
-        jSeparator6.setOpaque(true);
-        Registro1.add(jSeparator6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 207, -1));
-
-        jSeparator7.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator7.setForeground(new java.awt.Color(153, 153, 153));
-        jSeparator7.setOpaque(true);
-        Registro1.add(jSeparator7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 210, -1));
-
-        jSeparator8.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator8.setForeground(new java.awt.Color(153, 153, 153));
-        jSeparator8.setOpaque(true);
-        Registro1.add(jSeparator8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 207, -1));
-
-        jLabel33.setFont(new java.awt.Font("Roboto", 1, 15)); // NOI18N
-        jLabel33.setText("Siguiente");
-        jLabel33.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel33MouseClicked(evt);
+        bt_registro1_siguiente.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        bt_registro1_siguiente.setText("Siguiente");
+        bt_registro1_siguiente.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                bt_registro1_siguienteMousePressed(evt);
             }
         });
-        Registro1.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 400, -1, -1));
-
-        jLabel31.setText("nacionalidad");
-        Registro1.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 250, 120, -1));
-
-        jLabel95.setText("primer nombre");
-        Registro1.add(jLabel95, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 120, -1));
-
-        jLabel96.setText("segundo nombre");
-        Registro1.add(jLabel96, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 30, 120, -1));
-
-        jLabel97.setText("primer apellido");
-        Registro1.add(jLabel97, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 120, -1));
-
-        jLabel98.setText("segundo apellido");
-        Registro1.add(jLabel98, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 100, 120, -1));
-
-        jLabel99.setText("cedula de identidad");
-        Registro1.add(jLabel99, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 120, -1));
-
-        jLabel100.setText("telefono");
-        Registro1.add(jLabel100, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, 120, -1));
-
-        jLabel101.setText("correo");
-        Registro1.add(jLabel101, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 320, 120, -1));
-
-        jLabel102.setText("genero");
-        Registro1.add(jLabel102, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 120, -1));
-
-        jTextField14.setBorder(null);
-        Registro1.add(jTextField14, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 200, 160, 30));
-
-        buttonShadow1.setBackground(new java.awt.Color(102, 0, 255));
-        buttonShadow1.setBorder(null);
-        buttonShadow1.setText("buttonShadow1");
-        buttonShadow1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonShadow1ActionPerformed(evt);
-            }
-        });
-        Registro1.add(buttonShadow1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 202, 15, 26));
+        Registro1.add(bt_registro1_siguiente, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 400, -1, -1));
 
         panel_registrar.add(Registro1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 50, 530, 430));
 
@@ -2479,77 +2488,91 @@ public class principal extends javax.swing.JFrame {
         jPanel13.setBackground(new java.awt.Color(245, 245, 245));
         jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)), "Seleccione el nivel educativo mas alto alcanzado"));
 
-        ed2.addActionListener(new java.awt.event.ActionListener() {
+        checkbox_entradaNVedc_eduacionBasica.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ed2ActionPerformed(evt);
+                checkbox_entradaNVedc_eduacionBasicaActionPerformed(evt);
             }
         });
 
-        ed1.addActionListener(new java.awt.event.ActionListener() {
+        checkbox_entradaNVedc_educacionInicial.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ed1ActionPerformed(evt);
+                checkbox_entradaNVedc_educacionInicialActionPerformed(evt);
             }
         });
 
-        ed3.addActionListener(new java.awt.event.ActionListener() {
+        checkbox_entradaNVedc_educacionMedia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ed3ActionPerformed(evt);
+                checkbox_entradaNVedc_educacionMediaActionPerformed(evt);
             }
         });
 
-        ed4.addActionListener(new java.awt.event.ActionListener() {
+        checkbox_entradaNVedc_eduacionSuperior.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ed4ActionPerformed(evt);
+                checkbox_entradaNVedc_eduacionSuperiorActionPerformed(evt);
             }
         });
 
-        jLabel48.setText("Educación Superior");
+        label_entradaNVedc_educacionSuperior.setText("Educación Superior");
 
-        jLabel39.setText("Educación Media");
+        label_entradaNVedc_educacionMedia.setText("Educación Media");
 
-        jLabel37.setText("Educación Basica");
+        label_entradaNVedc_eduacionBasica.setText("Educación Basica");
 
-        jLabel27.setText("Educación Inicial");
+        label_entradaNVedc_educacionInicial.setText("Educación Inicial");
+
+        label_entradaNVedc_sinEducacion.setText("Sin Educacion");
+
+        checkbox_entradaNVedc_sinEducacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkbox_entradaNVedc_sinEducacionActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
         jPanel13Layout.setHorizontalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+            .addGroup(jPanel13Layout.createSequentialGroup()
                 .addGap(70, 70, 70)
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel27, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jLabel48, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel37, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(label_entradaNVedc_educacionInicial, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(label_entradaNVedc_sinEducacion, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(label_entradaNVedc_eduacionBasica, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label_entradaNVedc_educacionMedia, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label_entradaNVedc_educacionSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 119, Short.MAX_VALUE)
                 .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ed1)
-                    .addComponent(ed2)
-                    .addComponent(ed4)
-                    .addComponent(ed3))
+                    .addComponent(checkbox_entradaNVedc_educacionInicial)
+                    .addComponent(checkbox_entradaNVedc_eduacionBasica)
+                    .addComponent(checkbox_entradaNVedc_eduacionSuperior)
+                    .addComponent(checkbox_entradaNVedc_educacionMedia)
+                    .addComponent(checkbox_entradaNVedc_sinEducacion))
                 .addGap(100, 100, 100))
         );
         jPanel13Layout.setVerticalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel13Layout.createSequentialGroup()
-                .addGap(33, 33, 33)
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(ed1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(42, 42, 42)
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ed2)
-                    .addComponent(jLabel37, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(42, 42, 42)
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ed3)
-                    .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                .addGap(20, 20, 20)
                 .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel48, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ed4))
+                    .addComponent(label_entradaNVedc_sinEducacion, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkbox_entradaNVedc_sinEducacion))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(label_entradaNVedc_educacionInicial, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkbox_entradaNVedc_educacionInicial))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(label_entradaNVedc_eduacionBasica, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkbox_entradaNVedc_eduacionBasica))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(label_entradaNVedc_educacionMedia, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkbox_entradaNVedc_educacionMedia))
+                .addGap(29, 29, 29)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(checkbox_entradaNVedc_eduacionSuperior)
+                    .addComponent(label_entradaNVedc_educacionSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(38, 38, 38))
         );
 
@@ -2579,14 +2602,6 @@ public class principal extends javax.swing.JFrame {
             }
         });
         Registro2.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 400, -1, -1));
-
-        jButton7.setText("jButton7");
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
-            }
-        });
-        Registro2.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 20, -1, -1));
 
         panel_registrar.add(Registro2, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 50, 530, 430));
 
@@ -2637,42 +2652,57 @@ public class principal extends javax.swing.JFrame {
 
         jPanel10.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 180, 470, 180));
 
-        jTextArea1.setEditable(false);
-        jTextArea1.setBackground(new java.awt.Color(245, 245, 245));
-        jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jTextArea1.setRows(5);
-        jTextArea1.setText("Descripción: ");
-        jTextArea1.setBorder(null);
-        jPanel10.add(jTextArea1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 470, 40));
+        label_registroP_detallesSs_Descripcion.setEditable(false);
+        label_registroP_detallesSs_Descripcion.setBackground(new java.awt.Color(245, 245, 245));
+        label_registroP_detallesSs_Descripcion.setColumns(20);
+        label_registroP_detallesSs_Descripcion.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        label_registroP_detallesSs_Descripcion.setRows(5);
+        label_registroP_detallesSs_Descripcion.setText("Descripción: ");
+        label_registroP_detallesSs_Descripcion.setBorder(null);
+        jPanel10.add(label_registroP_detallesSs_Descripcion, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 470, 40));
 
         jLabel103.setText("Discapacidades");
         jPanel10.add(jLabel103, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 126, 90, -1));
 
-        jLabel104.setText("Nombre de discapacidad: ");
-        jPanel10.add(jLabel104, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
+        label_registroP_detallesSs_nombre.setText("Nombre de discapacidad: ");
+        jPanel10.add(label_registroP_detallesSs_nombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
 
-        jLabel105.setText("Tipo:");
-        jPanel10.add(jLabel105, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, -1, -1));
+        label_registroP_detallesSs_tipo.setText("Tipo:");
+        jPanel10.add(label_registroP_detallesSs_tipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, -1, -1));
 
-        jButton2.setText("Aregar");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+        combo_entradaRdd_listaDiscapacidades.setModel(new javax.swing.DefaultComboBoxModel<>(cargarDdCbbx()));
+        combo_entradaRdd_listaDiscapacidades.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                combo_entradaRdd_listaDiscapacidadesItemStateChanged(evt);
             }
         });
-        jPanel10.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 140, 70, 30));
-
-        jButton4.setText("Quitar");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        combo_entradaRdd_listaDiscapacidades.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                combo_entradaRdd_listaDiscapacidadesActionPerformed(evt);
             }
         });
-        jPanel10.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 140, 70, 30));
+        jPanel10.add(combo_entradaRdd_listaDiscapacidades, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 140, 320, 30));
 
-        comboBoxSuggestion1.setModel(new javax.swing.DefaultComboBoxModel<>(cargarDdCbbx()));
-        jPanel10.add(comboBoxSuggestion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 140, 320, 30));
+        boton_entradaRdd_agregar.setText("Agregar");
+        boton_entradaRdd_agregar.setToolTipText("");
+        boton_entradaRdd_agregar.setColorDeSombra(new java.awt.Color(51, 51, 51));
+        boton_entradaRdd_agregar.setFont(new java.awt.Font("Corbel", 1, 14)); // NOI18N
+        boton_entradaRdd_agregar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boton_entradaRdd_agregarActionPerformed(evt);
+            }
+        });
+        jPanel10.add(boton_entradaRdd_agregar, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 140, 70, 30));
+
+        buttonAction1.setText("Quitar");
+        buttonAction1.setColorDeSombra(new java.awt.Color(51, 51, 51));
+        buttonAction1.setFont(new java.awt.Font("Corbel", 1, 14)); // NOI18N
+        buttonAction1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonAction1ActionPerformed(evt);
+            }
+        });
+        jPanel10.add(buttonAction1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 140, 70, 30));
 
         Registro3.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 490, 370));
 
@@ -2684,15 +2714,6 @@ public class principal extends javax.swing.JFrame {
             }
         });
         Registro3.add(jLabel51, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 400, -1, -1));
-
-        jLabel52.setFont(new java.awt.Font("Roboto", 1, 15)); // NOI18N
-        jLabel52.setText("Siguiente");
-        jLabel52.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel52MouseClicked(evt);
-            }
-        });
-        Registro3.add(jLabel52, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 400, -1, -1));
 
         jLabel53.setFont(new java.awt.Font("Roboto", 1, 15)); // NOI18N
         jLabel53.setText("Siguiente");
@@ -2819,42 +2840,42 @@ public class principal extends javax.swing.JFrame {
         jLabel40.setText("Numero de la casa");
         jPanel8.add(jLabel40, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 103, -1));
 
-        jTextField6.setBorder(null);
-        jTextField6.addCaretListener(new javax.swing.event.CaretListener() {
+        en_nCasa.setBorder(null);
+        en_nCasa.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
-                jTextField6CaretUpdate(evt);
+                en_nCasaCaretUpdate(evt);
             }
         });
-        jTextField6.addMouseListener(new java.awt.event.MouseAdapter() {
+        en_nCasa.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jTextField6MouseEntered(evt);
+                en_nCasaMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                jTextField6MouseExited(evt);
+                en_nCasaMouseExited(evt);
             }
         });
-        jTextField6.addActionListener(new java.awt.event.ActionListener() {
+        en_nCasa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField6ActionPerformed(evt);
+                en_nCasaActionPerformed(evt);
             }
         });
-        jPanel8.add(jTextField6, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 30, 128, 20));
+        jPanel8.add(en_nCasa, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 30, 130, 20));
 
-        jCheckBox7.setText("no posee");
-        jCheckBox7.setVisible(true);
-        jCheckBox7.addActionListener(new java.awt.event.ActionListener() {
+        en_not_nCasa.setText("no posee");
+        en_not_nCasa.setSelected(true);
+        en_not_nCasa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox7ActionPerformed(evt);
+                en_not_nCasaActionPerformed(evt);
             }
         });
-        jPanel8.add(jCheckBox7, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 30, -1, -1));
+        jPanel8.add(en_not_nCasa, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 30, -1, -1));
 
         jLabel41.setText("Direccion");
         jPanel8.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 55, -1));
 
-        jComboBox8.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStrikeCbbx()));
-        jComboBox8.setBorder(null);
-        jPanel8.add(jComboBox8, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 420, -1));
+        en_combo_direccion.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStrikeCbbx()));
+        en_combo_direccion.setBorder(null);
+        jPanel8.add(en_combo_direccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 420, -1));
 
         jPanel12.setBackground(new java.awt.Color(245, 245, 245));
         jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)), "Servicios disponibles"));
@@ -2872,78 +2893,81 @@ public class principal extends javax.swing.JFrame {
         jLabel45.setText("Modulo CLP");
         jPanel12.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 94, -1));
 
-        jCheckBox8.setText("Si");
-        jCheckBox8.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_agua_s.setText("Si");
+        en_serv_agua_s.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox8ActionPerformed(evt);
+                en_serv_agua_sActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox8, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, -1, -1));
+        jPanel12.add(en_serv_agua_s, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, -1, -1));
 
-        jCheckBox13.setText("No");
-        jCheckBox13.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_agua_n.setText("No");
+        en_serv_agua_n.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox13ActionPerformed(evt);
+                en_serv_agua_nActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox13, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 30, -1, -1));
+        jPanel12.add(en_serv_agua_n, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 30, -1, -1));
 
-        jCheckBox14.setText("No");
-        jCheckBox14.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_aguaN_n.setText("No");
+        en_serv_aguaN_n.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox14ActionPerformed(evt);
+                en_serv_aguaN_nActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox14, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 70, -1, -1));
+        jPanel12.add(en_serv_aguaN_n, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 70, -1, -1));
 
-        jCheckBox15.setText("Si");
-        jCheckBox15.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_aguaN_s.setText("Si");
+        en_serv_aguaN_s.setSelected(true);
+        en_serv_aguaN_s.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox15ActionPerformed(evt);
+                en_serv_aguaN_sActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox15, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 70, -1, -1));
+        jPanel12.add(en_serv_aguaN_s, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 70, -1, -1));
 
-        jCheckBox16.setText("No");
-        jCheckBox16.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_elct_n.setText("No");
+        en_serv_elct_n.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox16ActionPerformed(evt);
+                en_serv_elct_nActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox16, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, -1, -1));
+        jPanel12.add(en_serv_elct_n, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, -1, -1));
 
-        jCheckBox17.setText("Si");
-        jCheckBox17.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_elct_s.setText("Si");
+        en_serv_elct_s.setSelected(true);
+        en_serv_elct_s.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox17ActionPerformed(evt);
+                en_serv_elct_sActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox17, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
+        jPanel12.add(en_serv_elct_s, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
 
-        jCheckBox18.setText("No");
-        jCheckBox18.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_cls_n.setText("No");
+        en_serv_cls_n.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox18ActionPerformed(evt);
+                en_serv_cls_nActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox18, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 150, -1, -1));
+        jPanel12.add(en_serv_cls_n, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 150, -1, -1));
 
-        jCheckBox19.setText("Si");
-        jCheckBox19.addActionListener(new java.awt.event.ActionListener() {
+        en_serv_cls_s.setText("Si");
+        en_serv_cls_s.setSelected(true);
+        en_serv_cls_s.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox19ActionPerformed(evt);
+                en_serv_cls_sActionPerformed(evt);
             }
         });
-        jPanel12.add(jCheckBox19, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
+        jPanel12.add(en_serv_cls_s, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
 
         jPanel8.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 163, 422, 190));
 
         jLabel47.setText("Condicion de la casa");
         jPanel8.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 70, -1, 20));
 
-        jComboBox10.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStadoCasaCbbx()));
-        jComboBox10.setBorder(null);
-        jPanel8.add(jComboBox10, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, 270, -1));
+        en_combo_stdCasa.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStadoCasaCbbx()));
+        en_combo_stdCasa.setBorder(null);
+        jPanel8.add(en_combo_stdCasa, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, 270, -1));
 
         jSeparator18.setBackground(new java.awt.Color(153, 153, 153));
         jSeparator18.setOpaque(true);
@@ -2980,8 +3004,8 @@ public class principal extends javax.swing.JFrame {
         panel_demografia.setVisible(false);
         panel_demografia.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLayeredPane2.setVisible(false);
-        jLayeredPane2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panel_dmg_strike.setVisible(false);
+        panel_dmg_strike.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jTable3.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -2993,123 +3017,141 @@ public class principal extends javax.swing.JFrame {
             new String [] {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable3.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jTable3.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         cargarCalles();
         jTable3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTable3MouseClicked(evt);
             }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTable3MousePressed(evt);
+            }
         });
         jScrollPane3.setViewportView(jTable3);
 
-        jLayeredPane2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 680, 290));
+        panel_dmg_strike.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 680, 290));
 
-        jLabel127.setBackground(new Color(153, 153, 153));
-        jLabel127.setForeground(disponible);
-        jLabel127.setText("Ver estructura");
-        jLabel127.addMouseListener(new java.awt.event.MouseAdapter() {
+        bt_dmg_estruc.setBackground(new Color(153, 153, 153));
+        bt_dmg_estruc.setFont(new java.awt.Font("Roboto Black", 1, 14)); // NOI18N
+        bt_dmg_estruc.setForeground(disponible);
+        bt_dmg_estruc.setText("Ver estructura");
+        bt_dmg_estruc.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel127MouseClicked(evt);
+                bt_dmg_estrucMouseClicked(evt);
             }
         });
-        jLayeredPane2.add(jLabel127, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 10, -1, 20));
+        panel_dmg_strike.add(bt_dmg_estruc, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 10, -1, 20));
 
-        jLabel128.setBackground(new java.awt.Color(153, 153, 153));
-        jLabel128.setForeground(disponible);
-        jLabel128.setText("Asignar lider de calle");
-        jLabel128.addMouseListener(new java.awt.event.MouseAdapter() {
+        bt_dmg_addLider.setBackground(new java.awt.Color(153, 153, 153));
+        bt_dmg_addLider.setFont(new java.awt.Font("Roboto Black", 1, 14)); // NOI18N
+        bt_dmg_addLider.setForeground(nulo);
+        bt_dmg_addLider.setText("Asignar lider de calle");
+        bt_dmg_addLider.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel128MouseClicked(evt);
+                bt_dmg_addLiderMouseClicked(evt);
             }
         });
-        jLayeredPane2.add(jLabel128, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, -1, 20));
+        panel_dmg_strike.add(bt_dmg_addLider, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, -1, 20));
 
-        jLabel130.setForeground(disponible);
-        jLabel130.setText("Agregar Calle");
-        jLabel130.addMouseListener(new java.awt.event.MouseAdapter() {
+        bt_dmg_addStrike.setFont(new java.awt.Font("Roboto Black", 1, 14)); // NOI18N
+        bt_dmg_addStrike.setForeground(disponible);
+        bt_dmg_addStrike.setText("Agregar Calle");
+        bt_dmg_addStrike.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel130MouseClicked(evt);
+                bt_dmg_addStrikeMouseClicked(evt);
             }
         });
-        jLayeredPane2.add(jLabel130, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, 20));
+        panel_dmg_strike.add(bt_dmg_addStrike, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, 20));
 
-        jTextField7.setEditable(false);
-        jTextField7.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField7.setBorder(null);
-        jTextField7.addCaretListener(new javax.swing.event.CaretListener() {
+        entradaTxt_demografia.setEditable(false);
+        entradaTxt_demografia.setBackground(new java.awt.Color(255, 255, 255));
+        entradaTxt_demografia.setBorder(null);
+        entradaTxt_demografia.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
-                jTextField7CaretUpdate(evt);
+                entradaTxt_demografiaCaretUpdate(evt);
             }
         });
-        jTextField7.addMouseListener(new java.awt.event.MouseAdapter() {
+        entradaTxt_demografia.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jTextField7MouseEntered(evt);
+                entradaTxt_demografiaMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                jTextField7MouseExited(evt);
+                entradaTxt_demografiaMouseExited(evt);
             }
         });
-        jTextField7.addActionListener(new java.awt.event.ActionListener() {
+        entradaTxt_demografia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField7ActionPerformed(evt);
+                entradaTxt_demografiaActionPerformed(evt);
             }
         });
-        jTextField7.addKeyListener(new java.awt.event.KeyAdapter() {
+        entradaTxt_demografia.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField7KeyReleased(evt);
+                entradaTxt_demografiaKeyReleased(evt);
             }
         });
-        jTextField7.setText("");
-        jLayeredPane2.add(jTextField7, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 60, 330, 30));
+        entradaTxt_demografia.setText("");
+        panel_dmg_strike.add(entradaTxt_demografia, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 70, 330, 30));
 
-        jLabel129.setForeground(nulo);
-        jLabel129.setText("Agregar");
-        jLabel129.addMouseListener(new java.awt.event.MouseAdapter() {
+        bt_dmg_guardar.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
+        bt_dmg_guardar.setForeground(new java.awt.Color(0, 153, 0));
+        bt_dmg_guardar.setText("Guardar");
+        bt_dmg_guardar.setVisible(false);
+        bt_dmg_guardar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel129MouseClicked(evt);
+                bt_dmg_guardarMouseClicked(evt);
             }
         });
-        jLayeredPane2.add(jLabel129, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 70, -1, 20));
+        panel_dmg_strike.add(bt_dmg_guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 70, -1, 20));
 
-        jLabel131.setForeground(nulo);
-        jLabel131.setText("Descargar");
-        jLabel131.addMouseListener(new java.awt.event.MouseAdapter() {
+        bt_dmg_descartar.setFont(new java.awt.Font("Dialog", 1, 15)); // NOI18N
+        bt_dmg_descartar.setForeground(new java.awt.Color(204, 0, 0));
+        bt_dmg_descartar.setText("Descartar");
+        bt_dmg_descartar.setVisible(false);
+        bt_dmg_descartar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel131MouseClicked(evt);
+                bt_dmg_descartarMouseClicked(evt);
             }
         });
-        jLayeredPane2.add(jLabel131, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 70, -1, 20));
+        panel_dmg_strike.add(bt_dmg_descartar, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 70, -1, 20));
 
         jSeparator20.setBackground(new java.awt.Color(153, 153, 153));
         jSeparator20.setOpaque(true);
-        jLayeredPane2.add(jSeparator20, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 330, 1));
+        panel_dmg_strike.add(jSeparator20, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 100, 330, 1));
 
-        jLabel93.setForeground(disponible);
-        jLabel93.setText("Modificar Calle");
-        jLabel93.addMouseListener(new java.awt.event.MouseAdapter() {
+        bt_dmg_stingStrike.setFont(new java.awt.Font("Roboto Black", 1, 14)); // NOI18N
+        bt_dmg_stingStrike.setForeground(disponible);
+        bt_dmg_stingStrike.setText("Modificar Calle");
+        bt_dmg_stingStrike.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel93MouseClicked(evt);
+                bt_dmg_stingStrikeMouseClicked(evt);
             }
         });
-        jLayeredPane2.add(jLabel93, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, -1, -1));
+        panel_dmg_strike.add(bt_dmg_stingStrike, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, -1, 20));
 
-        panel_demografia.add(jLayeredPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 750, 410));
+        panel_demografia.add(panel_dmg_strike, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 720, 410));
 
-        jLayeredPane1.setBackground(new java.awt.Color(0, 0, 0));
-        jLayeredPane1.setPreferredSize(new java.awt.Dimension(710, 400));
-        jLayeredPane1.setVisible(false);
-        jLayeredPane1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panel_dmg_lider.setBackground(new java.awt.Color(0, 0, 0));
+        panel_dmg_lider.setPreferredSize(new java.awt.Dimension(710, 400));
+        panel_dmg_lider.setVisible(false);
+        panel_dmg_lider.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jSeparator2.setBackground(new java.awt.Color(153, 153, 153));
         jSeparator2.setForeground(new java.awt.Color(153, 153, 153));
         jSeparator2.setOpaque(true);
-        jLayeredPane1.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 490, -1));
-
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStrikeCbbx()));
-        jLayeredPane1.add(jComboBox5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 490, -1));
+        panel_dmg_lider.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 490, -1));
 
         jLabel63.setText("Añadir lider de calle");
-        jLayeredPane1.add(jLabel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 240, -1));
+        panel_dmg_lider.add(jLabel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 240, -1));
 
         jTable5.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -3129,9 +3171,9 @@ public class principal extends javax.swing.JFrame {
         });
         jScrollPane5.setViewportView(jTable5);
 
-        jLayeredPane1.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 140, 680, 250));
+        panel_dmg_lider.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 140, 680, 250));
 
-        jTextField10.setBackground(new Color(255,255,255,0));
+        jTextField10.setBackground(new Color(255,255,255,150));
         jTextField10.setText("Buscar...");
         jTextField10.setBorder(null);
         jTextField10.addCaretListener(new javax.swing.event.CaretListener() {
@@ -3147,7 +3189,7 @@ public class principal extends javax.swing.JFrame {
                 jTextField10MouseExited(evt);
             }
         });
-        jLayeredPane1.add(jTextField10, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 490, 20));
+        panel_dmg_lider.add(jTextField10, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 490, 30));
 
         jButton6.setText("Agregar");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -3155,9 +3197,12 @@ public class principal extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-        jLayeredPane1.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 100, -1, -1));
+        panel_dmg_lider.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 100, -1, -1));
 
-        panel_demografia.add(jLayeredPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 750, 410));
+        combo_demografia_asigLider.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStrikeCbbx()));
+        panel_dmg_lider.add(combo_demografia_asigLider, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 490, -1));
+
+        panel_demografia.add(panel_dmg_lider, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 750, 410));
 
         jPanel4.setBackground(new Color(255,255,255,150));
         jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
@@ -3186,34 +3231,12 @@ public class principal extends javax.swing.JFrame {
         panelMenup.setBackground(new java.awt.Color(0, 233, 233));
         panelMenup.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel6.setFont(new java.awt.Font("Roboto Medium", 1, 16)); // NOI18N
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/cerrar-sesion(1).png"))); // NOI18N
-        jLabel6.setText("Salir");
-        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel6MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jLabel6MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jLabel6MouseExited(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                jLabel6MousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jLabel6MouseReleased(evt);
-            }
-        });
-        panelMenup.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 440, 80, 40));
-
-        bt_menu_agregar.setForeground(new java.awt.Color(51, 51, 51));
+        bt_menu_agregar.setForeground(new java.awt.Color(0, 0, 0));
         bt_menu_agregar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/residente.png"))); // NOI18N
         bt_menu_agregar.setText("Agregar");
         bt_menu_agregar.setColor1(new java.awt.Color(51, 102, 255));
         bt_menu_agregar.setColor2(new java.awt.Color(200, 94, 160));
-        bt_menu_agregar.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        bt_menu_agregar.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
         bt_menu_agregar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bt_menu_agregarActionPerformed(evt);
@@ -3221,12 +3244,12 @@ public class principal extends javax.swing.JFrame {
         });
         panelMenup.add(bt_menu_agregar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 230, 60));
 
-        bt_menu_demografia.setForeground(new java.awt.Color(51, 51, 51));
+        bt_menu_demografia.setForeground(new java.awt.Color(0, 0, 0));
         bt_menu_demografia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/agregar32x32.png"))); // NOI18N
         bt_menu_demografia.setText("Demografia");
         bt_menu_demografia.setColor1(new java.awt.Color(51, 102, 255));
         bt_menu_demografia.setColor2(new java.awt.Color(200, 94, 160));
-        bt_menu_demografia.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        bt_menu_demografia.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
         bt_menu_demografia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bt_menu_demografiaActionPerformed(evt);
@@ -3234,12 +3257,12 @@ public class principal extends javax.swing.JFrame {
         });
         panelMenup.add(bt_menu_demografia, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 95, 230, 60));
 
-        bt_mn_buscar.setForeground(new java.awt.Color(51, 51, 51));
+        bt_mn_buscar.setForeground(new java.awt.Color(0, 0, 0));
         bt_mn_buscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/lupa-de-busqueda 32x.png"))); // NOI18N
         bt_mn_buscar.setText("Buscar");
         bt_mn_buscar.setColor1(new java.awt.Color(51, 102, 255));
         bt_mn_buscar.setColor2(new java.awt.Color(200, 94, 160));
-        bt_mn_buscar.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        bt_mn_buscar.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
         bt_mn_buscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bt_mn_buscarActionPerformed(evt);
@@ -3247,12 +3270,12 @@ public class principal extends javax.swing.JFrame {
         });
         panelMenup.add(bt_mn_buscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 230, 60));
 
-        bt_menu_modificar.setForeground(new java.awt.Color(51, 51, 51));
+        bt_menu_modificar.setForeground(new java.awt.Color(0, 0, 0));
         bt_menu_modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/editar 32x32.png"))); // NOI18N
         bt_menu_modificar.setText("Modificar");
         bt_menu_modificar.setColor1(new java.awt.Color(51, 102, 255));
         bt_menu_modificar.setColor2(new java.awt.Color(200, 94, 160));
-        bt_menu_modificar.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        bt_menu_modificar.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
         bt_menu_modificar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bt_menu_modificarActionPerformed(evt);
@@ -3260,12 +3283,12 @@ public class principal extends javax.swing.JFrame {
         });
         panelMenup.add(bt_menu_modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 225, 230, 60));
 
-        bt_menu_imprimir.setForeground(new java.awt.Color(51, 51, 51));
+        bt_menu_imprimir.setForeground(new java.awt.Color(0, 0, 0));
         bt_menu_imprimir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/imprimir.png"))); // NOI18N
         bt_menu_imprimir.setText("Imprimir");
         bt_menu_imprimir.setColor1(new java.awt.Color(51, 102, 255));
         bt_menu_imprimir.setColor2(new java.awt.Color(200, 94, 160));
-        bt_menu_imprimir.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        bt_menu_imprimir.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
         bt_menu_imprimir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bt_menu_imprimirActionPerformed(evt);
@@ -3273,25 +3296,25 @@ public class principal extends javax.swing.JFrame {
         });
         panelMenup.add(bt_menu_imprimir, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, 230, 60));
 
-        bt_menu_pregunta.setForeground(new java.awt.Color(51, 51, 51));
-        bt_menu_pregunta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/pregunta.png"))); // NOI18N
-        bt_menu_pregunta.setText("Acerca de...");
-        bt_menu_pregunta.setColor1(new java.awt.Color(51, 102, 255));
-        bt_menu_pregunta.setColor2(new java.awt.Color(200, 94, 160));
-        bt_menu_pregunta.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
-        bt_menu_pregunta.addActionListener(new java.awt.event.ActionListener() {
+        bt_menu_gestionar.setForeground(new java.awt.Color(0, 0, 0));
+        bt_menu_gestionar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/pregunta.png"))); // NOI18N
+        bt_menu_gestionar.setText("Gestionar");
+        bt_menu_gestionar.setColor1(new java.awt.Color(51, 102, 255));
+        bt_menu_gestionar.setColor2(new java.awt.Color(200, 94, 160));
+        bt_menu_gestionar.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
+        bt_menu_gestionar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bt_menu_preguntaActionPerformed(evt);
+                bt_menu_gestionarActionPerformed(evt);
             }
         });
-        panelMenup.add(bt_menu_pregunta, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 355, 230, 60));
+        panelMenup.add(bt_menu_gestionar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 355, 230, 60));
 
-        bt_menu_usuario.setForeground(new java.awt.Color(51, 51, 51));
+        bt_menu_usuario.setForeground(new java.awt.Color(0, 0, 0));
         bt_menu_usuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/usuario 32x32.png"))); // NOI18N
         bt_menu_usuario.setText("Usuario");
         bt_menu_usuario.setColor1(new java.awt.Color(51, 102, 255));
         bt_menu_usuario.setColor2(new java.awt.Color(200, 94, 160));
-        bt_menu_usuario.setFont(new java.awt.Font("Corbel", 1, 24)); // NOI18N
+        bt_menu_usuario.setFont(new java.awt.Font("Roboto", 1, 24)); // NOI18N
         bt_menu_usuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bt_menu_usuarioActionPerformed(evt);
@@ -3303,8 +3326,8 @@ public class principal extends javax.swing.JFrame {
         itemM_agregar_persona.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/persona 24x24.png"))); // NOI18N
         itemM_agregar_persona.setText("Persona");
         itemM_agregar_persona.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_agregar_persona.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_agregar_persona.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_agregar_persona.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_agregar_persona.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_agregar_persona.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_agregar_personaActionPerformed(evt);
@@ -3317,8 +3340,8 @@ public class principal extends javax.swing.JFrame {
         itemM_agregar_cargaFamiliar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/familia 24x24.png"))); // NOI18N
         itemM_agregar_cargaFamiliar.setText("Carga Familiar");
         itemM_agregar_cargaFamiliar.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_agregar_cargaFamiliar.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_agregar_cargaFamiliar.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_agregar_cargaFamiliar.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_agregar_cargaFamiliar.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_agregar_cargaFamiliar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_agregar_cargaFamiliarActionPerformed(evt);
@@ -3330,8 +3353,8 @@ public class principal extends javax.swing.JFrame {
         itemM_agregar_LiderCalle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/lider 24x24.png"))); // NOI18N
         itemM_agregar_LiderCalle.setText("Lider de Calle");
         itemM_agregar_LiderCalle.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_agregar_LiderCalle.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_agregar_LiderCalle.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_agregar_LiderCalle.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_agregar_LiderCalle.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_agregar_LiderCalle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_agregar_LiderCalleActionPerformed(evt);
@@ -3343,8 +3366,8 @@ public class principal extends javax.swing.JFrame {
         itemM_demografia_addCalle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/mapa.png"))); // NOI18N
         itemM_demografia_addCalle.setText("Agregar Calle");
         itemM_demografia_addCalle.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_demografia_addCalle.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_demografia_addCalle.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_demografia_addCalle.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_demografia_addCalle.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_demografia_addCalle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_demografia_addCalleActionPerformed(evt);
@@ -3357,8 +3380,8 @@ public class principal extends javax.swing.JFrame {
         itemM_demografia_infComunal.setText("Información comunal");
         itemM_demografia_infComunal.setToolTipText("");
         itemM_demografia_infComunal.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_demografia_infComunal.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_demografia_infComunal.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_demografia_infComunal.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_demografia_infComunal.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_demografia_infComunal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_demografia_infComunalActionPerformed(evt);
@@ -3370,8 +3393,8 @@ public class principal extends javax.swing.JFrame {
         itemM_filtro_buscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/buscar lupa 24x24.png"))); // NOI18N
         itemM_filtro_buscar.setText("Buscar");
         itemM_filtro_buscar.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_filtro_buscar.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_filtro_buscar.setFont(new java.awt.Font("Corbel", 1, 14)); // NOI18N
+        itemM_filtro_buscar.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_filtro_buscar.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_filtro_buscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_filtro_buscarActionPerformed(evt);
@@ -3383,20 +3406,20 @@ public class principal extends javax.swing.JFrame {
         itemM_filtro_ubicacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ubicacion 24x24.png"))); // NOI18N
         itemM_filtro_ubicacion.setText("Ubicacion");
         itemM_filtro_ubicacion.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_filtro_ubicacion.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_filtro_ubicacion.setFont(new java.awt.Font("Corbel", 1, 14)); // NOI18N
+        itemM_filtro_ubicacion.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_filtro_ubicacion.setFont(new java.awt.Font("Roboto Light", 1, 13)); // NOI18N
         itemM_filtro_ubicacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_filtro_ubicacionActionPerformed(evt);
             }
         });
-        panelMenup.add(itemM_filtro_ubicacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(365, 160, -1, 60));
+        panelMenup.add(itemM_filtro_ubicacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(368, 160, -1, 60));
 
         itemM_filtro_edad.setForeground(new java.awt.Color(0, 0, 0));
         itemM_filtro_edad.setText("Edad");
         itemM_filtro_edad.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_filtro_edad.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_filtro_edad.setFont(new java.awt.Font("Corbel", 1, 14)); // NOI18N
+        itemM_filtro_edad.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_filtro_edad.setFont(new java.awt.Font("Roboto Light", 1, 13)); // NOI18N
         itemM_filtro_edad.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_filtro_edadActionPerformed(evt);
@@ -3407,33 +3430,33 @@ public class principal extends javax.swing.JFrame {
         itemM_filtro_nvlEdc.setForeground(new java.awt.Color(0, 0, 0));
         itemM_filtro_nvlEdc.setText("Nv Educativo");
         itemM_filtro_nvlEdc.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_filtro_nvlEdc.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_filtro_nvlEdc.setFont(new java.awt.Font("Corbel", 1, 14)); // NOI18N
+        itemM_filtro_nvlEdc.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_filtro_nvlEdc.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_filtro_nvlEdc.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_filtro_nvlEdcActionPerformed(evt);
             }
         });
-        panelMenup.add(itemM_filtro_nvlEdc, new org.netbeans.lib.awtextra.AbsoluteConstraints(575, 160, -1, 60));
+        panelMenup.add(itemM_filtro_nvlEdc, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 160, -1, 60));
 
         itemM_filtro_otro.setForeground(new java.awt.Color(0, 0, 0));
         itemM_filtro_otro.setText("Otro");
         itemM_filtro_otro.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_filtro_otro.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_filtro_otro.setFont(new java.awt.Font("Corbel", 1, 14)); // NOI18N
+        itemM_filtro_otro.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_filtro_otro.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_filtro_otro.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_filtro_otroActionPerformed(evt);
             }
         });
-        panelMenup.add(itemM_filtro_otro, new org.netbeans.lib.awtextra.AbsoluteConstraints(705, 160, -1, 60));
+        panelMenup.add(itemM_filtro_otro, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 160, -1, 60));
 
         itemM_modificar_persona.setForeground(new java.awt.Color(0, 0, 0));
         itemM_modificar_persona.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/persona 24x24.png"))); // NOI18N
         itemM_modificar_persona.setText("Persona");
         itemM_modificar_persona.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_modificar_persona.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_modificar_persona.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_modificar_persona.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_modificar_persona.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_modificar_persona.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_modificar_personaActionPerformed(evt);
@@ -3445,8 +3468,8 @@ public class principal extends javax.swing.JFrame {
         itemM_modificar_familia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/familia 24x24.png"))); // NOI18N
         itemM_modificar_familia.setText("Familia");
         itemM_modificar_familia.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_modificar_familia.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_modificar_familia.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_modificar_familia.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_modificar_familia.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_modificar_familia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_modificar_familiaActionPerformed(evt);
@@ -3458,8 +3481,8 @@ public class principal extends javax.swing.JFrame {
         itemM_modificar_calle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/carretera 24x24.png"))); // NOI18N
         itemM_modificar_calle.setText("Calle");
         itemM_modificar_calle.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_modificar_calle.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_modificar_calle.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_modificar_calle.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_modificar_calle.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_modificar_calle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_modificar_calleActionPerformed(evt);
@@ -3471,8 +3494,8 @@ public class principal extends javax.swing.JFrame {
         itemM_modificar_liderCalle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/lider 24x24.png"))); // NOI18N
         itemM_modificar_liderCalle.setText("Lider de calle");
         itemM_modificar_liderCalle.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_modificar_liderCalle.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_modificar_liderCalle.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_modificar_liderCalle.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_modificar_liderCalle.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_modificar_liderCalle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_modificar_liderCalleActionPerformed(evt);
@@ -3484,7 +3507,7 @@ public class principal extends javax.swing.JFrame {
         itemM_imprimir_censo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/censo 24x24.png"))); // NOI18N
         itemM_imprimir_censo.setText("Censo");
         itemM_imprimir_censo.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_imprimir_censo.setColor2(new java.awt.Color(153, 153, 255));
+        itemM_imprimir_censo.setColor2(new java.awt.Color(153, 130, 157));
         itemM_imprimir_censo.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
         itemM_imprimir_censo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -3498,8 +3521,8 @@ public class principal extends javax.swing.JFrame {
         itemM_imprimir_carta.setText("Carta de residencia");
         itemM_imprimir_carta.setToolTipText("");
         itemM_imprimir_carta.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_imprimir_carta.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_imprimir_carta.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_imprimir_carta.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_imprimir_carta.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_imprimir_carta.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_imprimir_cartaActionPerformed(evt);
@@ -3507,38 +3530,51 @@ public class principal extends javax.swing.JFrame {
         });
         panelMenup.add(itemM_imprimir_carta, new org.netbeans.lib.awtextra.AbsoluteConstraints(365, 290, -1, 60));
 
-        itemM_pregunta_ayuda.setForeground(new java.awt.Color(0, 0, 0));
-        itemM_pregunta_ayuda.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ayuda 24x24.png"))); // NOI18N
-        itemM_pregunta_ayuda.setText("Ayuda?");
-        itemM_pregunta_ayuda.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_pregunta_ayuda.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_pregunta_ayuda.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
-        itemM_pregunta_ayuda.addActionListener(new java.awt.event.ActionListener() {
+        itemM_pregunta_respaldarBD.setForeground(new java.awt.Color(0, 0, 0));
+        itemM_pregunta_respaldarBD.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/export-archive_icon-icons.com_53998.png"))); // NOI18N
+        itemM_pregunta_respaldarBD.setText("Respaldar BD");
+        itemM_pregunta_respaldarBD.setColor1(new java.awt.Color(102, 204, 255));
+        itemM_pregunta_respaldarBD.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_pregunta_respaldarBD.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
+        itemM_pregunta_respaldarBD.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                itemM_pregunta_ayudaActionPerformed(evt);
+                itemM_pregunta_respaldarBDActionPerformed(evt);
             }
         });
-        panelMenup.add(itemM_pregunta_ayuda, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 355, -1, 60));
+        panelMenup.add(itemM_pregunta_respaldarBD, new org.netbeans.lib.awtextra.AbsoluteConstraints(425, 355, -1, 60));
+
+        itemM_pregunta_restaurarBD.setForeground(new java.awt.Color(0, 0, 0));
+        itemM_pregunta_restaurarBD.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/database_import_icon_135719.png"))); // NOI18N
+        itemM_pregunta_restaurarBD.setText("Restaurar BD");
+        itemM_pregunta_restaurarBD.setColor1(new java.awt.Color(102, 204, 255));
+        itemM_pregunta_restaurarBD.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_pregunta_restaurarBD.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
+        itemM_pregunta_restaurarBD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemM_pregunta_restaurarBDActionPerformed(evt);
+            }
+        });
+        panelMenup.add(itemM_pregunta_restaurarBD, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 355, -1, 60));
 
         itemM_pregunta_manual.setForeground(new java.awt.Color(0, 0, 0));
         itemM_pregunta_manual.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/manual 24x24.png"))); // NOI18N
         itemM_pregunta_manual.setText("Manual de Uso");
         itemM_pregunta_manual.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_pregunta_manual.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_pregunta_manual.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_pregunta_manual.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_pregunta_manual.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         itemM_pregunta_manual.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_pregunta_manualActionPerformed(evt);
             }
         });
-        panelMenup.add(itemM_pregunta_manual, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 360, -1, 60));
+        panelMenup.add(itemM_pregunta_manual, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 355, -1, 60));
 
         itemM_usuario_add.setForeground(new java.awt.Color(0, 0, 0));
-        itemM_usuario_add.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ayuda 24x24.png"))); // NOI18N
+        itemM_usuario_add.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/agregar-usuario.png"))); // NOI18N
         itemM_usuario_add.setText("Agregar");
         itemM_usuario_add.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_usuario_add.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_usuario_add.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_usuario_add.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_usuario_add.setFont(new java.awt.Font("Roboto Light", 1, 12)); // NOI18N
         itemM_usuario_add.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_usuario_addActionPerformed(evt);
@@ -3547,32 +3583,47 @@ public class principal extends javax.swing.JFrame {
         panelMenup.add(itemM_usuario_add, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 430, -1, 60));
 
         itemM_usuario_modificar.setForeground(new java.awt.Color(0, 0, 0));
+        itemM_usuario_modificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/configuraciones-de-la-cuenta.png"))); // NOI18N
         itemM_usuario_modificar.setText("Modificar");
         itemM_usuario_modificar.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_usuario_modificar.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_usuario_modificar.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_usuario_modificar.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_usuario_modificar.setFont(new java.awt.Font("Roboto Light", 1, 12)); // NOI18N
         itemM_usuario_modificar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_usuario_modificarActionPerformed(evt);
             }
         });
-        panelMenup.add(itemM_usuario_modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 430, -1, 60));
+        panelMenup.add(itemM_usuario_modificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 430, -1, 60));
 
         itemM_usuario_close.setForeground(new java.awt.Color(0, 0, 0));
-        itemM_usuario_close.setText("Cerrar Sección");
-        itemM_usuario_close.setColor1(new java.awt.Color(102, 204, 255));
-        itemM_usuario_close.setColor2(new java.awt.Color(153, 153, 255));
-        itemM_usuario_close.setFont(new java.awt.Font("Corbel", 1, 16)); // NOI18N
+        itemM_usuario_close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/cerrar-sesionUsuario32x32.png"))); // NOI18N
+        itemM_usuario_close.setText("Cerrar Sesión");
+        itemM_usuario_close.setColor1(new java.awt.Color(255, 102, 102));
+        itemM_usuario_close.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_usuario_close.setFont(new java.awt.Font("Roboto Light", 1, 12)); // NOI18N
         itemM_usuario_close.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemM_usuario_closeActionPerformed(evt);
             }
         });
-        panelMenup.add(itemM_usuario_close, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 430, -1, 60));
+        panelMenup.add(itemM_usuario_close, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 430, -1, 60));
 
-        jLabel34.setBackground(new java.awt.Color(204, 204, 204,0));
-        jLabel34.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondoMenuPrincipal.1.2.png"))); // NOI18N
-        panelMenup.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 510));
+        itemM_usuario_exit.setForeground(new java.awt.Color(0, 0, 0));
+        itemM_usuario_exit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/cerrar-sesion(1).png"))); // NOI18N
+        itemM_usuario_exit.setText("Salir");
+        itemM_usuario_exit.setColor1(new java.awt.Color(255, 102, 102));
+        itemM_usuario_exit.setColor2(new java.awt.Color(153, 130, 157));
+        itemM_usuario_exit.setFont(new java.awt.Font("Roboto Light", 1, 12)); // NOI18N
+        itemM_usuario_exit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemM_usuario_exitActionPerformed(evt);
+            }
+        });
+        panelMenup.add(itemM_usuario_exit, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 430, -1, 60));
+
+        fondo_imagen.setBackground(new java.awt.Color(204, 204, 204,0));
+        fondo_imagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondoMenuPrincipal.1.2.png"))); // NOI18N
+        panelMenup.add(fondo_imagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 510));
 
         panel_base.add(panelMenup, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
@@ -3599,8 +3650,9 @@ public class principal extends javax.swing.JFrame {
         btSalie.setVisible(false);
         Cldemografia();
         Clregistro();
+        CLfiltros();
 
-        rolesFm = new String[]{"Jefe de Familia", "Esposo(a)", "Hijo(a)"};
+        cargar_rolesfm();
         jComboBox7.setModel(new javax.swing.DefaultComboBoxModel<>(rolesFm));
         jComboBox7.setSelectedIndex(0);
 
@@ -3717,67 +3769,6 @@ public class principal extends javax.swing.JFrame {
         DenCorreo(0);
     }//GEN-LAST:event_enCorreoMouseExited
 
-    private void jLabel33MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel33MouseClicked
-        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
-        LocalDate fecha = LocalDate.parse(jTextField14.getText(), formato);
-        LocalDate hoy = LocalDate.now();
-
-        if (fecha.isAfter(hoy)) {
-            JOptionPane.showMessageDialog(pr1, "La fecha que has ingresado no se valida");
-        } else {
-            if (enCedula.getText().isEmpty() == false) {
-                int cedula;
-                if (enCedula.getText().equals(null) || enCedula.getText().equals("Cedula de Identidad")) {
-                    cedula = 0;
-                } else {
-                    cedula = Integer.parseInt(enCedula.getText());
-                }
-                if (condicion == 0) {
-                    if (persona.exisPer(cedula)) {
-
-                        if (cedula != 0) {
-                            JOptionPane.showMessageDialog(null, "La cedula que esta intentando agregar ya esta registrada,\n por favor verifique la cedula o asegurese de que esta persona ya este registrada");
-                            jLabel99.setText("cedula ya registrada!");
-                            jLabel99.setForeground(new Color(250, 20, 20));
-                        } else {
-                            dinamicRegistro(Registro2);
-                            dinamicDregisro(pr2);
-                            jLabel99.setText("cedula de identidad");
-                            jLabel99.setForeground(new Color(0, 0, 0));
-                        }
-                    } else {
-                        dinamicRegistro(Registro2);
-                        dinamicDregisro(pr2);
-                        jLabel99.setText("cedula de identidad");
-                        jLabel99.setForeground(new Color(0, 0, 0));
-                    }
-
-                } else {
-                    if (persona.exisCedulaPer(cedula, persona.getId())) {
-
-                        if (cedula != 0) {
-                            JOptionPane.showMessageDialog(null, "La cedula que esta intentando agregar ya esta registrada,\n por favor verifique la cedula o asegurese de que esta persona ya este registrada");
-
-                            jLabel99.setText("cedula ya registrada!");
-                            jLabel99.setForeground(new Color(250, 20, 20));
-                        } else {
-                            dinamicRegistro(Registro2);
-                            dinamicDregisro(pr2);
-                            jLabel99.setText("cedula de identidad");
-                            jLabel99.setForeground(new Color(0, 0, 0));
-                        }
-                    } else {
-                        dinamicRegistro(Registro2);
-                        dinamicDregisro(pr2);
-                        jLabel99.setText("cedula de identidad");
-                        jLabel99.setForeground(new Color(0, 0, 0));
-                    }
-                }
-            }
-        }
-
-    }//GEN-LAST:event_jLabel33MouseClicked
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
 
         if (jTextField2.isVisible() == false) {
@@ -3787,6 +3778,7 @@ public class principal extends javax.swing.JFrame {
             Clregistro();
             dinamicRegistro(Registro1);
             dinamicDregisro(pr1);
+            jLabel55.setVisible(false);
             stadeRegistro++;
 
         } else {
@@ -3801,7 +3793,7 @@ public class principal extends javax.swing.JFrame {
                 } catch (ParseException ex) {
                     Logger.getLogger(principal.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                persona.agregar();
+                persona.crearGrupoFamiliar();
                 Clregistro();
                 stadeRegistro = 0;
                 stadeRegistroC = 0;
@@ -3824,63 +3816,39 @@ public class principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jTable2MouseClicked
 
-    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
+    private void en_nCasaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_nCasaActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField6ActionPerformed
+    }//GEN-LAST:event_en_nCasaActionPerformed
 
-    private void jCheckBox7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox7ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBox7ActionPerformed
+    private void en_not_nCasaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_not_nCasaActionPerformed
+        if (en_not_nCasa.isSelected() == true) {
+            en_nCasa.setText("");
+        }
+    }//GEN-LAST:event_en_not_nCasaActionPerformed
 
-    private void ed2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ed2ActionPerformed
-        grupCheckboxdc(ed2);
-        relacionesForaneas.setMgAcademico(jLabel37.getText());
-    }//GEN-LAST:event_ed2ActionPerformed
+    private void checkbox_entradaNVedc_eduacionBasicaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_entradaNVedc_eduacionBasicaActionPerformed
+        grupCheckboxdc(checkbox_entradaNVedc_eduacionBasica);
+        // relacionesForaneas.setMgAcademico(label_entradaNVedc_eduacionBasica.getText());
+    }//GEN-LAST:event_checkbox_entradaNVedc_eduacionBasicaActionPerformed
 
     private void jCheckBox10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox10ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jCheckBox10ActionPerformed
 
-    private void ed1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ed1ActionPerformed
-        grupCheckboxdc(ed1);
-        relacionesForaneas.setMgAcademico(jLabel27.getText());
-    }//GEN-LAST:event_ed1ActionPerformed
+    private void checkbox_entradaNVedc_educacionInicialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_entradaNVedc_educacionInicialActionPerformed
+        grupCheckboxdc(checkbox_entradaNVedc_educacionInicial);
+        //relacionesForaneas.setMgAcademico(label_entradaNVedc_educacionInicial.getText());
+    }//GEN-LAST:event_checkbox_entradaNVedc_educacionInicialActionPerformed
 
-    private void ed3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ed3ActionPerformed
-        grupCheckboxdc(ed3);
-        relacionesForaneas.setMgAcademico(jLabel39.getText());
-    }//GEN-LAST:event_ed3ActionPerformed
+    private void checkbox_entradaNVedc_educacionMediaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_entradaNVedc_educacionMediaActionPerformed
+        grupCheckboxdc(checkbox_entradaNVedc_educacionMedia);
+        //relacionesForaneas.setMgAcademico(label_entradaNVedc_educacionMedia.getText());
+    }//GEN-LAST:event_checkbox_entradaNVedc_educacionMediaActionPerformed
 
-    private void ed4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ed4ActionPerformed
-        grupCheckboxdc(ed4);
-        relacionesForaneas.setMgAcademico(jLabel48.getText());
-    }//GEN-LAST:event_ed4ActionPerformed
-
-    private void jLabel6MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseReleased
-        jLabel6.setFont(new java.awt.Font("Roboto Medium", 1, 16));
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/cerrar-sesion(1).png")));
-        jLabel6.setForeground(new Color(0, 0, 0));
-    }//GEN-LAST:event_jLabel6MouseReleased
-
-    private void jLabel6MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MousePressed
-        jLabel6.setFont(new java.awt.Font("Roboto Medium", 1, 20));
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/cerrar-sesion(2).png")));
-        jLabel6.setForeground(new Color(250, 0, 0));
-    }//GEN-LAST:event_jLabel6MousePressed
-
-    private void jLabel6MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseExited
-        jLabel6.setFont(new java.awt.Font("Roboto Medium", 1, 16));
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/cerrar-sesion(1).png")));
-        jLabel6.setForeground(new Color(0, 0, 0));
-    }//GEN-LAST:event_jLabel6MouseExited
-
-    private void jLabel6MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseEntered
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/cerrar-sesion.png")));
-    }//GEN-LAST:event_jLabel6MouseEntered
-
-    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
-        System.exit(0);
-    }//GEN-LAST:event_jLabel6MouseClicked
+    private void checkbox_entradaNVedc_eduacionSuperiorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_entradaNVedc_eduacionSuperiorActionPerformed
+        grupCheckboxdc(checkbox_entradaNVedc_eduacionSuperior);
+        // relacionesForaneas.setMgAcademico(label_entradaNVedc_educacionSuperior.getText());
+    }//GEN-LAST:event_checkbox_entradaNVedc_eduacionSuperiorActionPerformed
 
     private void jTextField2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField2MouseEntered
         if (jTextField2.getText().equals("Buscar...")) {
@@ -3902,8 +3870,12 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel49MouseClicked
 
     private void jLabel50MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel50MouseClicked
-        dinamicRegistro(Registro3);
-        dinamicDregisro(pr3);
+        if (checkbox_entradaNVedc_sinEducacion.isSelected() == true || checkbox_entradaNVedc_educacionInicial.isSelected() == true || checkbox_entradaNVedc_eduacionBasica.isSelected() == true || checkbox_entradaNVedc_educacionMedia.isSelected() == true || checkbox_entradaNVedc_eduacionSuperior.isSelected() == true) {
+            dinamicRegistro(Registro3);
+            dinamicDregisro(pr3);
+        } else {
+            JOptionPane.showMessageDialog(null, "Primero debe de seleccionar una opcion");
+        }
     }//GEN-LAST:event_jLabel50MouseClicked
 
     private void jLabel51MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel51MouseClicked
@@ -3911,71 +3883,31 @@ public class principal extends javax.swing.JFrame {
         dinamicDregisro(pr2);
     }//GEN-LAST:event_jLabel51MouseClicked
 
-    private void jLabel52MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel52MouseClicked
-        switch (tipoDeRegistro) {
-            case "nuevo":
-                if (stadeRegistro == 0) {
-                    System.out.println("igual a  ceroo");
-                    dinamicRegistro(Registro3o4);
-                } else {
-                    System.out.println("diferente a ceroo");
-                    dinamicRegistro(Registro4);
-                }
-
-                dinamicDregisro(pr4);
-                if ((stadeRegistro - stadeRegistroC) == 1) {
-                    try {
+    private void jLabel53MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel53MouseClicked
+        try {
+            switch (tipoDeRegistro) {
+                case "nuevo":
+                    if (stadeRegistro > 0) {
                         cargarPersona();
-                        //if(jTextField2.isVisible() == false){
                         cargarTfamilia("Nuevo grupo");
-                        /* }else{
-                            cargarTfamilia("Agregar a grupo"); 
-                        }*/
-
-                    } catch (ParseException ex) {
-                        Logger.getLogger(principal.class.getName()).log(Level.SEVERE, null, ex);
+                        dinamicRegistro(Registro4);
+                        dinamicDregisro(pr4);
+                    } else {
+                        dinamicRegistro(Registro3o4);
+                        //dinamicDregisro(pr2);
                     }
-                    // cargarRfCbbx();
-                    stadeRegistroC = stadeRegistro;
-                }
-                break;
-            case "carga":
-                poliFamly("añadir a grupo");
-                dinamicRegistro(Registro4);
-                dinamicDregisro(pr4);
-                break;
-            case "modificar":
-                try {
-                    System.out.println(jTable4.getRowCount());
+
+                    break;
+                case "modificar":
                     cargarPersona();
                     persona.modificarP();
-
-                    SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-
-                    System.out.println(formato.format(persona.getFechaN()));
-                    ArrayList<String> lista = new ArrayList<>();
-                    //System.out.println((String) modeloTdiscapacidades.getValueAt(0,1));
-                    int cantidad = jTable4.getRowCount();
-                    for (int i = 0; i < jTable4.getRowCount();) {
-                        System.out.println(jTable4.getValueAt(i, 0));
-                        lista.add((String) jTable4.getValueAt(i, 0));
-                        System.out.println("------");
-                        i++;
-                    }
-
-                    System.out.println("Hola mundoafds jsdjfñl jalsjdñfj lajsdflj lañjsfasd asdf asdfa sdfsa ");
-                    discapacidades.modificarDDp(lista);
-                    JOptionPane.showMessageDialog(null, "Persona modificada");
-                    ocultar(panelMenup);
-                } catch (ParseException ex) {
-                    Logger.getLogger(principal.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                break;
+                    Clregistro();
+                    ocultar(panelBarra);
+                    break;
+            }
+        } catch (ParseException ex) {
+            System.out.println(ex);
         }
-    }//GEN-LAST:event_jLabel52MouseClicked
-
-    private void jLabel53MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel53MouseClicked
-        // TODO add your handling code here:
     }//GEN-LAST:event_jLabel53MouseClicked
 
     private void jLabel54MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel54MouseClicked
@@ -4001,20 +3933,33 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel56MouseClicked
 
     private void jLabel57MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel57MouseClicked
-        cargarHouse();
-        modelos.house.newHose();
-        persona.crearGrupoFamiliar();
-        modelos.house.ClanAll();
-        modelos.persona.ClanAll();
-        Clregistro();
-        cargarRfCbbx("");
-        jComboBox7.setSelectedIndex(0);
-        ocultar(panelMenup);
-        stadeRegistro = 0;
+
+        try {
+            if (en_combo_direccion.getSelectedItem().equals("Direccion")) {
+                throw new IllegalAccessException("Selecciona la direccion de la casa");
+            }
+            if (en_combo_stdCasa.getSelectedItem().equals("Estado de la Casa")) {
+                throw new IllegalAccessException("Debes de seleccionar el estado de la casa");
+            }
+            cargarHouse();
+            modelos.house.newHose();
+            persona.crearGrupoFamiliar();
+            modelos.house.ClanAll();
+            modelos.persona.ClanAll();
+            Clregistro();
+            cargarRfCbbx("");
+            jComboBox7.setSelectedIndex(0);
+            ocultar(panelMenup);
+            stadeRegistro = 0;
+        } catch (IllegalAccessException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+
+
     }//GEN-LAST:event_jLabel57MouseClicked
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        modelos.demografia.setStrike((String) jComboBox5.getSelectedItem());
+        modelos.demografia.setStrike((String) combo_demografia_asigLider.getSelectedItem());
         modelos.demografia.setIdStrike(modelos.demografia.idStrike());
         int aux = JOptionPane.showConfirmDialog(null, "Añadir a " + modelos.demografia.getNombreL() + "\n como lider de calle da la calle: " + modelos.demografia.getStrike());
         if (aux == 0) {
@@ -4153,15 +4098,18 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel22MouseClicked
 
     private void jTextField8CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jTextField8CaretUpdate
-        // TODO add your handling code here:
+        modelos.filtros.setBuscar(jTextField8.getText());
+        filtroPro();
     }//GEN-LAST:event_jTextField8CaretUpdate
 
     private void jTextField8MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField8MouseEntered
-        // TODO add your handling code here:
+        jSeparator13.setBackground(new Color(0, 0, 250));
     }//GEN-LAST:event_jTextField8MouseEntered
 
     private void jTextField8MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField8MouseExited
-        // TODO add your handling code here:
+        if (jTextField8.getText().trim().equals("") == true) {
+            jSeparator13.setBackground(new Color(153, 153, 153));
+        }
     }//GEN-LAST:event_jTextField8MouseExited
 
     private void jTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField8ActionPerformed
@@ -4202,56 +4150,7 @@ public class principal extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         dinamic_filtroPro(jLayeredPane6);
-
-        Integer direccion = null;
-        Integer NivelEducativo = null;
-        Integer discapacidad = null;
-        Integer estadoCasa = null;
-        Integer tipoHabitante = null;
-
-        if (combo_filtroPro_ubicacion.getSelectedItem().equals("") == false) {
-            modelos.demografia.setStrike((String) combo_filtroPro_ubicacion.getSelectedItem());
-            direccion = modelos.demografia.idStrike();
-        }
-        if (combo_filtroPro_nvEdc.getSelectedItem().equals("") == false) {
-            modelos.relacionesForaneas.setMgAcademico((String) combo_filtroPro_nvEdc.getSelectedItem());
-            NivelEducativo = modelos.relacionesForaneas.buscarMgAcademico();
-        }
-        if (combo_filtroPro_tipoDiscapacidad.getSelectedItem().equals("") == false) {
-            modelos.discapacidades.setDiscapaciad((String) combo_filtroPro_tipoDiscapacidad.getSelectedItem());
-            discapacidad = modelos.discapacidades.whatId();
-        }
-        if (combo_filtroPro_estCasa.getSelectedItem().equals("") == false) {
-            modelos.relacionesForaneas.setStadoCasa((String) combo_filtroPro_estCasa.getSelectedItem());
-            estadoCasa = modelos.relacionesForaneas.buscarStadoCasa();
-        }
-        if (combo_filtroPro_rolFamiliar.getSelectedItem().equals("") == false) {
-            modelos.relacionesForaneas.setRolFamiliar((String) combo_filtroPro_rolFamiliar.getSelectedItem());
-            tipoHabitante = modelos.relacionesForaneas.buscarRolFamiliar();
-        }
-        ArrayList<String[]> lista = filtros.personalizado(null, null, direccion, NivelEducativo, discapacidad, estadoCasa, tipoHabitante);
-
-        String[] colums = {"Cod", "Nobre y apellido", "Cedula", "Rol de familia"};
-        modelo = new DefaultTableModel() {
-            boolean[] canEdit = new boolean[]{false, false, false, false};
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-        };
-        modelo.setColumnIdentifiers(colums);
-
-        for (String[] aux : lista) {
-            System.out.println(aux.toString());
-            modelo.addRow(new String[]{
-                aux[0],
-                aux[1] + " " + aux[2] + " " + aux[3] + " " + aux[4],
-                aux[5],
-                "ROL FAMILIAR"
-            });
-        }
-        jTable9.setModel(modelo);
+        filtroPro();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField12MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField12MouseEntered
@@ -4315,51 +4214,25 @@ public class principal extends javax.swing.JFrame {
         jTable7.setModel(modelo);*/
     }//GEN-LAST:event_jLabel12MouseClicked
 
-    private void jTextField6CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jTextField6CaretUpdate
-        if (jTextField6.getText().trim().isEmpty()) {
-            jCheckBox7.setSelected(true);
-            jCheckBox7.setVisible(true);
+    private void en_nCasaCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_en_nCasaCaretUpdate
+        if (en_nCasa.getText().trim().isEmpty()) {
+            en_not_nCasa.setSelected(true);
         } else {
-            jCheckBox7.setSelected(false);
-            jCheckBox7.setVisible(false);
+            en_not_nCasa.setSelected(false);
         }
 
-    }//GEN-LAST:event_jTextField6CaretUpdate
+    }//GEN-LAST:event_en_nCasaCaretUpdate
 
-    private void jTextField6MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField6MouseEntered
+    private void en_nCasaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_en_nCasaMouseEntered
         jSeparator18.setBackground(new Color(0, 0, 250));
-    }//GEN-LAST:event_jTextField6MouseEntered
+    }//GEN-LAST:event_en_nCasaMouseEntered
 
-    private void jTextField6MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField6MouseExited
-        jSeparator18.setBackground(new Color(153, 153, 153));
-    }//GEN-LAST:event_jTextField6MouseExited
-
-    private void jLabel91MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel91MouseClicked
-        poliFamly("nuevo grupo");
-        dinamicRegistro(Registro4);
-        cargarRfCbbx("Jefe de Familia");
-    }//GEN-LAST:event_jLabel91MouseClicked
-
-    private void jLabel91MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel91MouseEntered
-        panelRound18.setBackground(new Color(51, 102, 255));
-    }//GEN-LAST:event_jLabel91MouseEntered
-
-    private void jLabel91MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel91MouseExited
-        panelRound18.setBackground(new Color(102, 153, 255));
-    }//GEN-LAST:event_jLabel91MouseExited
-
-    private void jLabel92MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel92MouseClicked
-        poliFamly("añadir a grupo");
-        dinamicRegistro(Registro4);
-    }//GEN-LAST:event_jLabel92MouseClicked
-
-    private void jLabel92MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel92MouseEntered
-        panelRound19.setBackground(new Color(51, 102, 255));
-    }//GEN-LAST:event_jLabel92MouseEntered
-
-    private void jLabel92MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel92MouseExited
-        panelRound19.setBackground(new Color(102, 153, 255));
-    }//GEN-LAST:event_jLabel92MouseExited
+    private void en_nCasaMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_en_nCasaMouseExited
+        if (en_nCasa.getText().trim().equals("")) {
+            jSeparator18.setBackground(new Color(153, 153, 153));
+            en_not_nCasa.setSelected(true);
+        }
+    }//GEN-LAST:event_en_nCasaMouseExited
 
     private void jLabel94MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel94MouseClicked
         dinamicRegistro(Registro3);
@@ -4371,7 +4244,7 @@ public class principal extends javax.swing.JFrame {
         if (a == ' ') {
             evt.consume();
         }
-        if (Character.isDigit(a)) {
+        if (!Character.isAlphabetic(a)) {
             evt.consume();
         }
         if (enpNombre.getText().length() >= 15) {
@@ -4384,7 +4257,7 @@ public class principal extends javax.swing.JFrame {
         if (a == ' ') {
             evt.consume();
         }
-        if (Character.isDigit(a)) {
+        if (!Character.isAlphabetic(a)) {
             evt.consume();
         }
         if (ensNombre.getText().length() >= 15) {
@@ -4397,7 +4270,7 @@ public class principal extends javax.swing.JFrame {
         if (a == ' ') {
             evt.consume();
         }
-        if (Character.isDigit(a)) {
+        if (!Character.isAlphabetic(a)) {
             evt.consume();
         }
         if (enpApellido.getText().length() >= 15) {
@@ -4411,7 +4284,7 @@ public class principal extends javax.swing.JFrame {
         if (a == ' ') {
             evt.consume();
         }
-        if (Character.isDigit(a)) {
+        if (!Character.isAlphabetic(a)) {
             evt.consume();
         }
         if (ensApellido.getText().length() >= 15) {
@@ -4427,7 +4300,7 @@ public class principal extends javax.swing.JFrame {
         if (!Character.isDigit(a)) {
             evt.consume();
         }
-        if (enCedula.getText().length() >= 9) {
+        if (enCedula.getText().length() >= 8) {
             evt.consume();
         }
     }//GEN-LAST:event_enCedulaKeyTyped
@@ -4455,18 +4328,6 @@ public class principal extends javax.swing.JFrame {
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
         filtroNvEdc((String) jComboBox2.getSelectedItem());
     }//GEN-LAST:event_jComboBox2ActionPerformed
-
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        System.out.println(relacionesForaneas.buscarMgAcademico());
-    }//GEN-LAST:event_jButton7ActionPerformed
-
-    private void enSexoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enSexoActionPerformed
-        relacionesForaneas.setSexo((String) enSexo.getSelectedItem());
-    }//GEN-LAST:event_enSexoActionPerformed
-
-    private void enNacionalidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enNacionalidadActionPerformed
-
-    }//GEN-LAST:event_enNacionalidadActionPerformed
 
     private void enpNombreKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_enpNombreKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -4554,8 +4415,8 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel106MouseClicked
 
     private void jLabel109MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel109MouseClicked
-        jPanel25.setVisible(false);
-        jLayeredPane9.setVisible(false);
+        menu_impressD.setVisible(false);
+        menu_impress.setVisible(false);
         File file = showFileChooser();
         if (file != null) {
             try {
@@ -4568,8 +4429,8 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel109MouseClicked
 
     private void jLabel107MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel107MouseClicked
-        jPanel25.setVisible(false);
-        jLayeredPane9.setVisible(false);
+        menu_impressD.setVisible(false);
+        menu_impress.setVisible(false);
         File file = showFileChooser();
         if (file != null) {
             try {
@@ -4590,8 +4451,8 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel112MouseClicked
 
     private void jLabel110MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel110MouseClicked
-        jPanel25.setVisible(false);
-        jLayeredPane9.setVisible(false);
+        menu_impressD.setVisible(false);
+        menu_impress.setVisible(false);
         File file = showFileChooser();
         if (file != null) {
             try {
@@ -4604,8 +4465,8 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel110MouseClicked
 
     private void jLabel108MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel108MouseClicked
-        jPanel25.setVisible(false);
-        jLayeredPane9.setVisible(false);
+        menu_impressD.setVisible(false);
+        menu_impress.setVisible(false);
         File file = showFileChooser();
         if (file != null) {
             try {
@@ -4658,82 +4519,61 @@ public class principal extends javax.swing.JFrame {
         deleteP();
     }//GEN-LAST:event_jLabel119MouseClicked
 
-    private void jLabel127MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel127MouseClicked
-        if (jLabel130.getForeground().equals(disponible) == true && jLabel127.getForeground().equals(disponible) == true && jLabel128.getForeground().equals(disponible) == true && jLabel93.getForeground().equals(disponible) == true) {
+    private void bt_dmg_estrucMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_dmg_estrucMouseClicked
+        if (bt_dmg_addStrike.getForeground().equals(disponible) == true && bt_dmg_estruc.getForeground().equals(disponible) == true && bt_dmg_addLider.getForeground().equals(nulo) == true && bt_dmg_stingStrike.getForeground().equals(disponible) == true) {
 
-            jLabel127.setForeground(seleccionado);
-            jLabel128.setForeground(disponible);
-
-            ArrayList<String[]> lista = demografia.rescuAll();
-            modelo = new DefaultTableModel();
-            String[] colums = {""};
-            modelo.setColumnIdentifiers(colums);
-            for (String[] aux : lista) {
-                modelo.addRow(new String[]{aux[0]});
-                modelo.addRow(new String[]{aux[1] + " " + aux[1] + " " + aux[1] + " " + aux[1] + ", CI " + aux[5]});
-                modelo.addRow(new String[]{" "});
-            }
-            jTable3.setModel(modelo);
+            dinamic_bt_demografia(bt_dmg_estruc);
         }
-    }//GEN-LAST:event_jLabel127MouseClicked
+    }//GEN-LAST:event_bt_dmg_estrucMouseClicked
 
     private void jTable3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable3MouseClicked
-        if (jLabel127.getForeground().equals(new Color(51, 153, 255))) {
-            demografia.setStrike((String) jTable3.getValueAt(jTable3.getSelectedRow(), 0));
-        } else {
-            demografia.setIdStrike(Integer.parseInt((String) jTable3.getValueAt(jTable3.getSelectedRow(), 0)));
-            demografia.setStrike((String) jTable3.getValueAt(jTable3.getSelectedRow(), 1));
-        }
-        if (jLabel93.getForeground().equals(seleccionado) == true) {
-            jTextField7.setText((String) jTable3.getValueAt(jTable3.getSelectedRow(), 1));
-        }
+
+
     }//GEN-LAST:event_jTable3MouseClicked
 
-    private void jLabel128MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel128MouseClicked
-        if (demografia.idStrike() != 0) {
-            jLabel128.setForeground(seleccionado);
-            jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{demografia.getStrike()}));
-            dinamicDemografia(jLayeredPane1);
-        } else {
-            JOptionPane.showMessageDialog(null, "Seleccione una calle");
+    private void bt_dmg_addLiderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_dmg_addLiderMouseClicked
+        if (bt_dmg_addLider.getForeground().equals(disponible) == true) {
+            Integer resultado = demografia.idStrike();
+            if (resultado == null) {
+                resultado = 0;
+            }
+            if (resultado != 0) {
+                dinamic_bt_demografia(null);
+                combo_demografia_asigLider.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{demografia.getStrike()}));
+                dinamicDemografia(panel_dmg_lider);
+            } else {
+                JOptionPane.showMessageDialog(null, "Seleccione una calle");
+            }
         }
-    }//GEN-LAST:event_jLabel128MouseClicked
+    }//GEN-LAST:event_bt_dmg_addLiderMouseClicked
 
-    private void jTextField7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField7ActionPerformed
+    private void entradaTxt_demografiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_entradaTxt_demografiaActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField7ActionPerformed
+    }//GEN-LAST:event_entradaTxt_demografiaActionPerformed
 
-    private void jLabel131MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel131MouseClicked
+    private void bt_dmg_descartarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_dmg_descartarMouseClicked
         cargarCalles();
-        jLabel128.setForeground(disponible);
-        jLabel127.setForeground(disponible);
-        jLabel130.setForeground(disponible);
-        jLabel93.setForeground(disponible);
+        demografia.clean();
+        dinamic_bt_demografia(null);
+    }//GEN-LAST:event_bt_dmg_descartarMouseClicked
 
-        jLabel129.setForeground(nulo);
-        jLabel131.setForeground(nulo);
-        jTextField7.setEditable(false);
-    }//GEN-LAST:event_jLabel131MouseClicked
-
-    private void jLabel130MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel130MouseClicked
-
-        if (jLabel130.getForeground().equals(disponible) == true && jLabel127.getForeground().equals(disponible) == true && jLabel128.getForeground().equals(disponible) == true && jLabel93.getForeground().equals(disponible) == true) {
+    private void bt_dmg_addStrikeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_dmg_addStrikeMouseClicked
+        if (bt_dmg_addStrike.getForeground().equals(disponible) == true && bt_dmg_estruc.getForeground().equals(disponible) == true && bt_dmg_addLider.getForeground().equals(nulo) == true && bt_dmg_stingStrike.getForeground().equals(disponible) == true) {
             cargarCalles();
-            jLabel130.setForeground(seleccionado);
-            jTextField7.setEditable(true);
+            dinamic_bt_demografia(bt_dmg_addStrike);
             System.out.println("se esta ejecutando");
         }
-    }//GEN-LAST:event_jLabel130MouseClicked
+    }//GEN-LAST:event_bt_dmg_addStrikeMouseClicked
 
-    private void jLabel129MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel129MouseClicked
-        if (jLabel130.getForeground().equals(seleccionado)) {
-            demografia.setStrike(jTextField7.getText().trim());
-            if (jTextField7.getText().trim().isEmpty() == false) {
+    private void bt_dmg_guardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_dmg_guardarMouseClicked
+        if (bt_dmg_addStrike.getForeground().equals(seleccionado)) {
+            demografia.setStrike(entradaTxt_demografia.getText().trim());
+            if (entradaTxt_demografia.getText().trim().isEmpty() == false) {
                 if (demografia.estStrike(demografia.getStrike()) == false) {
                     demografia.addStrike();
                     cargarCalles();
                     JOptionPane.showMessageDialog(null, "Calle agregada correctamente");
-                    jTextField7.setText("");
+                    dinamic_bt_demografia(null);
                 } else {
                     JOptionPane.showMessageDialog(null, "Ya hay una calle con ese mismo nombre");
                 }
@@ -4741,21 +4581,17 @@ public class principal extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "El nombre esta vacio debes de poner el nombre de la calle");
             }
         }
-        if (jLabel93.getForeground().equals(seleccionado) == true) {
-            demografia.modStrike(demografia.getIdStrike(), jTextField7.getText());
+        if (bt_dmg_stingStrike.getForeground().equals(seleccionado) == true) {
+            if (demografia.idStrike() != null && demografia.idStrike() != 0) {
+                demografia.modStrike(demografia.idStrike(), entradaTxt_demografia.getText());
+                cargarCalles();
+                dinamic_bt_demografia(null);
+            } else {
+                JOptionPane.showMessageDialog(null, "No se puede modificar calle!! \nRecuerda que primero tienes que seleccionar una calle");
+            }
 
-            cargarCalles();
-            jLabel128.setForeground(disponible);
-            jLabel127.setForeground(disponible);
-            jLabel130.setForeground(disponible);
-            jLabel93.setForeground(disponible);
-
-            jLabel129.setForeground(nulo);
-            jLabel131.setForeground(nulo);
-            jTextField7.setEditable(false);
-            jTextField7.setText("");
         }
-    }//GEN-LAST:event_jLabel129MouseClicked
+    }//GEN-LAST:event_bt_dmg_guardarMouseClicked
 
     private void jLabel118MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel118MouseClicked
         deleteP();
@@ -4781,17 +4617,17 @@ public class principal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jTable7MouseClicked
 
-    private void jTextField7MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField7MouseEntered
-        if (jTextField7.isEditable()) {
+    private void entradaTxt_demografiaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_entradaTxt_demografiaMouseEntered
+        if (entradaTxt_demografia.isEditable()) {
             jSeparator20.setBackground(new Color(0, 0, 250));
         }
-    }//GEN-LAST:event_jTextField7MouseEntered
+    }//GEN-LAST:event_entradaTxt_demografiaMouseEntered
 
-    private void jTextField7MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField7MouseExited
-        if (jTextField7.isEditable() && jTextField7.getText().equals("") == false) {
+    private void entradaTxt_demografiaMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_entradaTxt_demografiaMouseExited
+        if (entradaTxt_demografia.isEditable() && entradaTxt_demografia.getText().equals("") == false) {
             jSeparator20.setBackground(new Color(153, 153, 153));
         }
-    }//GEN-LAST:event_jTextField7MouseExited
+    }//GEN-LAST:event_entradaTxt_demografiaMouseExited
 
     private void enpNombreKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_enpNombreKeyReleased
         if (enpNombre.getText().isEmpty() == false) {
@@ -4820,52 +4656,73 @@ public class principal extends javax.swing.JFrame {
     private void enCedulaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_enCedulaKeyReleased
         if (enCedula.getText().isEmpty() == false) {
             int cedula;
-            if (enCedula.getText().equals(null) || enCedula.getText().equals("Cedula de Identidad")) {
+            if (enCedula.getText().equals(null) || enCedula.getText().equals("Cedula de Identidad") || enCedula.getText().equals("")) {
                 cedula = 0;
             } else {
                 cedula = Integer.parseInt(enCedula.getText());
             }
-            if (condicion == 0) {
-                if (persona.exisPer(cedula)) {
-
-                    if (cedula != 0) {
-                        jLabel99.setText("cedula ya registrada!");
-                        jLabel99.setForeground(new Color(250, 20, 20));
+            switch (tipoDeRegistro) {
+                case "nuevo":
+                    if (persona.exisPer(cedula) && cedula != 0) {
+                        etick_cedula.setText("cedula ya registrada!");
+                        etick_cedula.setForeground(new Color(250, 20, 20));
                     } else {
-                        jLabel99.setText("cedula de identidad");
-                        jLabel99.setForeground(new Color(0, 0, 0));
+                        etick_cedula.setText("cedula de identidad");
+                        etick_cedula.setForeground(new Color(0, 0, 0));
                     }
-                } else {
-                    jLabel99.setText("cedula de identidad");
-                    jLabel99.setForeground(new Color(0, 0, 0));
-                }
-
-            } else {
-                if (persona.exisCedulaPer(cedula, persona.getId())) {
-
-                    if (cedula != 0) {
-                        jLabel99.setText("cedula ya registrada!");
-                        jLabel99.setForeground(new Color(250, 20, 20));
+                    break;
+                case "modificar":
+                    if (persona.exisPer(cedula) && cedula != 0 && persona.getCedula() != cedula) {
+                        etick_cedula.setText("cedula ya registrada!");
+                        etick_cedula.setForeground(new Color(250, 20, 20));
                     } else {
-                        jLabel99.setText("cedula de identidad");
-                        jLabel99.setForeground(new Color(0, 0, 0));
+                        etick_cedula.setText("cedula de identidad");
+                        etick_cedula.setForeground(new Color(0, 0, 0));
                     }
-                } else {
-                    jLabel99.setText("cedula de identidad");
-                    jLabel99.setForeground(new Color(0, 0, 0));
-                }
+
+                    break;
             }
+//            if (condicion == 0) {
+//                if (persona.exisPer(cedula)) {
+//
+//                    if (cedula != 0) {
+//                        jLabel99.setText("cedula ya registrada!");
+//                        jLabel99.setForeground(new Color(250, 20, 20));
+//                    } else {
+//                        jLabel99.setText("cedula de identidad");
+//                        jLabel99.setForeground(new Color(0, 0, 0));
+//                    }
+//                } else {
+//                    jLabel99.setText("cedula de identidad");
+//                    jLabel99.setForeground(new Color(0, 0, 0));
+//                }
+//
+//            } else {
+//                if (persona.exisCedulaPer(cedula, persona.getId())) {
+//
+//                    if (cedula != 0) {
+//                        jLabel99.setText("cedula ya registrada!");
+//                        jLabel99.setForeground(new Color(250, 20, 20));
+//                    } else {
+//                        jLabel99.setText("cedula de identidad");
+//                        jLabel99.setForeground(new Color(0, 0, 0));
+//                    }
+//                } else {
+//                    jLabel99.setText("cedula de identidad");
+//                    jLabel99.setForeground(new Color(0, 0, 0));
+//                }
+//            }
         }
     }//GEN-LAST:event_enCedulaKeyReleased
 
-    private void jLabel93MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel93MouseClicked
-        if (jLabel130.getForeground().equals(disponible) == true && jLabel127.getForeground().equals(disponible) == true && jLabel128.getForeground().equals(disponible) == true && jLabel93.getForeground().equals(disponible) == true) {
+    private void bt_dmg_stingStrikeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_dmg_stingStrikeMouseClicked
+        if (bt_dmg_addStrike.getForeground().equals(disponible) == true && bt_dmg_estruc.getForeground().equals(disponible) == true && bt_dmg_addLider.getForeground().equals(nulo) == true && bt_dmg_stingStrike.getForeground().equals(disponible) == true) {
             cargarCalles();
-            jLabel93.setForeground(seleccionado);
-            jTextField7.setEditable(true);
+            dinamic_bt_demografia(bt_dmg_stingStrike);
+            // entradaTxt_demografia.setEditable(true);
 
         }
-    }//GEN-LAST:event_jLabel93MouseClicked
+    }//GEN-LAST:event_bt_dmg_stingStrikeMouseClicked
 
     private void jLabel23MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel23MouseClicked
         if (persona.getId() != 0) {
@@ -4875,9 +4732,9 @@ public class principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jLabel23MouseClicked
 
-    private void buttonShadow1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonShadow1ActionPerformed
+    private void bt_fechaN_registro1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_fechaN_registro1ActionPerformed
         dateChooser1.showPopup();
-    }//GEN-LAST:event_buttonShadow1ActionPerformed
+    }//GEN-LAST:event_bt_fechaN_registro1ActionPerformed
 
     private void jTextField9KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField9KeyTyped
         Character a = evt.getKeyChar();
@@ -4909,6 +4766,7 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jTable1MousePressed
 
     private void bt_menu_agregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_menu_agregarActionPerformed
+        usuario.setUsuarioo(bt_menu_usuario.getText());
         if (usuario.comprobarTipoUser("Administrador")) {
             itemsMenuDesplegar("Agregar");
         } else {
@@ -4917,11 +4775,7 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_bt_menu_agregarActionPerformed
 
     private void bt_menu_demografiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_menu_demografiaActionPerformed
-        if (usuario.comprobarTipoUser("Administrador")) {
-            itemsMenuDesplegar("Demografia");
-        } else {
-            JOptionPane.showMessageDialog(null, "Esta opcion es solo para los usuarios,\"Administradores\"");
-        }
+        itemsMenuDesplegar("Demografia");
     }//GEN-LAST:event_bt_menu_demografiaActionPerformed
 
     private void bt_mn_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_mn_buscarActionPerformed
@@ -4929,6 +4783,7 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_bt_mn_buscarActionPerformed
 
     private void bt_menu_modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_menu_modificarActionPerformed
+        usuario.setUsuarioo(bt_menu_usuario.getText());
         if (usuario.comprobarTipoUser("Administrador")) {
             itemsMenuDesplegar("Modificar");
         } else {
@@ -4940,9 +4795,9 @@ public class principal extends javax.swing.JFrame {
         itemsMenuDesplegar("Imprimir");
     }//GEN-LAST:event_bt_menu_imprimirActionPerformed
 
-    private void bt_menu_preguntaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_menu_preguntaActionPerformed
-        itemsMenuDesplegar("Pregunta");
-    }//GEN-LAST:event_bt_menu_preguntaActionPerformed
+    private void bt_menu_gestionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_menu_gestionarActionPerformed
+        itemsMenuDesplegar("Gestionar");
+    }//GEN-LAST:event_bt_menu_gestionarActionPerformed
 
     private void bt_menu_usuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_menu_usuarioActionPerformed
         itemsMenuDesplegar("Usuario");
@@ -4969,15 +4824,21 @@ public class principal extends javax.swing.JFrame {
     private void itemM_agregar_LiderCalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_agregar_LiderCalleActionPerformed
         axdinamicMenu();
         ocultar(panel_demografia);
-        dinamicDemografia(jLayeredPane1);
-        this.setTitle("Lider de Calle");
+        dinamicDemografia(panel_dmg_strike);
+        dinamic_bt_demografia(bt_dmg_estruc);
+        this.setTitle("Estructura comunal");
     }//GEN-LAST:event_itemM_agregar_LiderCalleActionPerformed
 
     private void itemM_demografia_addCalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_demografia_addCalleActionPerformed
         axdinamicMenu();
-        ocultar(panel_demografia);
-        dinamicDemografia(jLayeredPane2);
-        this.setTitle("Modificar Calle");
+        usuario.setUsuarioo(bt_menu_usuario.getText());
+        if (usuario.comprobarTipoUser("Administrador")) {
+            ocultar(panel_demografia);
+            dinamicDemografia(panel_dmg_strike);
+            this.setTitle("Modificar Calle");
+        } else {
+            JOptionPane.showMessageDialog(null, "Esta opcion es solo para los usuarios,\"Administradores\"");
+        }
     }//GEN-LAST:event_itemM_demografia_addCalleActionPerformed
 
     private void itemM_demografia_infComunalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_demografia_infComunalActionPerformed
@@ -4990,7 +4851,6 @@ public class principal extends javax.swing.JFrame {
         axdinamicMenu();
         ocultar(panel_filtro);
         buscarP("");
-        jTable1.setModel(modelo);
         dinamicFiltro(p_filtroGeneral);
         this.setTitle("Buscar persona");
     }//GEN-LAST:event_itemM_filtro_buscarActionPerformed
@@ -5047,6 +4907,7 @@ public class principal extends javax.swing.JFrame {
     private void itemM_modificar_personaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_modificar_personaActionPerformed
         axdinamicMenu();
         ocultar(panel_filtro);
+        buscarP("");
         dinamicFiltro(p_filtroGeneral);
         this.setTitle("Buscar persona");
     }//GEN-LAST:event_itemM_modificar_personaActionPerformed
@@ -5058,38 +4919,82 @@ public class principal extends javax.swing.JFrame {
     }//GEN-LAST:event_itemM_modificar_familiaActionPerformed
 
     private void itemM_modificar_calleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_modificar_calleActionPerformed
-        modificar.setVisible(true);
-        modificar.setState(JFrame.NORMAL);
-        modificar.setTitle("Modificar familia");
+        ocultar(panel_demografia);
+        dinamicDemografia(panel_dmg_strike);
+        dinamic_bt_demografia(bt_dmg_stingStrike);
+        this.setTitle("Modificar calle");
     }//GEN-LAST:event_itemM_modificar_calleActionPerformed
 
     private void itemM_modificar_liderCalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_modificar_liderCalleActionPerformed
-        modificar.setVisible(true);
-        modificar.setState(JFrame.NORMAL);
-        modificar.setTitle("Modificar familia");
+        ocultar(panel_demografia);
+        dinamicDemografia(panel_dmg_strike);
+        dinamic_bt_demografia(bt_dmg_estruc);
+        this.setTitle("Estructura comunal");
     }//GEN-LAST:event_itemM_modificar_liderCalleActionPerformed
 
     private void itemM_imprimir_censoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_imprimir_censoActionPerformed
         axdinamicMenu();
+        ArrayList<String[]> lista = persona.RecuperarAll("");
+        modelo = new DefaultTableModel();
+        String[] colums = new String[]{"Nombre y Apellido", "Genero", "Cedula", "fecha de nacimiento", "Telefono", "Correo", "Nacionalidad"};
+        modelo.setColumnIdentifiers(colums);
+
+        for (String[] aux : lista) {
+            modelo.addRow(new String[]{
+                aux[1] + " " + aux[2] + " " + aux[3] + " " + aux[4],
+                aux[6],
+                aux[5],
+                aux[7],
+                aux[10],
+                aux[11],
+                aux[9]
+            });
+        }
+        File file = showFileChooser();
+        if (file != null) {
+            try {
+                File f = new PrintTable().printTable(modelo, "Reporte Consejo Comunal 'La Union'", new PageFormat(null, 850, 1100, PageOrientation.LANDSCAPE)).exportToExcel(file);
+                Desktop.getDesktop().open(f);
+            } catch (IOException ex) {
+                Logger.getLogger(principal.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (DRException ex) {
+                Logger.getLogger(principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
     }//GEN-LAST:event_itemM_imprimir_censoActionPerformed
 
     private void itemM_imprimir_cartaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_imprimir_cartaActionPerformed
+        ImprimirCarta imprimirCarta = new ImprimirCarta();
+        imprimirCarta.setVisible(true);
         axdinamicMenu();
-        detallesP demografia = new detallesP();
-        demografia.setVisible(true);
     }//GEN-LAST:event_itemM_imprimir_cartaActionPerformed
 
-    private void itemM_pregunta_ayudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_pregunta_ayudaActionPerformed
+    private void itemM_pregunta_respaldarBDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_pregunta_respaldarBDActionPerformed
         axdinamicMenu();
-    }//GEN-LAST:event_itemM_pregunta_ayudaActionPerformed
+        usuario.setUsuarioo(bt_menu_usuario.getText());
+        if (usuario.comprobarTipoUser("Administrador")) {
+            File file = showFileChooser();
+            conect.respaldar.respaldar(file.toString());
+        } else {
+            JOptionPane.showMessageDialog(null, "Esta opcion es solo para los usuarios,\"Administradores\"");
+        }
+    }//GEN-LAST:event_itemM_pregunta_respaldarBDActionPerformed
 
     private void itemM_pregunta_manualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_pregunta_manualActionPerformed
-        axdinamicMenu();
+        try {
+            File file = new File(System.getProperty("user.dir")+ "/recursos/Manual de usuario.pdf");
+            Desktop.getDesktop().open(file);
+            axdinamicMenu();
+        } catch (IOException ex) {
+            Logger.getLogger(principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_itemM_pregunta_manualActionPerformed
 
     private void itemM_usuario_addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_usuario_addActionPerformed
+        axdinamicMenu();
+        usuario.setUsuarioo(bt_menu_usuario.getText());
         if (usuario.comprobarTipoUser("Administrador")) {
-            axdinamicMenu();
             login.setPrincipal(this);
             login.setVisible(true);
             login.dinami(2);
@@ -5115,60 +5020,47 @@ public class principal extends javax.swing.JFrame {
         login.dinami(0);
     }//GEN-LAST:event_itemM_usuario_closeActionPerformed
 
-    private void jTextField7CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jTextField7CaretUpdate
+    private void entradaTxt_demografiaCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_entradaTxt_demografiaCaretUpdate
 
-    }//GEN-LAST:event_jTextField7CaretUpdate
+    }//GEN-LAST:event_entradaTxt_demografiaCaretUpdate
 
-    private void jTextField7KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField7KeyReleased
-        if (jTextField7.getText().trim().isEmpty() == false) {
-            jTextField7.setText(jTextField7.getText().substring(0, 1).toUpperCase() + jTextField7.getText().substring(1));
+    private void entradaTxt_demografiaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_entradaTxt_demografiaKeyReleased
+        if (entradaTxt_demografia.getText().trim().isEmpty() == false) {
+            entradaTxt_demografia.setText(entradaTxt_demografia.getText().substring(0, 1).toUpperCase() + entradaTxt_demografia.getText().substring(1));
         }
-    }//GEN-LAST:event_jTextField7KeyReleased
+    }//GEN-LAST:event_entradaTxt_demografiaKeyReleased
 
-    private void jCheckBox8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox8ActionPerformed
-        jCheckBox13.setSelected(false);
-    }//GEN-LAST:event_jCheckBox8ActionPerformed
+    private void en_serv_agua_sActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_agua_sActionPerformed
+        en_serv_agua_n.setSelected(false);
+    }//GEN-LAST:event_en_serv_agua_sActionPerformed
 
-    private void jCheckBox13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox13ActionPerformed
-        jCheckBox8.setSelected(false);
-    }//GEN-LAST:event_jCheckBox13ActionPerformed
+    private void en_serv_agua_nActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_agua_nActionPerformed
+        en_serv_agua_s.setSelected(false);
+    }//GEN-LAST:event_en_serv_agua_nActionPerformed
 
-    private void jCheckBox15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox15ActionPerformed
-        jCheckBox14.setSelected(false);
-    }//GEN-LAST:event_jCheckBox15ActionPerformed
+    private void en_serv_aguaN_sActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_aguaN_sActionPerformed
+        en_serv_aguaN_n.setSelected(false);
+    }//GEN-LAST:event_en_serv_aguaN_sActionPerformed
 
-    private void jCheckBox14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox14ActionPerformed
-        jCheckBox15.setSelected(false);
-    }//GEN-LAST:event_jCheckBox14ActionPerformed
+    private void en_serv_aguaN_nActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_aguaN_nActionPerformed
+        en_serv_aguaN_s.setSelected(false);
+    }//GEN-LAST:event_en_serv_aguaN_nActionPerformed
 
-    private void jCheckBox17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox17ActionPerformed
-        jCheckBox16.setSelected(false);
-    }//GEN-LAST:event_jCheckBox17ActionPerformed
+    private void en_serv_elct_sActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_elct_sActionPerformed
+        en_serv_elct_n.setSelected(false);
+    }//GEN-LAST:event_en_serv_elct_sActionPerformed
 
-    private void jCheckBox16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox16ActionPerformed
-        jCheckBox17.setSelected(false);
-    }//GEN-LAST:event_jCheckBox16ActionPerformed
+    private void en_serv_elct_nActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_elct_nActionPerformed
+        en_serv_elct_s.setSelected(false);
+    }//GEN-LAST:event_en_serv_elct_nActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        AgregarDisc((String) comboBoxSuggestion1.getSelectedItem());
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void en_serv_cls_sActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_cls_sActionPerformed
+        en_serv_cls_n.setSelected(false);
+    }//GEN-LAST:event_en_serv_cls_sActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        if (seleccionDiscapacidad.isEmpty() == false) {
-            RemoveDisc((String) jTable4.getValueAt(jTable4.getSelectedRow(), 0));
-        } else {
-            JOptionPane.showMessageDialog(null, "Primero tienes que seleccionar la discapacidad");
-        }
-
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jCheckBox19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox19ActionPerformed
-        jCheckBox18.setSelected(false);
-    }//GEN-LAST:event_jCheckBox19ActionPerformed
-
-    private void jCheckBox18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox18ActionPerformed
-        jCheckBox19.setSelected(false);
-    }//GEN-LAST:event_jCheckBox18ActionPerformed
+    private void en_serv_cls_nActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_en_serv_cls_nActionPerformed
+        en_serv_cls_s.setSelected(false);
+    }//GEN-LAST:event_en_serv_cls_nActionPerformed
 
     private void jTable4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable4MousePressed
         if ((String) jTable4.getValueAt(jTable4.getSelectedRow(), 0) != null) {
@@ -5203,6 +5095,255 @@ public class principal extends javax.swing.JFrame {
         dinamic_filtroPro(jLayeredPane7);
     }//GEN-LAST:event_jLabel7MouseClicked
 
+    private void jTable3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable3MousePressed
+        demografia.setStrike((String) jTable3.getValueAt(jTable3.getSelectedRow(), 0));
+        if (bt_dmg_stingStrike.getForeground().equals(seleccionado) == true) {
+
+            entradaTxt_demografia.setText((String) jTable3.getValueAt(jTable3.getSelectedRow(), 0));
+        }
+    }//GEN-LAST:event_jTable3MousePressed
+
+    private void jCheckBox6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox6ActionPerformed
+        if (jCheckBox6.isSelected() == true) {
+            jCheckBox1.setEnabled(false);
+            jCheckBox2.setEnabled(false);
+            jCheckBox3.setEnabled(false);
+        } else {
+            jCheckBox1.setEnabled(true);
+            jCheckBox2.setEnabled(true);
+            jCheckBox3.setEnabled(true);
+        }
+    }//GEN-LAST:event_jCheckBox6ActionPerformed
+
+    private void jCheckBox9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox9ActionPerformed
+        if (jCheckBox9.isSelected() == true) {
+            combo_filtroPro_rolFamiliar.setSelectedIndex(0);
+        }
+    }//GEN-LAST:event_jCheckBox9ActionPerformed
+
+    private void combo_filtroPro_rolFamiliarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combo_filtroPro_rolFamiliarActionPerformed
+        if (combo_filtroPro_rolFamiliar.getSelectedIndex() == 0) {
+            jCheckBox9.setSelected(true);
+        } else {
+            jCheckBox9.setSelected(false);
+        }
+    }//GEN-LAST:event_combo_filtroPro_rolFamiliarActionPerformed
+
+    private void buttonGradient1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGradient1ActionPerformed
+        poliFamly("añadir a grupo");
+        dinamicRegistro(Registro4);
+    }//GEN-LAST:event_buttonGradient1ActionPerformed
+
+    private void buttonGradient2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGradient2ActionPerformed
+        poliFamly("nuevo grupo");
+        dinamicRegistro(Registro4);
+        cargarRfCbbx("Jefe de Familia");
+    }//GEN-LAST:event_buttonGradient2ActionPerformed
+
+    private void checkbox_entradaNVedc_sinEducacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_entradaNVedc_sinEducacionActionPerformed
+        grupCheckboxdc(checkbox_entradaNVedc_sinEducacion);
+    }//GEN-LAST:event_checkbox_entradaNVedc_sinEducacionActionPerformed
+
+    private void combo_entradaRdd_listaDiscapacidadesItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_combo_entradaRdd_listaDiscapacidadesItemStateChanged
+        mostrarDestallesDd((String) combo_entradaRdd_listaDiscapacidades.getSelectedItem());
+    }//GEN-LAST:event_combo_entradaRdd_listaDiscapacidadesItemStateChanged
+
+    private void combo_entradaRdd_listaDiscapacidadesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combo_entradaRdd_listaDiscapacidadesActionPerformed
+        mostrarDestallesDd((String) combo_entradaRdd_listaDiscapacidades.getSelectedItem());
+    }//GEN-LAST:event_combo_entradaRdd_listaDiscapacidadesActionPerformed
+
+    private void boton_entradaRdd_agregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_entradaRdd_agregarActionPerformed
+        if (combo_entradaRdd_listaDiscapacidades.getSelectedItem().equals("") == false) {
+            AgregarDisc((String) combo_entradaRdd_listaDiscapacidades.getSelectedItem());
+        }
+    }//GEN-LAST:event_boton_entradaRdd_agregarActionPerformed
+
+    private void buttonAction1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAction1ActionPerformed
+        if (seleccionDiscapacidad.isEmpty() == false) {
+            RemoveDisc((String) jTable4.getValueAt(jTable4.getSelectedRow(), 0));
+        } else {
+            JOptionPane.showMessageDialog(null, "Primero tienes que seleccionar la discapacidad");
+        }
+    }//GEN-LAST:event_buttonAction1ActionPerformed
+
+    private void enSexoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enSexoActionPerformed
+
+    }//GEN-LAST:event_enSexoActionPerformed
+
+    private void bt_registro1_siguienteMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_registro1_siguienteMousePressed
+        DenpNombre(0);
+        DensNombre(0);
+        DenpApellido(0);
+        DensApellido(0);
+        DenTelefono(0);
+        DenCorreo(0);
+        DenCedula(0);
+
+        Integer cedula;
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
+        LocalDate fecha = LocalDate.parse(entrada_fechaN_registro.getText(), formato);
+        LocalDate hoy = LocalDate.now();
+        Period periodo = Period.between(fecha, hoy);
+
+        if (enCedula.getText().equals("Cedula de Identidad") == true) {
+            cedula = 0;
+        } else {
+            cedula = Integer.valueOf(enCedula.getText());
+        }
+        /*
+        
+        
+         */
+        try {
+
+            if (!(enpNombre.getText().equals("Primer nombre") == false && ensNombre.getText().equals("Segundo nombre") == false && enpApellido.getText().equals("Primer apellido") == false && ensApellido.getText().equals("Segundo Apellido") == false)) {
+                throw new IllegalAccessException("Debes de poner los dos nombre y los dos apellidos");
+            }
+            if (!(cedula == 0 || cedula > 1000000)) {
+                throw new IllegalAccessException("El formato de la cedula es invalido");
+            }
+            if (fecha.isAfter(hoy)) {
+                throw new IllegalAccessException("La fecha que has ingresado no es valida");
+            }
+            if (periodo.getYears() > 120) {
+                throw new IllegalAccessException("Fecha invalida!!\nDeverdad existe una persona con " + periodo.getYears() + " añon viva?");
+            }
+            if (enSexo.getSelectedItem().equals("Generos") == true) {
+                throw new IllegalAccessException("Debes de seleccionar un genero");
+            }
+            switch (tipoDeRegistro) {
+                case "nuevo":
+                    if (persona.exisPer(cedula) && cedula != 0 && persona.getCedula() != cedula) {
+                        etick_cedula.setText("cedula ya registrada!");
+                        etick_cedula.setForeground(new Color(250, 20, 20));
+                        throw new IllegalAccessException("La cedula que esta intentando agregar ya esta registrada,\n "
+                                + "por favor verifique la cedula o asegurese de que esta persona ya este registrada");
+                    }
+                    dinamicRegistro(Registro2);
+                    dinamicDregisro(pr2);
+                    etick_cedula.setText("cedula de identidad");
+                    etick_cedula.setForeground(new Color(0, 0, 0));
+
+                    break;
+                case "modificar":
+                    if (persona.exisCedulaPer(cedula, persona.getId()) && cedula != 0) {
+                        etick_cedula.setText("cedula ya registrada!");
+                        etick_cedula.setForeground(new Color(250, 20, 20));
+                        throw new IllegalAccessException("La cedula que esta intentando agregar ya esta registrada,\n "
+                                + "por favor verifique la cedula o asegurese de que esta persona ya este registrada");
+                    }
+                    dinamicRegistro(Registro2);
+                    dinamicDregisro(pr2);
+                    etick_cedula.setText("cedula de identidad");
+                    etick_cedula.setForeground(new Color(0, 0, 0));
+                    break;
+            }
+        } catch (IllegalAccessException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+//        if (enCedula.getText().equals("Cedula de Identidad") == true) {
+//            cedula = 0;
+//        } else {
+//            cedula = Integer.valueOf(enCedula.getText());
+//        }
+//
+//        if (enpNombre.getText().equals("Primer nombre") == false && ensNombre.getText().equals("Segundo nombre") == false && enpApellido.getText().equals("Primer apellido") == false && ensApellido.getText().equals("Segundo Apellido") == false) {
+//            if (cedula == 0 || cedula > 1000000) {
+//
+//                DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
+//                LocalDate fecha = LocalDate.parse(jTextField14.getText(), formato);
+//                LocalDate hoy = LocalDate.now();
+//
+//                if (fecha.isAfter(hoy)) {
+//                    JOptionPane.showMessageDialog(pr1, "La fecha que has ingresado no es valida");
+//                } else {
+//                        if (condicion == 0) {
+//                            if (persona.exisPer(cedula)) {
+//                                if (cedula != 0) {
+//                                    JOptionPane.showMessageDialog(null, "La cedula que esta intentando agregar ya esta registrada,\n por favor verifique la cedula o asegurese de que esta persona ya este registrada");
+//                                    jLabel99.setText("cedula ya registrada!");
+//                                    jLabel99.setForeground(new Color(250, 20, 20));
+//                                } else {
+//                                    dinamicRegistro(Registro2);
+//                                    dinamicDregisro(pr2);
+//                                    jLabel99.setText("cedula de identidad");
+//                                    jLabel99.setForeground(new Color(0, 0, 0));
+//                                }
+//                            } else {
+//                                dinamicRegistro(Registro2);
+//                                dinamicDregisro(pr2);
+//                                jLabel99.setText("cedula de identidad");
+//                                jLabel99.setForeground(new Color(0, 0, 0));
+//                            }
+//
+//                        } else {
+//                            if (persona.exisCedulaPer(cedula, persona.getId())) {
+//
+//                                if (cedula != 0) {
+//                                    JOptionPane.showMessageDialog(null, "La cedula que esta intentando agregar ya esta registrada,\n por favor verifique la cedula o asegurese de que esta persona ya este registrada");
+//
+//                                    jLabel99.setText("cedula ya registrada!");
+//                                    jLabel99.setForeground(new Color(250, 20, 20));
+//                                } else {
+//                                    dinamicRegistro(Registro2);
+//                                    dinamicDregisro(pr2);
+//                                    jLabel99.setText("cedula de identidad");
+//                                    jLabel99.setForeground(new Color(0, 0, 0));
+//                                }
+//                            } else {
+//                                dinamicRegistro(Registro2);
+//                                dinamicDregisro(pr2);
+//                                jLabel99.setText("cedula de identidad");
+//                                jLabel99.setForeground(new Color(0, 0, 0));
+//                            }
+//                        }
+//                    
+//                }
+//
+//            } else {
+//                JOptionPane.showMessageDialog(null, "El formato de la cedula es invalido");
+//            }
+//        } else {
+//            JOptionPane.showMessageDialog(null, "Debes de poner los dos nombre y los dos apellidos");
+//        }
+
+    }//GEN-LAST:event_bt_registro1_siguienteMousePressed
+
+    private void itemM_pregunta_restaurarBDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_pregunta_restaurarBDActionPerformed
+        axdinamicMenu();
+        usuario.setUsuarioo(bt_menu_usuario.getText());
+        if (usuario.comprobarTipoUser("Administrador")) {
+            JFileChooser file = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivo de respaldo", "sql");
+            file.setFileFilter(filter);
+
+            int i = file.showOpenDialog(null);
+
+            if (i == JFileChooser.APPROVE_OPTION) {
+                File fille = file.getSelectedFile();
+                System.out.println(fille.getAbsolutePath());
+                restaurar.restaurar(fille.getAbsolutePath());
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Esta opcion es solo para los usuarios,\"Administradores\"");
+        }
+
+
+    }//GEN-LAST:event_itemM_pregunta_restaurarBDActionPerformed
+
+    private void totalInfo_filtroProActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_totalInfo_filtroProActionPerformed
+        if (totalInfo_filtroPro.isSelected() == true) {
+            jTable9.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        } else {
+            jTable9.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        }
+        filtroPro();
+    }//GEN-LAST:event_totalInfo_filtroProActionPerformed
+
+    private void itemM_usuario_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemM_usuario_exitActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_itemM_usuario_exitActionPerformed
+
     /**
      * user
      *
@@ -5233,11 +5374,10 @@ public class principal extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        FlatRobotoFont.install();
-        FlatLaf.registerCustomDefaultsSource("raven.combobox");
-        UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
-        FlatMacDarkLaf.setup();
-
+//        FlatRobotoFont.install();
+//        FlatLaf.registerCustomDefaultsSource("raven.combobox");
+//        UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
+//        FlatMacDarkLaf.setup();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new principal().setVisible(true);
@@ -5255,9 +5395,6 @@ public class principal extends javax.swing.JFrame {
         btSalie.setVisible(true);
         aux.setVisible(true);
 
-        if (aux.equals(panel_filtro)) {
-            jPanel25.setVisible(false);
-        }
         if (aux.equals(panelMenup)) {
             btSalie.setVisible(false);
         }
@@ -5269,35 +5406,81 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JPanel Registro3o4;
     private javax.swing.JPanel Registro4;
     private javax.swing.JPanel Registro5;
+    private javax.swing.JPanel barraLateralD;
+    private elaprendiz.gui.button.ButtonAction boton_entradaRdd_agregar;
     private javax.swing.JLabel btSalie;
+    private javax.swing.JLabel bt_dmg_addLider;
+    private javax.swing.JLabel bt_dmg_addStrike;
+    private javax.swing.JLabel bt_dmg_descartar;
+    private javax.swing.JLabel bt_dmg_estruc;
+    private javax.swing.JLabel bt_dmg_guardar;
+    private javax.swing.JLabel bt_dmg_stingStrike;
+    private elaprendiz.gui.button.ButtonShadow bt_fechaN_registro1;
     static Clases.botones.ButtonGradient bt_menu_agregar;
     static Clases.botones.ButtonGradient bt_menu_demografia;
+    static Clases.botones.ButtonGradient bt_menu_gestionar;
     static Clases.botones.ButtonGradient bt_menu_imprimir;
     static Clases.botones.ButtonGradient bt_menu_modificar;
-    static Clases.botones.ButtonGradient bt_menu_pregunta;
     static Clases.botones.ButtonGradient bt_menu_usuario;
     static Clases.botones.ButtonGradient bt_mn_buscar;
-    private elaprendiz.gui.button.ButtonShadow buttonShadow1;
-    private Clases.combobox.ComboBoxSuggestion comboBoxSuggestion1;
+    private javax.swing.JLabel bt_registro1_siguiente;
+    private elaprendiz.gui.button.ButtonAction buttonAction1;
+    private Clases.botones.ButtonGradient buttonGradient1;
+    private Clases.botones.ButtonGradient buttonGradient2;
+    private static javax.swing.JCheckBox checkbox_entradaNVedc_eduacionBasica;
+    private static javax.swing.JCheckBox checkbox_entradaNVedc_eduacionSuperior;
+    private static javax.swing.JCheckBox checkbox_entradaNVedc_educacionInicial;
+    private static javax.swing.JCheckBox checkbox_entradaNVedc_educacionMedia;
+    private static javax.swing.JCheckBox checkbox_entradaNVedc_sinEducacion;
+    private Clases.combobox.ComboBoxSuggestion combo_demografia_asigLider;
+    private Clases.combobox.ComboBoxSuggestion combo_entradaRdd_listaDiscapacidades;
     private Clases.combobox.ComboBoxSuggestion combo_filtroPro_estCasa;
     private Clases.combobox.ComboBoxSuggestion combo_filtroPro_nvEdc;
     private Clases.combobox.ComboBoxSuggestion combo_filtroPro_rolFamiliar;
     private Clases.combobox.ComboBoxSuggestion combo_filtroPro_tipoDiscapacidad;
     private Clases.combobox.ComboBoxSuggestion combo_filtroPro_ubicacion;
+    private javax.swing.JSeparator dSeparador_cedula;
+    private javax.swing.JSeparator dSeparador_correo;
+    private javax.swing.JSeparator dSeparador_pApellido;
+    private javax.swing.JSeparator dSeparador_pNombre;
+    private javax.swing.JSeparator dSeparador_sApellido;
+    private javax.swing.JSeparator dSeparador_sNombre;
+    private javax.swing.JSeparator dSeparador_telefono;
     private com.raven.datechooser.DateChooser dateChooser1;
-    private static javax.swing.JCheckBox ed1;
-    private static javax.swing.JCheckBox ed2;
-    private static javax.swing.JCheckBox ed3;
-    private static javax.swing.JCheckBox ed4;
     private javax.swing.JTextField enCedula;
     private javax.swing.JTextField enCorreo;
-    private javax.swing.JComboBox<String> enNacionalidad;
-    private javax.swing.JComboBox<String> enSexo;
+    private Clases.combobox.ComboBoxSuggestion enNacionalidad;
+    private Clases.combobox.ComboBoxSuggestion enSexo;
     private javax.swing.JTextField enTelefono;
+    private javax.swing.JComboBox<String> en_combo_direccion;
+    private javax.swing.JComboBox<String> en_combo_stdCasa;
+    private javax.swing.JTextField en_nCasa;
+    private javax.swing.JCheckBox en_not_nCasa;
+    private javax.swing.JCheckBox en_serv_aguaN_n;
+    private javax.swing.JCheckBox en_serv_aguaN_s;
+    private javax.swing.JCheckBox en_serv_agua_n;
+    private javax.swing.JCheckBox en_serv_agua_s;
+    private javax.swing.JCheckBox en_serv_cls_n;
+    private javax.swing.JCheckBox en_serv_cls_s;
+    private javax.swing.JCheckBox en_serv_elct_n;
+    private javax.swing.JCheckBox en_serv_elct_s;
     private javax.swing.JTextField enpApellido;
     private javax.swing.JTextField enpNombre;
     private javax.swing.JTextField ensApellido;
     private javax.swing.JTextField ensNombre;
+    private javax.swing.JTextField entradaTxt_demografia;
+    private javax.swing.JTextField entrada_fechaN_registro;
+    private javax.swing.JLabel etick_cedula;
+    private javax.swing.JLabel etick_correo;
+    private javax.swing.JLabel etick_fechaN;
+    private javax.swing.JLabel etick_genero;
+    private javax.swing.JLabel etick_nacionalidad;
+    private javax.swing.JLabel etick_pApellido;
+    private javax.swing.JLabel etick_pNombre;
+    private javax.swing.JLabel etick_sApellido;
+    private javax.swing.JLabel etick_sNombre;
+    private javax.swing.JLabel etick_telefono;
+    private javax.swing.JLabel fondo_imagen;
     private Clases.botones.ButtonGradient itemM_agregar_LiderCalle;
     private Clases.botones.ButtonGradient itemM_agregar_cargaFamiliar;
     private Clases.botones.ButtonGradient itemM_agregar_persona;
@@ -5314,45 +5497,30 @@ public class principal extends javax.swing.JFrame {
     private Clases.botones.ButtonGradient itemM_modificar_familia;
     private Clases.botones.ButtonGradient itemM_modificar_liderCalle;
     private Clases.botones.ButtonGradient itemM_modificar_persona;
-    private Clases.botones.ButtonGradient itemM_pregunta_ayuda;
     private Clases.botones.ButtonGradient itemM_pregunta_manual;
+    private Clases.botones.ButtonGradient itemM_pregunta_respaldarBD;
+    private Clases.botones.ButtonGradient itemM_pregunta_restaurarBD;
     private Clases.botones.ButtonGradient itemM_usuario_add;
     private Clases.botones.ButtonGradient itemM_usuario_close;
+    private Clases.botones.ButtonGradient itemM_usuario_exit;
     private Clases.botones.ButtonGradient itemM_usuario_modificar;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox10;
-    private javax.swing.JCheckBox jCheckBox13;
-    private javax.swing.JCheckBox jCheckBox14;
-    private javax.swing.JCheckBox jCheckBox15;
-    private javax.swing.JCheckBox jCheckBox16;
-    private javax.swing.JCheckBox jCheckBox17;
-    private javax.swing.JCheckBox jCheckBox18;
-    private javax.swing.JCheckBox jCheckBox19;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox4;
-    private javax.swing.JCheckBox jCheckBox7;
-    private javax.swing.JCheckBox jCheckBox8;
+    private javax.swing.JCheckBox jCheckBox5;
+    private javax.swing.JCheckBox jCheckBox6;
+    private javax.swing.JCheckBox jCheckBox9;
     private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox10;
     private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JComboBox<String> jComboBox5;
     private static javax.swing.JComboBox<String> jComboBox7;
-    private javax.swing.JComboBox<String> jComboBox8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel100;
-    private javax.swing.JLabel jLabel101;
-    private javax.swing.JLabel jLabel102;
     private javax.swing.JLabel jLabel103;
-    private javax.swing.JLabel jLabel104;
-    private javax.swing.JLabel jLabel105;
     private javax.swing.JLabel jLabel106;
     private javax.swing.JLabel jLabel107;
     private javax.swing.JLabel jLabel108;
@@ -5372,12 +5540,7 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel124;
     private javax.swing.JLabel jLabel125;
     private javax.swing.JLabel jLabel126;
-    private javax.swing.JLabel jLabel127;
-    private javax.swing.JLabel jLabel128;
-    private javax.swing.JLabel jLabel129;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel130;
-    private javax.swing.JLabel jLabel131;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -5390,16 +5553,9 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
-    private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
-    private javax.swing.JLabel jLabel33;
-    private javax.swing.JLabel jLabel34;
-    private javax.swing.JLabel jLabel35;
-    private javax.swing.JLabel jLabel37;
-    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel41;
@@ -5408,12 +5564,10 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel44;
     private javax.swing.JLabel jLabel45;
     private javax.swing.JLabel jLabel47;
-    private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel49;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel50;
     private javax.swing.JLabel jLabel51;
-    private javax.swing.JLabel jLabel52;
     private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
     private javax.swing.JLabel jLabel55;
@@ -5421,7 +5575,6 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel57;
     private javax.swing.JLabel jLabel58;
     private javax.swing.JLabel jLabel59;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel60;
     private javax.swing.JLabel jLabel61;
     private javax.swing.JLabel jLabel62;
@@ -5447,24 +5600,13 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel89;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabel90;
-    private javax.swing.JLabel jLabel91;
-    private javax.swing.JLabel jLabel92;
-    private javax.swing.JLabel jLabel93;
     private javax.swing.JLabel jLabel94;
-    private javax.swing.JLabel jLabel95;
-    private javax.swing.JLabel jLabel96;
-    private javax.swing.JLabel jLabel97;
-    private javax.swing.JLabel jLabel98;
-    private javax.swing.JLabel jLabel99;
-    private javax.swing.JLayeredPane jLayeredPane1;
-    private javax.swing.JLayeredPane jLayeredPane2;
     private javax.swing.JLayeredPane jLayeredPane3;
     private javax.swing.JLayeredPane jLayeredPane4;
     private javax.swing.JLayeredPane jLayeredPane5;
     private javax.swing.JLayeredPane jLayeredPane6;
     private javax.swing.JLayeredPane jLayeredPane7;
     private javax.swing.JLayeredPane jLayeredPane8;
-    private javax.swing.JLayeredPane jLayeredPane9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -5476,13 +5618,11 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel19;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel21;
     private javax.swing.JPanel jPanel22;
     private javax.swing.JPanel jPanel23;
     private javax.swing.JPanel jPanel24;
-    private Clases.PanelRound jPanel25;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
@@ -5498,7 +5638,6 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JScrollPane jScrollPane9;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator11;
     private javax.swing.JSeparator jSeparator12;
@@ -5511,12 +5650,6 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator19;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator20;
-    private javax.swing.JSeparator jSeparator3;
-    private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JSeparator jSeparator5;
-    private javax.swing.JSeparator jSeparator6;
-    private javax.swing.JSeparator jSeparator7;
-    private javax.swing.JSeparator jSeparator8;
     private javax.swing.JSeparator jSeparator9;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
@@ -5527,21 +5660,27 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JTable jTable7;
     private javax.swing.JTable jTable8;
     private javax.swing.JTable jTable9;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField11;
     private javax.swing.JTextField jTextField12;
     private javax.swing.JTextField jTextField13;
-    private javax.swing.JTextField jTextField14;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
     private javax.swing.JTextField jTextField9;
+    private javax.swing.JLabel label_entradaNVedc_eduacionBasica;
+    private javax.swing.JLabel label_entradaNVedc_educacionInicial;
+    private javax.swing.JLabel label_entradaNVedc_educacionMedia;
+    private javax.swing.JLabel label_entradaNVedc_educacionSuperior;
+    private javax.swing.JLabel label_entradaNVedc_sinEducacion;
+    private javax.swing.JTextArea label_registroP_detallesSs_Descripcion;
+    private javax.swing.JLabel label_registroP_detallesSs_nombre;
+    private javax.swing.JLabel label_registroP_detallesSs_tipo;
+    private javax.swing.JLayeredPane menu_impress;
+    private Clases.PanelRound menu_impressD;
     private javax.swing.JPanel p_filtroDirecc;
     private javax.swing.JPanel p_filtroEdad;
     private javax.swing.JPanel p_filtroGeneral;
@@ -5549,10 +5688,10 @@ public class principal extends javax.swing.JFrame {
     private javax.swing.JPanel p_filtroPro;
     private javax.swing.JPanel panelBarra;
     private javax.swing.JPanel panelMenup;
-    private Clases.PanelRound panelRound18;
-    private Clases.PanelRound panelRound19;
     private javax.swing.JPanel panel_base;
     private javax.swing.JPanel panel_demografia;
+    private javax.swing.JLayeredPane panel_dmg_lider;
+    private javax.swing.JLayeredPane panel_dmg_strike;
     private javax.swing.JPanel panel_filtro;
     private javax.swing.JPanel panel_registrar;
     private Clases.PanelRound pr1;
@@ -5560,6 +5699,7 @@ public class principal extends javax.swing.JFrame {
     private Clases.PanelRound pr3;
     private Clases.PanelRound pr4;
     private Clases.PanelRound pr5;
+    private Clases.checkbox.JCheckBoxCustom totalInfo_filtroPro;
     // End of variables declaration//GEN-END:variables
 
     public void dinamicRegistro(JPanel panel) {
@@ -5585,28 +5725,25 @@ public class principal extends javax.swing.JFrame {
     }
 
     public void Cldemografia() {
-        jLabel128.setForeground(disponible);
-        jLabel127.setForeground(disponible);
-        jLabel130.setForeground(disponible);
+        dinamic_bt_demografia(null);
 
-        jLabel129.setForeground(nulo);
-        jLabel131.setForeground(nulo);
-
-        jTextField7.setEditable(false);
-
-        jTextField7.setText(null);
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStrikeCbbx()));
+        combo_demografia_asigLider.setModel(new javax.swing.DefaultComboBoxModel<>(cargarStrikeCbbx()));
         jTextField10.setText(null);
     }
 
     public void Clregistro() {
-        jLabel95.setVisible(false);
-        jLabel96.setVisible(false);
-        jLabel97.setVisible(false);
-        jLabel98.setVisible(false);
-        jLabel99.setVisible(false);
-        jLabel100.setVisible(false);
-        jLabel101.setVisible(false);
+        jLabel55.setVisible(true);
+
+        etick_pNombre.setVisible(false);
+        etick_sNombre.setVisible(false);
+        etick_pApellido.setVisible(false);
+        etick_sApellido.setVisible(false);
+        etick_cedula.setVisible(false);
+        etick_telefono.setVisible(false);
+        etick_correo.setVisible(false);
+
+        etick_cedula.setText("cedula de identidad");
+        etick_cedula.setForeground(new Color(0, 0, 0));
 
         enpNombre.setText("Primer nombre");
         enpNombre.setForeground(new java.awt.Color(51, 51, 51));
@@ -5628,21 +5765,22 @@ public class principal extends javax.swing.JFrame {
         //  enFechaD.setForeground(new java.awt.Color(51, 51, 51));
         //   enFechaYear.setText("Año");
         //   enFechaYear.setForeground(new java.awt.Color(51, 51, 51));
-        jSeparator1.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator3.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator4.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator5.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator6.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator7.setBackground(new java.awt.Color(51, 51, 51));
-        jSeparator8.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_correo.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_sNombre.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_pApellido.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_sApellido.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_cedula.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_telefono.setBackground(new java.awt.Color(51, 51, 51));
+        dSeparador_pNombre.setBackground(new java.awt.Color(51, 51, 51));
 
-        grupCheckboxdc(ed1);
-        ed1.setSelected(false);
+        grupCheckboxdc(checkbox_entradaNVedc_educacionInicial);
+        checkbox_entradaNVedc_educacionInicial.setSelected(false);
         cargarDdCbbx();
         modeloTdiscapacidades = new DefaultTableModel();
         String[] colums = {"Enfermedades"};
         modeloTdiscapacidades.setColumnIdentifiers(colums);
         jTable4.setModel(modeloTdiscapacidades);
+        combo_entradaRdd_listaDiscapacidades.setModel(new javax.swing.DefaultComboBoxModel<>(cargarDdCbbx()));
 
         // enFechaM.setSelectedIndex(0);
         enNacionalidad.setSelectedIndex(0);
@@ -5653,26 +5791,45 @@ public class principal extends javax.swing.JFrame {
         stadeRegistro = 0;
         stadeRegistroC = 0;
 
-        jCheckBox8.setSelected(false);
-        jCheckBox15.setSelected(false);
-        jCheckBox17.setSelected(false);
-        jCheckBox19.setSelected(false);
+        en_serv_agua_s.setSelected(false);
+        en_serv_aguaN_s.setSelected(false);
+        en_serv_elct_s.setSelected(false);
+        en_serv_cls_s.setSelected(false);
 
-        jCheckBox13.setSelected(false);
-        jCheckBox14.setSelected(false);
-        jCheckBox16.setSelected(false);
-        jCheckBox18.setSelected(false);
+        en_serv_agua_n.setSelected(false);
+        en_serv_aguaN_n.setSelected(false);
+        en_serv_elct_n.setSelected(false);
+        en_serv_cls_n.setSelected(false);
 
-        jComboBox10.setSelectedIndex(0);
-        jComboBox8.setSelectedIndex(0);
+        en_combo_stdCasa.setSelectedIndex(0);
+        en_combo_direccion.setSelectedIndex(0);
 
-        jTextField6.setText("");
-        jCheckBox7.setSelected(false);
+        en_nCasa.setText("");
+        en_not_nCasa.setSelected(false);
 
-        jLabel104.setText("Nombre de discapacidad: ");
-        jLabel105.setText("Tipo de discapacidad: ");
-        jTextArea1.setText("Descripción: ");
+        mostrarDestallesDd("");
+        cargar_rolesfm();
+    }
 
+    public void CLfiltros() {
+        menu_impressD.setVisible(false);
+        menu_impress.setVisible(false);
+        /*limpiar filtro pro*/
+        jTextField12.setText("");
+        jTextField13.setText("");
+        jTextField8.setText("");
+
+        combo_filtroPro_ubicacion.setSelectedIndex(0);
+        combo_filtroPro_nvEdc.setSelectedIndex(0);
+        combo_filtroPro_estCasa.setSelectedIndex(0);
+        combo_filtroPro_rolFamiliar.setSelectedIndex(0);
+        combo_filtroPro_tipoDiscapacidad.setSelectedIndex(0);
+
+        jCheckBox1.setSelected(false);
+        jCheckBox2.setSelected(false);
+        jCheckBox3.setSelected(false);
+        jCheckBox4.setSelected(false);
+        /**/
     }
 
     /*Esta funcion se va a encargar de llenar la tabla del nucleo familia*/
@@ -5686,12 +5843,17 @@ public class principal extends javax.swing.JFrame {
         } else {
             persona.setCedula(Integer.parseInt(enCedula.getText()));
         }
+        relacionesForaneas.setSexo((String) enSexo.getSelectedItem());
         persona.setSexo(relacionesForaneas.buscarSexo());
-        persona.setMgAcademico(relacionesForaneas.buscarMgAcademico());
+        int i = 0;
+        if (relacionesForaneas.buscarMgAcademico() != null) {
+            i = relacionesForaneas.buscarMgAcademico();
+        }
+        persona.setMgAcademico(i);
 
         SimpleDateFormat formato = new SimpleDateFormat("dd-MMMM-yyyy");
-        persona.setFechaN(formato.parse(jTextField14.getText()));
-        System.out.println(jTextField14.getText());
+        persona.setFechaN(formato.parse(entrada_fechaN_registro.getText()));
+        System.out.println(entrada_fechaN_registro.getText());
 //   persona.setFechaN(formato.parse(enFechaYear.getText() + "-" + (String) enFechaM.getSelectedItem() + "-" + enFechaD.getText()));
 
         relacionesForaneas.setNacinalidad((String) enNacionalidad.getSelectedItem());
@@ -5769,17 +5931,20 @@ public class principal extends javax.swing.JFrame {
             }
             relacionesForaneas.setId_mgAcademico(persona.getMgAcademico());
             switch (relacionesForaneas.nMgAcademico()) {
-                case "Educación Inicial":
-                    grupCheckboxdc(ed1);
+                case "Educacion Inicial":
+                    grupCheckboxdc(checkbox_entradaNVedc_educacionInicial);
                     break;
-                case "Educación Basica":
-                    grupCheckboxdc(ed2);
+                case "Educacion Basica":
+                    grupCheckboxdc(checkbox_entradaNVedc_eduacionBasica);
                     break;
-                case "Educación Media":
-                    grupCheckboxdc(ed3);
+                case "Educacion Media":
+                    grupCheckboxdc(checkbox_entradaNVedc_educacionMedia);
                     break;
-                case "Educación Superior":
-                    grupCheckboxdc(ed4);
+                case "Educacion Superior":
+                    grupCheckboxdc(checkbox_entradaNVedc_eduacionSuperior);
+                    break;
+                case "Sin Educacion":
+                    grupCheckboxdc(checkbox_entradaNVedc_sinEducacion);
                     break;
                 default:
                     JOptionPane.showMessageDialog(null, "Algo anda mal -__-");
@@ -5810,19 +5975,19 @@ public class principal extends javax.swing.JFrame {
      *
      */
     public void cargarHouse() {
-        modelos.house.setNumCasa(jTextField6.getText());
+        modelos.house.setNumCasa(en_nCasa.getText());
 
-        relacionesForaneas.setStadoCasa((String) jComboBox10.getSelectedItem());
+        relacionesForaneas.setStadoCasa((String) en_combo_stdCasa.getSelectedItem());
         modelos.house.setId_estdCasa(relacionesForaneas.buscarStadoCasa());
-        modelos.house.setrModuloCLP(jCheckBox19.isSelected());
+        modelos.house.setrModuloCLP(en_serv_cls_s.isSelected());
 
-        modelos.demografia.setStrike((String) jComboBox8.getSelectedItem());
+        modelos.demografia.setStrike((String) en_combo_direccion.getSelectedItem());
         modelos.house.setId_direccion(modelos.demografia.idStrike());
 
-        modelos.house.setAgua(jCheckBox8.isSelected());
-        modelos.house.setAguasN(jCheckBox15.isSelected());
-        modelos.house.setLuz(jCheckBox17.isSelected());
-        modelos.house.setrModuloCLP(jCheckBox19.isSelected());
+        modelos.house.setAgua(en_serv_agua_s.isSelected());
+        modelos.house.setAguasN(en_serv_aguaN_s.isSelected());
+        modelos.house.setLuz(en_serv_elct_s.isSelected());
+        modelos.house.setrModuloCLP(en_serv_cls_s.isSelected());
     }
 
     public void cargarTfamilia(String opcion) {
@@ -5875,9 +6040,9 @@ public class principal extends javax.swing.JFrame {
 
         for (String[] ax : discapacidades.recuperarAll()) {
             if (ax[1].equals(aux)) {
-                jLabel104.setText("Nombre de discapacidad: " + ax[1]);
-                jLabel105.setText("Tipo de discapacidad: " + ax[3]);
-                jTextArea1.setText("Descripción: " + ax[2]);
+                label_registroP_detallesSs_nombre.setText("Nombre de discapacidad: " + ax[1]);
+                label_registroP_detallesSs_tipo.setText("Tipo de discapacidad: " + ax[3]);
+                label_registroP_detallesSs_Descripcion.setText("Descripción: " + ax[2]);
             }
         }
     }
@@ -5916,6 +6081,8 @@ public class principal extends javax.swing.JFrame {
                 System.out.println("Interfaz.principal.poliFamly()");
                 break;
             case "CL":
+                cargar_rolesfm();
+                jComboBox7.setModel(new DefaultComboBoxModel<>(rolesFm));
                 persona.ClanAll();
                 break;
         }
@@ -5929,22 +6096,26 @@ public class principal extends javax.swing.JFrame {
      *
      */
     public void grupCheckboxdc(JCheckBox aux) {
-        ed1.setSelected(false);
-        ed2.setSelected(false);
-        ed4.setSelected(false);
-        ed3.setSelected(false);
+        checkbox_entradaNVedc_sinEducacion.setSelected(false);
+        checkbox_entradaNVedc_educacionInicial.setSelected(false);
+        checkbox_entradaNVedc_eduacionBasica.setSelected(false);
+        checkbox_entradaNVedc_eduacionSuperior.setSelected(false);
+        checkbox_entradaNVedc_educacionMedia.setSelected(false);
 
-        if (aux == ed1) {
-            relacionesForaneas.setMgAcademico("Educación Inicia");
+        if (aux == checkbox_entradaNVedc_sinEducacion) {
+            relacionesForaneas.setMgAcademico("Sin Educacion");
         }
-        if (aux == ed2) {
-            relacionesForaneas.setMgAcademico("Educación Basica");
+        if (aux == checkbox_entradaNVedc_educacionInicial) {
+            relacionesForaneas.setMgAcademico("Educacion Inicial");
         }
-        if (aux == ed3) {
-            relacionesForaneas.setMgAcademico("Educación Media");
+        if (aux == checkbox_entradaNVedc_eduacionBasica) {
+            relacionesForaneas.setMgAcademico("Educacion Basica");
         }
-        if (aux == ed4) {
-            relacionesForaneas.setMgAcademico("Educación Superior");
+        if (aux == checkbox_entradaNVedc_educacionMedia) {
+            relacionesForaneas.setMgAcademico("Educacion Media");
+        }
+        if (aux == checkbox_entradaNVedc_eduacionSuperior) {
+            relacionesForaneas.setMgAcademico("Educacion Superior");
         }
         aux.setSelected(true);
         System.out.println(persona.getMgAcademico());
@@ -5995,6 +6166,7 @@ public class principal extends javax.swing.JFrame {
                     axdinamicMenu();
                     itemM_usuario_add.setVisible(true);
                     itemM_usuario_close.setVisible(true);
+                    itemM_usuario_exit.setVisible(true);
                     itemM_usuario_modificar.setVisible(true);
                 } else {
                     axdinamicMenu();
@@ -6009,10 +6181,11 @@ public class principal extends javax.swing.JFrame {
                     axdinamicMenu();
                 }
                 break;
-            case "Pregunta":
-                if (itemM_pregunta_ayuda.isVisible() == false) {
+            case "Gestionar":
+                if (itemM_pregunta_respaldarBD.isVisible() == false) {
                     axdinamicMenu();
-                    itemM_pregunta_ayuda.setVisible(true);
+                    itemM_pregunta_respaldarBD.setVisible(true);
+                    itemM_pregunta_restaurarBD.setVisible(true);
                     itemM_pregunta_manual.setVisible(true);
                 } else {
                     axdinamicMenu();
@@ -6062,9 +6235,11 @@ public class principal extends javax.swing.JFrame {
 
         itemM_usuario_add.setVisible(false);
         itemM_usuario_close.setVisible(false);
+        itemM_usuario_exit.setVisible(false);
         itemM_usuario_modificar.setVisible(false);
 
-        itemM_pregunta_ayuda.setVisible(false);
+        itemM_pregunta_respaldarBD.setVisible(false);
+        itemM_pregunta_restaurarBD.setVisible(false);
         itemM_pregunta_manual.setVisible(false);
 
     }
@@ -6076,8 +6251,8 @@ public class principal extends javax.swing.JFrame {
      *
      */
     public void dinamicDemografia(JLayeredPane aux) {
-        jLayeredPane1.setVisible(false);
-        jLayeredPane2.setVisible(false);
+        panel_dmg_lider.setVisible(false);
+        panel_dmg_strike.setVisible(false);
 
         aux.setVisible(true);
     }
@@ -6125,9 +6300,9 @@ public class principal extends javax.swing.JFrame {
             case 1:
                 if (enpNombre.getText().equals("Primer nombre")) {
                     enpNombre.requestFocusInWindow();
-                    jLabel95.setVisible(true);
+                    etick_pNombre.setVisible(true);
                     enpNombre.setEditable(true);
-                    jSeparator8.setBackground(new Color(0, 0, 250));
+                    dSeparador_pNombre.setBackground(new Color(0, 0, 250));
                     enpNombre.setForeground(new Color(0, 0, 0));
                     enpNombre.setText("");
                 }
@@ -6135,10 +6310,10 @@ public class principal extends javax.swing.JFrame {
             case 0:
                 if (enpNombre.getText().equals("")) {
                     Registro1.requestFocusInWindow();
-                    jLabel95.setVisible(false);
+                    etick_pNombre.setVisible(false);
                     enpNombre.setEditable(false);
                     enpNombre.setText("Primer nombre");
-                    jSeparator8.setBackground(new Color(51, 51, 51));
+                    dSeparador_pNombre.setBackground(new Color(51, 51, 51));
                     enpNombre.setForeground(new Color(51, 51, 51));
                 }
 
@@ -6151,9 +6326,9 @@ public class principal extends javax.swing.JFrame {
             case 1:
                 if (ensNombre.getText().equals("Segundo nombre")) {
                     ensNombre.requestFocusInWindow();
-                    jLabel96.setVisible(true);
+                    etick_sNombre.setVisible(true);
                     ensNombre.setEditable(true);
-                    jSeparator3.setBackground(new Color(0, 0, 250));
+                    dSeparador_sNombre.setBackground(new Color(0, 0, 250));
                     ensNombre.setForeground(new Color(0, 0, 0));
                     ensNombre.setText("");
                 }
@@ -6162,10 +6337,10 @@ public class principal extends javax.swing.JFrame {
             case 0:
                 if (ensNombre.getText().equals("")) {
                     Registro1.requestFocusInWindow();
-                    jLabel96.setVisible(false);
+                    etick_sNombre.setVisible(false);
                     ensNombre.setEditable(false);
                     ensNombre.setText("Segundo nombre");
-                    jSeparator3.setBackground(new Color(51, 51, 51));
+                    dSeparador_sNombre.setBackground(new Color(51, 51, 51));
                     ensNombre.setForeground(new Color(51, 51, 51));
                 }
                 break;
@@ -6178,21 +6353,21 @@ public class principal extends javax.swing.JFrame {
             case 1:
                 if (enpApellido.getText().equals("Primer apellido")) {
                     enpApellido.requestFocusInWindow();
-                    jLabel97.setVisible(true);
+                    etick_pApellido.setVisible(true);
                     enpApellido.setEditable(true);
                     enpApellido.setForeground(new Color(0, 0, 0));
                     enpApellido.setText("");
-                    jSeparator4.setBackground(new Color(0, 0, 250));
+                    dSeparador_pApellido.setBackground(new Color(0, 0, 250));
                 }
                 break;
             case 0:
                 if (enpApellido.getText().equals("")) {
                     Registro1.requestFocusInWindow();
-                    jLabel97.setVisible(false);
+                    etick_pApellido.setVisible(false);
                     enpApellido.setEditable(false);
                     enpApellido.setForeground(new Color(51, 51, 51));
                     enpApellido.setText("Primer apellido");
-                    jSeparator4.setBackground(new Color(51, 51, 51));
+                    dSeparador_pApellido.setBackground(new Color(51, 51, 51));
                 }
 
                 break;
@@ -6205,22 +6380,22 @@ public class principal extends javax.swing.JFrame {
             case 1:
                 if (ensApellido.getText().equals("Segundo Apellido")) {
                     ensApellido.requestFocusInWindow();
-                    jLabel98.setVisible(true);
+                    etick_sApellido.setVisible(true);
                     ensApellido.setEditable(true);
                     ensApellido.setText("");
                     ensApellido.setForeground(new Color(0, 0, 0));
-                    jSeparator5.setBackground(new Color(0, 0, 250));
+                    dSeparador_sApellido.setBackground(new Color(0, 0, 250));
                 }
 
                 break;
             case 0:
                 if (ensApellido.getText().equals("")) {
                     Registro1.requestFocusInWindow();
-                    jLabel98.setVisible(false);
+                    etick_sApellido.setVisible(false);
                     ensApellido.setEditable(false);
                     ensApellido.setText("Segundo Apellido");
                     ensApellido.setForeground(new Color(51, 51, 51));
-                    jSeparator5.setBackground(new Color(51, 51, 51));
+                    dSeparador_sApellido.setBackground(new Color(51, 51, 51));
                 }
                 break;
         }
@@ -6232,21 +6407,21 @@ public class principal extends javax.swing.JFrame {
             case 1:
                 if (enCedula.getText().equals("Cedula de Identidad")) {
                     enCedula.requestFocusInWindow();
-                    jLabel99.setVisible(true);
+                    etick_cedula.setVisible(true);
                     enCedula.setEditable(true);
                     enCedula.setText("");
                     enCedula.setForeground(new Color(0, 0, 0));
-                    jSeparator6.setBackground(new Color(0, 0, 250));
+                    dSeparador_cedula.setBackground(new Color(0, 0, 250));
                 }
                 break;
             case 0:
                 if (enCedula.getText().equals("")) {
                     Registro1.requestFocusInWindow();
-                    jLabel99.setVisible(false);
+                    etick_cedula.setVisible(false);
                     enCedula.setEditable(false);
                     enCedula.setForeground(new Color(51, 51, 51));
                     enCedula.setText("Cedula de Identidad");
-                    jSeparator6.setBackground(new Color(51, 51, 51));
+                    dSeparador_cedula.setBackground(new Color(51, 51, 51));
                 }
                 break;
         }
@@ -6266,22 +6441,22 @@ public class principal extends javax.swing.JFrame {
             case 1:
                 if (enTelefono.getText().equals("Telefono")) {
                     enTelefono.requestFocusInWindow();
-                    jLabel100.setVisible(true);
+                    etick_telefono.setVisible(true);
                     enTelefono.setEditable(true);
                     enTelefono.setText("");
                     enTelefono.setForeground(new Color(0, 0, 0));
-                    jSeparator7.setBackground(new Color(0, 0, 250));
+                    dSeparador_telefono.setBackground(new Color(0, 0, 250));
                 }
 
                 break;
             case 0:
                 if (enTelefono.getText().equals("")) {
                     Registro1.requestFocusInWindow();
-                    jLabel100.setVisible(false);
+                    etick_telefono.setVisible(false);
                     enTelefono.setEditable(false);
                     enTelefono.setText("Telefono");
                     enTelefono.setForeground(new Color(51, 51, 51));
-                    jSeparator7.setBackground(new Color(51, 51, 51));
+                    dSeparador_telefono.setBackground(new Color(51, 51, 51));
                 }
                 break;
 
@@ -6294,21 +6469,21 @@ public class principal extends javax.swing.JFrame {
             case 1:
                 if (enCorreo.getText().equals("Correo")) {
                     enCorreo.requestFocusInWindow();
-                    jLabel101.setVisible(true);
+                    etick_correo.setVisible(true);
                     enCorreo.setEditable(true);
                     enCorreo.setText("");
                     enCorreo.setForeground(new Color(0, 0, 0));
-                    jSeparator1.setBackground(new Color(0, 0, 250));
+                    dSeparador_correo.setBackground(new Color(0, 0, 250));
                 }
                 break;
             case 0:
                 if (enCorreo.getText().equals("")) {
                     Registro1.requestFocusInWindow();
-                    jLabel101.setVisible(false);
+                    etick_correo.setVisible(false);
                     enCorreo.setEditable(false);
                     enCorreo.setText("Correo");
                     enCorreo.setForeground(new Color(51, 51, 51));
-                    jSeparator1.setBackground(new Color(51, 51, 51));
+                    dSeparador_correo.setBackground(new Color(51, 51, 51));
                 }
                 break;
         }
@@ -6316,7 +6491,7 @@ public class principal extends javax.swing.JFrame {
     }
 
     public void DprimPanel() {
-        anim.animate.animar(jPanel25, jLayeredPane9, jPanel25.isVisible(), Color.WHITE, 200);
+        anim.animate.animar(menu_impressD, menu_impress, menu_impressD.isVisible(), Color.WHITE, 200);
     }
 
     //Codigo reutilizado autor, River
@@ -6341,6 +6516,7 @@ public class principal extends javax.swing.JFrame {
                     relacionesForaneas.setRolFamiliar("Jefe de Familia");
                     if (persona.getRolFamiliar() != relacionesForaneas.buscarRolFamiliar()) {
                         persona.deletePersona(persona.getId());
+                        JOptionPane.showMessageDialog(null, "Persona eliminada correctamente");
                     } else {
                         JOptionPane.showMessageDialog(null, "No se puede eliminar a esta persona por que es jefe de familia,\n primero debe de cambiar el rol familiar");
                     }
@@ -6359,7 +6535,7 @@ public class principal extends javax.swing.JFrame {
         bt_menu_demografia.setVisible(aux);
         bt_menu_imprimir.setVisible(aux);
         bt_menu_modificar.setVisible(aux);
-        bt_menu_pregunta.setVisible(aux);
+        bt_menu_gestionar.setVisible(aux);
         bt_menu_usuario.setVisible(aux);
         bt_mn_buscar.setVisible(aux);
     }
@@ -6410,5 +6586,202 @@ public class principal extends javax.swing.JFrame {
             jPanel17.setVisible(true);
         }
 
+    }
+
+    private void filtroPro() {
+        Integer direccion = null;
+        Integer NivelEducativo = null;
+        Integer discapacidad = null;
+        Integer estadoCasa = null;
+        Integer tipoHabitante = null;
+        Integer EdadMn = null;
+        Integer EdadMx = null;
+
+        boolean omitir_servicios = true;
+        Integer agua = null;
+        Integer aguaN = null;
+        Integer luz = null;
+        Integer moduloCLP = null;
+
+        if (jTextField12.getText().trim().equals("") == false) {
+            EdadMn = Integer.parseInt(jTextField12.getText());
+        }
+        if (jTextField13.getText().trim().equals("") == false) {
+            EdadMx = Integer.parseInt(jTextField13.getText());
+        }
+
+        if (combo_filtroPro_ubicacion.getSelectedItem().equals("") == false) {
+            modelos.demografia.setStrike((String) combo_filtroPro_ubicacion.getSelectedItem());
+            direccion = modelos.demografia.idStrike();
+        }
+        if (combo_filtroPro_nvEdc.getSelectedItem().equals("") == false) {
+            modelos.relacionesForaneas.setMgAcademico((String) combo_filtroPro_nvEdc.getSelectedItem());
+            NivelEducativo = modelos.relacionesForaneas.buscarMgAcademico();
+        }
+        if (combo_filtroPro_tipoDiscapacidad.getSelectedItem().equals("") == false) {
+            discapacidad = modelos.discapacidades.idTdd((String) combo_filtroPro_tipoDiscapacidad.getSelectedItem());
+        }
+        if (combo_filtroPro_estCasa.getSelectedItem().equals("") == false) {
+            modelos.relacionesForaneas.setStadoCasa((String) combo_filtroPro_estCasa.getSelectedItem());
+            estadoCasa = modelos.relacionesForaneas.buscarStadoCasa();
+        }
+        if (combo_filtroPro_rolFamiliar.getSelectedItem().equals("") == false) {
+            if (jCheckBox9.isSelected() == false) {
+                modelos.relacionesForaneas.setRolFamiliar((String) combo_filtroPro_rolFamiliar.getSelectedItem());
+                tipoHabitante = modelos.relacionesForaneas.buscarRolFamiliar();
+            }
+        }
+
+        if (jCheckBox6.isSelected() == false) {
+            omitir_servicios = false;
+            if (jCheckBox1.isSelected() == true) {
+                agua = 1;
+            } else {
+                agua = 0;
+            }
+            if (jCheckBox2.isSelected() == true) {
+                aguaN = 1;
+            } else {
+                aguaN = 0;
+            }
+            if (jCheckBox3.isSelected() == true) {
+                luz = 1;
+            } else {
+                luz = 0;
+            }
+        }
+
+        ArrayList<String[]> lista = filtros.personalizado(EdadMn, EdadMx, direccion, NivelEducativo, discapacidad, estadoCasa, tipoHabitante, omitir_servicios, agua, aguaN, luz);
+        String[] colums;
+
+        if (totalInfo_filtroPro.isSelected() == true) {
+            colums = new String[]{"Cod", "Primer Nombre", "Segundo Nombre", "Primer Apellido", "Segundo Apellido", "Genero", "Fecha de Nacimiento", "Cedula", "Nivel Academico", "Nacionalidad", "Rol de familia", "Telefono", "Correo"};
+            modelo = new DefaultTableModel() {
+                boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false};
+
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return canEdit[columnIndex];
+                }
+            };
+            modelo.setColumnIdentifiers(colums);
+
+            for (String[] aux : lista) {
+                modelo.addRow(new String[]{
+                    aux[0],
+                    aux[1],
+                    aux[2],
+                    aux[3],
+                    aux[4],
+                    aux[6],
+                    aux[7],
+                    aux[5],
+                    aux[8],
+                    aux[9],
+                    aux[10],
+                    aux[11],
+                    aux[12]
+                });
+            }
+        } else {
+            colums = new String[]{"Cod", "Nobre y apellido", "Cedula", "Rol de familia"};
+            modelo = new DefaultTableModel() {
+                boolean[] canEdit = new boolean[]{false, false, false, false};
+
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return canEdit[columnIndex];
+                }
+            };
+            modelo.setColumnIdentifiers(colums);
+
+            for (String[] aux : lista) {
+                modelo.addRow(new String[]{
+                    aux[0],
+                    aux[1] + " " + aux[2] + " " + aux[3] + " " + aux[4],
+                    aux[5],
+                    aux[10]
+                });
+            }
+        }
+        jTable9.setModel(modelo);
+    }
+
+    private void mostrarDestallesDd(String entrada) {
+        ArrayList<String[]> lista = discapacidades.recuperarAll();
+        boolean limpiar = true;
+        for (String[] aux : lista) {
+            System.out.println(aux[1]);
+            if (aux[1].equals(entrada) == true) {
+                label_registroP_detallesSs_nombre.setText("Nombre de discapacidad: " + aux[1]);
+                label_registroP_detallesSs_tipo.setText("Tipo: " + aux[3]);
+                label_registroP_detallesSs_Descripcion.setText("Descripción: " + aux[2]);
+                limpiar = false;
+            }
+        }
+        if (limpiar) {
+            label_registroP_detallesSs_nombre.setText("Nombre de discapacidad: ");
+            label_registroP_detallesSs_tipo.setText("Tipo: ");
+            label_registroP_detallesSs_Descripcion.setText("Descripción: ");
+        }
+    }
+
+    private void dinamic_bt_demografia(JLabel aux) {
+        if (aux != null) {
+            bt_dmg_addLider.setForeground(nulo);
+            bt_dmg_estruc.setForeground(nulo);
+            bt_dmg_addStrike.setForeground(nulo);
+            bt_dmg_stingStrike.setForeground(nulo);
+
+            if (aux.equals(bt_dmg_estruc)) {
+                bt_dmg_addLider.setForeground(disponible);
+                bt_dmg_guardar.setVisible(false);
+                bt_dmg_descartar.setVisible(true);
+
+                ArrayList<String[]> lista = demografia.rescuAll();
+                modelo = new DefaultTableModel() {
+                    boolean[] canEdit = new boolean[]{
+                        false
+                    };
+
+                    public boolean isCellEditable(int rowIndex, int columnIndex) {
+                        return canEdit[columnIndex];
+                    }
+                };
+                String[] colums = {""};
+                modelo.setColumnIdentifiers(colums);
+                for (String[] ax : lista) {
+                    modelo.addRow(new String[]{ax[0]});
+                    modelo.addRow(new String[]{ax[1] + " " + ax[2] + " " + ax[3] + " " + ax[4] + ", CI " + ax[5]});
+                    modelo.addRow(new String[]{" "});
+                }
+                jTable3.setModel(modelo);
+
+            }
+
+            if (aux.equals(bt_dmg_stingStrike) == true || aux.equals(bt_dmg_addStrike)) {
+                entradaTxt_demografia.setEditable(true);
+                entradaTxt_demografia.setText("");
+
+                bt_dmg_guardar.setVisible(true);
+                bt_dmg_descartar.setVisible(true);
+
+            } else {
+                entradaTxt_demografia.setEditable(false);
+                entradaTxt_demografia.setText("");
+            }
+
+            aux.setForeground(seleccionado);
+        } else {
+            bt_dmg_addLider.setForeground(nulo);
+            bt_dmg_estruc.setForeground(disponible);
+            bt_dmg_addStrike.setForeground(disponible);
+            bt_dmg_stingStrike.setForeground(disponible);
+
+            bt_dmg_guardar.setVisible(false);
+            bt_dmg_descartar.setVisible(false);
+            entradaTxt_demografia.setEditable(false);
+            entradaTxt_demografia.setText("");
+        }
     }
 }

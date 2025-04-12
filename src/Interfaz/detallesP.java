@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.table.DefaultTableModel;
 import modelos.demografia;
+import modelos.discapacidades;
+import modelos.house;
 import modelos.persona;
 import modelos.relacionesForaneas;
 
@@ -28,6 +30,10 @@ public class detallesP extends javax.swing.JFrame {
      * Creates new form demografia
      */
     int xMause, yMause, x, y;
+    private static int ttHabitantes;
+    private static int hombres;
+    private static int mujeres;
+    private static int ninos;
 
     static DefaultTableModel modelo;
 
@@ -44,58 +50,62 @@ public class detallesP extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        panel_base = new javax.swing.JPanel();
         panel_barra = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         dc = new javax.swing.JLayeredPane();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
-        jLabel20 = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
-        jLabel22 = new javax.swing.JLabel();
-        jLabel23 = new javax.swing.JLabel();
-        jLabel24 = new javax.swing.JLabel();
-        jLabel25 = new javax.swing.JLabel();
-        jLabel26 = new javax.swing.JLabel();
-        jLabel27 = new javax.swing.JLabel();
-        jLabel28 = new javax.swing.JLabel();
+        text_totalH = new javax.swing.JLabel();
+        eticketa_infoDemografai = new javax.swing.JLabel();
+        eticketa_ttHabintantes = new javax.swing.JLabel();
+        eticketa_strike = new javax.swing.JLabel();
+        eticketa_lider = new javax.swing.JLabel();
+        eticketa_ttH = new javax.swing.JLabel();
+        eticketa_ttM = new javax.swing.JLabel();
+        eticketa_ttNn = new javax.swing.JLabel();
+        text_ttNn = new javax.swing.JLabel();
+        text_strike = new javax.swing.JLabel();
+        text_ttHabitante = new javax.swing.JLabel();
+        text_ttM = new javax.swing.JLabel();
+        text_Lider = new javax.swing.JLabel();
         jScrollPane3 = new Clases.ScrollPaneWin11();
-        jTable1 = new javax.swing.JTable();
+        tabla_estructua = new javax.swing.JTable();
+        barraNN = new Clases.ProgressBarCustom();
+        barraTTh = new Clases.ProgressBarCustom();
+        barraH = new Clases.ProgressBarCustom();
+        barraM = new Clases.ProgressBarCustom();
         dp = new javax.swing.JLayeredPane();
         jLabel3 = new javax.swing.JLabel();
         jSeparator4 = new javax.swing.JSeparator();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
+        eticketa_edad = new javax.swing.JLabel();
+        lebel_direcc = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
-        jLabel8 = new javax.swing.JLabel();
+        lebel_edad = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        text_salud = new javax.swing.JTextArea();
         jSeparator7 = new javax.swing.JSeparator();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
+        label_fechaN = new javax.swing.JLabel();
+        etick_salud = new javax.swing.JLabel();
+        lebel_educc = new javax.swing.JLabel();
+        eticketa_fechaN = new javax.swing.JLabel();
+        eticketa_famila = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
-        jLabel7 = new javax.swing.JLabel();
+        text_familia = new javax.swing.JTextArea();
+        label_nombre = new javax.swing.JLabel();
         jSeparator5 = new javax.swing.JSeparator();
-        jLabel11 = new javax.swing.JLabel();
+        eticketa_direcc = new javax.swing.JLabel();
         jSeparator6 = new javax.swing.JSeparator();
         jSeparator3 = new javax.swing.JSeparator();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
+        eticketa_nombre = new javax.swing.JLabel();
+        eticketa_educacion = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
-        panel_dc = new javax.swing.JPanel();
+        panelD = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
         getContentPane().setLayout(new java.awt.CardLayout());
 
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panel_base.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panel_barra.setBackground(new Color(255,255,255,50));
         panel_barra.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -119,51 +129,64 @@ public class detallesP extends javax.swing.JFrame {
         });
         panel_barra.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 0, 40, 30));
 
-        jPanel1.add(panel_barra, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 30));
+        panel_base.add(panel_barra, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 30));
 
         dc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel14.setText("Nombre de la comunidad");
-        dc.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 290, -1));
+        text_totalH.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        text_totalH.setText("00");
+        dc.add(text_totalH, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 80, -1, 20));
 
-        jLabel17.setText("Cantidad de Habitantes");
-        dc.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, -1, -1));
+        eticketa_infoDemografai.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
+        eticketa_infoDemografai.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        eticketa_infoDemografai.setText("Informacion demografica");
+        dc.add(eticketa_infoDemografai, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 10, 290, -1));
 
-        jLabel18.setText("Cantidad de Calles");
-        dc.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 110, -1));
+        eticketa_ttHabintantes.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        eticketa_ttHabintantes.setText("Cantidad de Habitantes");
+        dc.add(eticketa_ttHabintantes, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, -1, 20));
 
-        jLabel19.setText("Cantidad de Lideres de Calle");
-        dc.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 80, -1, -1));
+        eticketa_strike.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        eticketa_strike.setText("Cantidad de Calles");
+        dc.add(eticketa_strike, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, -1, -1));
 
-        jLabel20.setText("Cantidad de Hombre");
-        dc.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 120, 140, -1));
+        eticketa_lider.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        eticketa_lider.setText("Cantidad de Lideres de Calle");
+        dc.add(eticketa_lider, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 180, -1, -1));
 
-        jLabel21.setText("Cantidad de Mujeres");
-        dc.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 160, 140, -1));
+        eticketa_ttH.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        eticketa_ttH.setText("Cantidad de Hombre");
+        dc.add(eticketa_ttH, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, 20));
 
-        jLabel22.setText("Cantidad de niños");
-        dc.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, 110, -1));
+        eticketa_ttM.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        eticketa_ttM.setText("Cantidad de Mujeres");
+        dc.add(eticketa_ttM, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, 20));
 
-        jLabel23.setText("00");
-        dc.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 160, -1, -1));
+        eticketa_ttNn.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        eticketa_ttNn.setText("Cantidad de niños");
+        dc.add(eticketa_ttNn, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, -1, 20));
 
-        jLabel24.setText("00");
-        dc.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 80, -1, -1));
+        text_ttNn.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        text_ttNn.setText("00");
+        dc.add(text_ttNn, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 140, -1, 20));
 
-        jLabel25.setText("00");
-        dc.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 120, -1, -1));
+        text_strike.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        text_strike.setText("00");
+        dc.add(text_strike, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 180, -1, -1));
 
-        jLabel26.setText("00");
-        dc.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 160, -1, -1));
+        text_ttHabitante.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        text_ttHabitante.setText("000000");
+        dc.add(text_ttHabitante, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 50, -1, 20));
 
-        jLabel27.setText("00");
-        dc.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 120, -1, -1));
+        text_ttM.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        text_ttM.setText("00");
+        dc.add(text_ttM, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 110, -1, 20));
 
-        jLabel28.setText("00");
-        dc.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 80, -1, -1));
+        text_Lider.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        text_Lider.setText("00");
+        dc.add(text_Lider, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 180, -1, -1));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tabla_estructua.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null},
                 {null},
@@ -198,93 +221,246 @@ public class detallesP extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jTable1.setDefaultRenderer(Object.class, new Clases.table.TableGradientCell(new Color(153,204,255),new Color(255,153,255)));
-        jScrollPane3.setViewportView(jTable1);
+        tabla_estructua.setDefaultRenderer(Object.class, new Clases.table.TableGradientCell(new Color(153,204,255),new Color(255,153,255)));
+        jScrollPane3.setViewportView(tabla_estructua);
 
         dc.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 440, 310));
 
-        jPanel1.add(dc, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 43, 460, 537));
+        barraNN.setBorder(null);
+        barraNN.setForeground(new java.awt.Color(255, 131, 38));
+        barraNN.setValue(80);
+        barraNN.setColorString(new java.awt.Color(255, 255, 255));
+        dc.add(barraNN, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 390, 20));
 
-        dp.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        barraTTh.setBorder(null);
+        barraTTh.setForeground(new java.awt.Color(104, 169, 49));
+        barraTTh.setValue(80);
+        barraTTh.setColorString(new java.awt.Color(255, 255, 255));
+        dc.add(barraTTh, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 390, 20));
 
+        barraH.setBorder(null);
+        barraH.setValue(80);
+        barraH.setColorString(new java.awt.Color(255, 255, 255));
+        dc.add(barraH, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 390, 20));
+
+        barraM.setBorder(null);
+        barraM.setForeground(new java.awt.Color(255, 0, 255));
+        barraM.setValue(80);
+        barraM.setColorString(new java.awt.Color(255, 255, 255));
+        dc.add(barraM, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 390, 20));
+
+        panel_base.add(dc, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 43, 460, 537));
+
+        jLabel3.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("Perfil Detallado del Habitante");
-        dp.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 350, 23));
-        dp.add(jSeparator4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 282, 390, -1));
+        jLabel3.setText("Datos del Habitante");
 
-        jLabel9.setText("Edad:");
-        dp.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, 290, -1));
+        eticketa_edad.setText("Edad:");
 
-        jLabel10.setText("Calle principal, casa sin numero");
-        dp.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 250, 390, 30));
-        dp.add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, 390, -1));
+        lebel_direcc.setText("Calle principal, casa sin numero");
 
-        jLabel8.setText("18 años, actualmente");
-        dp.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 190, 390, 30));
+        lebel_edad.setText("18 años, actualmente");
 
         jScrollPane1.setBackground(new Color(255,255,255,30));
         jScrollPane1.setBorder(null);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jTextArea1.setBorder(null);
-        jScrollPane1.setViewportView(jTextArea1);
+        text_salud.setColumns(20);
+        text_salud.setRows(5);
+        text_salud.setBorder(null);
+        jScrollPane1.setViewportView(text_salud);
 
-        dp.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 370, 400, 60));
-        dp.add(jSeparator7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 522, 390, -1));
+        label_fechaN.setText("El 28 de Octubre del 2005");
 
-        jLabel4.setText("El 28 de Octubre del 2005");
-        dp.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 390, 30));
+        etick_salud.setText("Condicion de Salud:");
 
-        jLabel15.setText("Condicion de Salud:");
-        dp.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 350, 290, -1));
+        lebel_educc.setText("Nivel de instruccion mas alto, Educación Media \"Bachiller\"");
 
-        jLabel12.setText("Nivel de instruccion mas alto, Educación Media \"Bachiller\"");
-        dp.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 310, 390, 30));
+        eticketa_fechaN.setText("Fecha de Nacimiente:");
 
-        jLabel5.setText("Fecha de Nacimiente:");
-        dp.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 290, -1));
-
-        jLabel16.setText("Integrantes de la familia:");
-        dp.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 440, 290, -1));
+        eticketa_famila.setText("Integrantes de la familia:");
 
         jScrollPane2.setBackground(new Color(255,255,255,30));
         jScrollPane2.setBorder(null);
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jTextArea2.setBorder(null);
-        jScrollPane2.setViewportView(jTextArea2);
+        text_familia.setColumns(20);
+        text_familia.setRows(5);
+        text_familia.setBorder(null);
+        jScrollPane2.setViewportView(text_familia);
 
-        dp.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 460, 400, 60));
+        label_nombre.setText("Ezequiel  Isacc  Ardiles  Campos");
 
-        jLabel7.setText("Ezequiel  Isacc  Ardiles  Campos");
-        dp.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 390, 30));
-        dp.add(jSeparator5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 342, 390, 10));
+        eticketa_direcc.setText("Dirección:");
 
-        jLabel11.setText("Dirección:");
-        dp.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, 300, -1));
-        dp.add(jSeparator6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 432, 390, -1));
-        dp.add(jSeparator3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 222, 390, -1));
+        eticketa_nombre.setText("Nombre Completo:");
 
-        jLabel6.setText("Nombre Completo:");
-        dp.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 280, -1));
+        eticketa_educacion.setText("Datos Academicos:");
 
-        jLabel13.setText("Datos Academicos:");
-        dp.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 290, 290, -1));
-        dp.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 390, -1));
+        dp.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jSeparator4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(eticketa_edad, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(lebel_direcc, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jSeparator2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(lebel_edad, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jSeparator7, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(label_fechaN, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(etick_salud, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(lebel_educc, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(eticketa_fechaN, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(eticketa_famila, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jScrollPane2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(label_nombre, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jSeparator5, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(eticketa_direcc, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jSeparator6, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jSeparator3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(eticketa_nombre, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(eticketa_educacion, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        dp.setLayer(jSeparator1, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
-        jPanel1.add(dp, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 43, 460, 537));
+        javax.swing.GroupLayout dpLayout = new javax.swing.GroupLayout(dp);
+        dp.setLayout(dpLayout);
+        dpLayout.setHorizontalGroup(
+            dpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(60, 60, 60)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(eticketa_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(label_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(eticketa_fechaN, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(label_fechaN, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(eticketa_edad, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(lebel_edad, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(eticketa_direcc, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(lebel_direcc, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(eticketa_educacion, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(lebel_educc, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addGroup(dpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(etick_salud, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(eticketa_famila, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        dpLayout.setVerticalGroup(
+            dpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dpLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17)
+                .addComponent(eticketa_nombre)
+                .addGap(6, 6, 6)
+                .addComponent(label_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8)
+                .addComponent(eticketa_fechaN)
+                .addGap(6, 6, 6)
+                .addComponent(label_fechaN, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8)
+                .addComponent(eticketa_edad)
+                .addGap(6, 6, 6)
+                .addComponent(lebel_edad, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(eticketa_direcc)
+                .addGap(6, 6, 6)
+                .addComponent(lebel_direcc, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(eticketa_educacion)
+                .addGap(6, 6, 6)
+                .addComponent(lebel_educc, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addGroup(dpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(dpLayout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(etick_salud))
+                    .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(eticketa_famila)
+                .addGap(6, 6, 6)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
-        panel_dc.setBackground(new Color(255,255,255,150));
-        panel_dc.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(0,0,204,50)));
-        panel_dc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        jPanel1.add(panel_dc, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 43, 460, 537));
+        panel_base.add(dp, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 43, 460, 537));
+
+        panelD.setBackground(new Color(255,255,255,150));
+        panelD.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(0,0,204,50)));
+
+        javax.swing.GroupLayout panelDLayout = new javax.swing.GroupLayout(panelD);
+        panelD.setLayout(panelDLayout);
+        panelDLayout.setHorizontalGroup(
+            panelDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        panelDLayout.setVerticalGroup(
+            panelDLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        panel_base.add(panelD, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 43, 460, 537));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondoInfoPersona.png"))); // NOI18N
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        panel_base.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
-        getContentPane().add(jPanel1, "card2");
+        getContentPane().add(panel_base, "card2");
 
         pack();
         setLocationRelativeTo(null);
@@ -343,38 +519,30 @@ public class detallesP extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private static Clases.ProgressBarCustom barraH;
+    private static Clases.ProgressBarCustom barraM;
+    private static Clases.ProgressBarCustom barraNN;
+    private static Clases.ProgressBarCustom barraTTh;
     private static javax.swing.JLayeredPane dc;
     private static javax.swing.JLayeredPane dp;
+    private static javax.swing.JLabel etick_salud;
+    private javax.swing.JLabel eticketa_direcc;
+    private javax.swing.JLabel eticketa_edad;
+    private javax.swing.JLabel eticketa_educacion;
+    private javax.swing.JLabel eticketa_famila;
+    private javax.swing.JLabel eticketa_fechaN;
+    private javax.swing.JLabel eticketa_infoDemografai;
+    private javax.swing.JLabel eticketa_lider;
+    private javax.swing.JLabel eticketa_nombre;
+    private javax.swing.JLabel eticketa_strike;
+    private javax.swing.JLabel eticketa_ttH;
+    private javax.swing.JLabel eticketa_ttHabintantes;
+    private javax.swing.JLabel eticketa_ttM;
+    private javax.swing.JLabel eticketa_ttNn;
     private javax.swing.JLabel jLabel1;
-    private static javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private static javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel21;
-    private javax.swing.JLabel jLabel22;
-    private static javax.swing.JLabel jLabel23;
-    private static javax.swing.JLabel jLabel24;
-    private static javax.swing.JLabel jLabel25;
-    private static javax.swing.JLabel jLabel26;
-    private static javax.swing.JLabel jLabel27;
-    private static javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel3;
-    private static javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private static javax.swing.JLabel jLabel7;
-    private static javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private static javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
@@ -384,22 +552,45 @@ public class detallesP extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
-    private static javax.swing.JTable jTable1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
+    private static javax.swing.JLabel label_fechaN;
+    private static javax.swing.JLabel label_nombre;
+    private static javax.swing.JLabel lebel_direcc;
+    private static javax.swing.JLabel lebel_edad;
+    private static javax.swing.JLabel lebel_educc;
+    private javax.swing.JPanel panelD;
     private javax.swing.JPanel panel_barra;
-    private javax.swing.JPanel panel_dc;
+    private javax.swing.JPanel panel_base;
+    private static javax.swing.JTable tabla_estructua;
+    private static javax.swing.JLabel text_Lider;
+    private static javax.swing.JTextArea text_familia;
+    private static javax.swing.JTextArea text_salud;
+    private static javax.swing.JLabel text_strike;
+    private static javax.swing.JLabel text_totalH;
+    private static javax.swing.JLabel text_ttHabitante;
+    private static javax.swing.JLabel text_ttM;
+    private static javax.swing.JLabel text_ttNn;
     // End of variables declaration//GEN-END:variables
 
     public static void cDetalles() {
-        jLabel24.setText(String.valueOf(demografia.cantidadStrike()));
-        jLabel28.setText(String.valueOf(demografia.cantidadLiderSk()));
-        jLabel25.setText(String.valueOf(persona.cantidadPersona()));
-        jLabel27.setText(String.valueOf(persona.cantidadPersonaH()));
-        jLabel26.setText(String.valueOf(persona.cantidadPersonaM()));
-        jLabel23.setText(String.valueOf(persona.cantidadPersonaNN()));
+        ttHabitantes = persona.cantidadPersona();
+        hombres = persona.cantidadPersonaH();
+        mujeres = persona.cantidadPersonaM();
+        ninos = persona.cantidadPersonaNN();
+        
+        barraTTh.setValue(100);
+        
+        barraH.setValue((hombres*ttHabitantes)/100);
+        barraM.setValue((mujeres*ttHabitantes)/100);
+        barraNN.setValue((ninos*ttHabitantes)/100);
+        
+        text_strike.setText(String.valueOf(demografia.cantidadStrike()));
+        text_Lider.setText(String.valueOf(demografia.cantidadLiderSk()));
+        text_ttHabitante.setText(String.valueOf(persona.cantidadPersona()));
+        text_totalH.setText(String.valueOf(persona.cantidadPersonaH()));
+        text_ttM.setText(String.valueOf(persona.cantidadPersonaM()));
+        text_ttNn.setText(String.valueOf(persona.cantidadPersonaNN()));
 
-        modelo = new DefaultTableModel(){
+        modelo = new DefaultTableModel() {
             boolean[] canEdit = new boolean[]{
                 false
             };
@@ -414,43 +605,68 @@ public class detallesP extends javax.swing.JFrame {
         for (String[] aux : demografia.rescuAll()) {
             modelo.addRow(new String[]{""});
             modelo.addRow(new String[]{aux[0]});
-            modelo.addRow(new String[]{aux[1]+" "+aux[2]+" "+aux[3]+" "+aux[4]+" CI:"+aux[5]});
+            modelo.addRow(new String[]{aux[1] + " " + aux[2] + " " + aux[3] + " " + aux[4] + " CI:" + aux[5]});
 
         }
-        jTable1.setModel(modelo);
+        tabla_estructua.setModel(modelo);
         dinamicDetalles("comunidad");
     }
 
     public static void pDetalles() throws ParseException {
-        
+
         persona.buscar(persona.getId());
         SimpleDateFormat formato = new SimpleDateFormat("dd 'de' MMMM 'del' yyyy");
 
-        jLabel7.setText(persona.getpNombre() + " " + persona.getsNombre() + ", " + persona.getpApellido() + " " + persona.getsApellido());
+        label_nombre.setText(persona.getpNombre() + " " + persona.getsNombre() + ", " + persona.getpApellido() + " " + persona.getsApellido());
 
-        jLabel4.setText("El " + formato.format(persona.getFechaN()));
-       
+        label_fechaN.setText("El " + formato.format(persona.getFechaN()));
+
         Date fecha;
         fecha = formato.parse((String) formato.format(persona.getFechaN()));
         Period periodo = Period.between(fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now());
         int years = periodo.getYears();
-        jLabel8.setText(years + " actualmente");
-        
+        lebel_edad.setText(years + " actualmente");
+
         int id_direccion = 0;
         String numeroC = "N/A";
         ArrayList<String[]> lista = modelos.house.buscarHause();
         for (String[] aux : lista) {
             id_direccion = Integer.parseInt(aux[3]);
-                numeroC = String.valueOf(aux[1]);
-            
+            numeroC = String.valueOf(aux[1]);
+
         }
-        
+
         relacionesForaneas.setId_demografia(id_direccion);
-        jLabel10.setText(relacionesForaneas.nDemografia() + " #Casa: " + numeroC);
+        lebel_direcc.setText(relacionesForaneas.nDemografia() + " #Casa: " + numeroC);
 
         relacionesForaneas.setId_mgAcademico(persona.getMgAcademico());
-        jLabel12.setText("Nivel de instrucción mas alto alcanzado, " + relacionesForaneas.nMgAcademico());
+        lebel_educc.setText("Nivel de instrucción mas alto alcanzado, " + relacionesForaneas.nMgAcademico());
         dinamicDetalles("persona");
+
+        ArrayList<String> listaD = discapacidades.disDP(persona.getId());
+        if (listaD.size() > 0) {
+            etick_salud.setVisible(true);
+            jScrollPane1.setVisible(true);
+            StringBuilder lddTxt = new StringBuilder();
+            lddTxt.append("Tiene: \n");
+            for (String aux : listaD) {
+                lddTxt.append(aux + " \n");
+            }
+            text_salud.setText(lddTxt.toString());
+        } else {
+            etick_salud.setVisible(false);
+            jScrollPane1.setVisible(false);
+        }
+        ArrayList<String[]> listaFp = persona.buscarPersonaXhause(house.getIdCasa(), "");
+
+        if (listaFp.size() > 0) {
+            StringBuilder lfp = new StringBuilder();
+            for (String[] aux : listaFp) {
+                lfp.append(aux[1] + " " + aux[3] + ": " + aux[12] + "\n");
+            }
+            text_familia.setText(lfp.toString());
+        }
+
     }
 
     public static void dinamicDetalles(String menu) {

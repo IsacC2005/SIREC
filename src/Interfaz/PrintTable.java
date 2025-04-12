@@ -20,7 +20,7 @@ public class PrintTable {
 
     public DynamicJasperPrint printTable(TableModel model, String title, PageFormat pageFormat) {
         DynamicJasperPrint dynamicJasperPrint = new DynamicJasperPrint();
-        pageFormat = null;
+        //pageFormat = null;
         Template_Report_Master_Detail tem = pageFormat == null ? new Template_Report_Master_Detail(title) : new Template_Report_Master_Detail(title, pageFormat);
         //  setup column report
         int column = model.getColumnCount();
@@ -41,7 +41,7 @@ public class PrintTable {
         for (int i = 0; i < model.getRowCount(); i++) {
             Object[] row = new Object[column];
             for (int j = 0; j < column; j++) {
-                row[j] = model.getValueAt(i, j);
+                row[j] = model.getValueAt(i, j);                
             }
             dataSource.add(row);
         }

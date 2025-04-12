@@ -16,7 +16,7 @@ public class BooleanCellRenderer extends TableCustomCellRender {
         JCheckBox ch = new JCheckBox();
         ch.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         ch.setOpaque(true);
-        ch.setSelected((boolean) value);
+//        ch.setSelected((boolean) value);
         ch.setBackground(com.getBackground());
         return ch;
     }

@@ -221,11 +221,11 @@ public class house {
         try {
             query = con.prepareStatement("SELECT * FROM `casa` WHERE id = " + getIdCasa());
             rs = query.executeQuery();
-
+            System.out.println(query.toString());
             while (rs.next()) {
                 String[] registro = new String[8];
                 registro[0] = String.valueOf(rs.getInt("id"));
-                registro[1] = rs.getString("nCasa");
+                registro[1] = String.valueOf(rs.getString("nCasa"));
                 registro[2] = String.valueOf(rs.getInt("id_estdCasa"));
                 registro[3] = String.valueOf(rs.getInt("id_direccion"));
                 registro[4] = String.valueOf(rs.getInt("rModuloCLP"));
@@ -241,6 +241,17 @@ public class house {
             conect.OpenBd.desconectar();
         }
         return lista;
+    }
+    public static void deleteHouse(int idCasa){
+        Connection con = conect.OpenBd.conectar();
+        PreparedStatement query = null;
+        ResultSet rs = null;
+        
+        try {
+            query = con.prepareStatement("DELETE FROM casa c WHERE c.id = "+idCasa+"");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
     
     public static void ClanAll() {

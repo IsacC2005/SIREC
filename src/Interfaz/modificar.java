@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Ezequiel Isacc
@@ -22,29 +23,31 @@ public class modificar extends javax.swing.JFrame {
     /**
      * Creates new form modificar
      */
-    int x,y,xMause,yMause;
-    
-    private Color nulo = new Color(153,153,153);
-    private Color seleccionado = new Color(51,153,255);
-    private Color disponible = new Color(0,0,0);
-    
+    int x, y, xMause, yMause;
+
+    private Color nulo = new Color(153, 153, 153);
+    private Color seleccionado = new Color(51, 153, 255);
+    private Color disponible = new Color(0, 0, 0);
+
     int idPcambiarF;
     Integer seleccion = null;
     static DefaultTableModel modelo;
     static String[] listaRf;
-    
-    public static String[] cargarRfCbbx(){
+
+    public static String[] cargarRfCbbx() {
         ArrayList<String[]> lista = relacionesForaneas.rsRolFamiar();
         listaRf = new String[lista.size()];
         int i = 0;
-        for(String[] aux : lista){
+        for (String[] aux : lista) {
             listaRf[i] = aux[1];
             i++;
         }
         return listaRf;
     }
+
     public modificar() {
         initComponents();
+        Clases.tabla.TableCustom.apply(jScrollPane1, Clases.tabla.TableCustom.TableType.MULTI_LINE);
     }
 
     /**
@@ -76,11 +79,12 @@ public class modificar extends javax.swing.JFrame {
         jComboBox13 = new javax.swing.JComboBox<>();
         jScrollPane1 = new Clases.ScrollPaneWin11();
         jTable1 = new javax.swing.JTable();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel122 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         jLabel125 = new javax.swing.JLabel();
+        jLabel122 = new javax.swing.JLabel();
         jLabel124 = new javax.swing.JLabel();
         jLabel124.setForeground(new Color(0,0,0));
+        jLabel3 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         md_decoracion = new javax.swing.JPanel();
 
@@ -133,6 +137,14 @@ public class modificar extends javax.swing.JFrame {
                 jTextField15CaretUpdate(evt);
             }
         });
+        jTextField15.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jTextField15MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jTextField15MouseExited(evt);
+            }
+        });
         md_familia.add(jTextField15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 260, 30));
 
         jLabel121.setText("Buscar familia");
@@ -168,36 +180,29 @@ public class modificar extends javax.swing.JFrame {
             }
         });
         jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        cargarFamilia("");
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTable1MouseClicked(evt);
             }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTable1MousePressed(evt);
+            }
         });
-        jTable1.setDefaultRenderer(Object.class, new Clases.table.TableGradientCell(new Color(153,204,255),new Color(255,153,255)));
-        jTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jTable1);
 
         md_familia.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 760, 370));
 
-        jLabel3.setForeground(new Color(0,0,0));
-        jLabel3.setForeground(nulo        );
-        jLabel3.setText("Cambiar de Famila");
-        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel4.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 102, 102));
+        jLabel4.setText("Eliminar familia");
+        jLabel4.setVisible(false);
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel3MouseClicked(evt);
+                jLabel4MouseClicked(evt);
             }
         });
-        md_familia.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 54, 110, 20));
-
-        jLabel122.setFont(new java.awt.Font("Tahoma", 2, 13)); // NOI18N
-        jLabel122.setForeground(nulo);
-        jLabel122.setText("Guardar");
-        jLabel122.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel122MouseClicked(evt);
-            }
-        });
-        md_familia.add(jLabel122, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 54, 60, 20));
+        md_familia.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(524, 82, -1, 20));
 
         jLabel125.setFont(new java.awt.Font("Tahoma", 2, 13)); // NOI18N
         jLabel125.setForeground(nulo);
@@ -207,7 +212,17 @@ public class modificar extends javax.swing.JFrame {
                 jLabel125MouseClicked(evt);
             }
         });
-        md_familia.add(jLabel125, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 76, 60, 20));
+        md_familia.add(jLabel125, new org.netbeans.lib.awtextra.AbsoluteConstraints(664, 70, 60, 20));
+
+        jLabel122.setFont(new java.awt.Font("Tahoma", 2, 13)); // NOI18N
+        jLabel122.setForeground(nulo);
+        jLabel122.setText("Guardar");
+        jLabel122.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel122MouseClicked(evt);
+            }
+        });
+        md_familia.add(jLabel122, new org.netbeans.lib.awtextra.AbsoluteConstraints(664, 42, 60, 20));
 
         jLabel124.setForeground(nulo);
         jLabel124.setText("Modificar Familia");
@@ -216,12 +231,22 @@ public class modificar extends javax.swing.JFrame {
                 jLabel124MouseClicked(evt);
             }
         });
-        md_familia.add(jLabel124, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 76, 110, 20));
+        md_familia.add(jLabel124, new org.netbeans.lib.awtextra.AbsoluteConstraints(524, 62, 110, 20));
+
+        jLabel3.setForeground(new Color(0,0,0));
+        jLabel3.setForeground(nulo        );
+        jLabel3.setText("Cambiar de Famila");
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel3MouseClicked(evt);
+            }
+        });
+        md_familia.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(524, 42, 110, 20));
 
         jPanel1.setBackground(new Color(255,255,255,117));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(204,255,255)));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        md_familia.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 50, 210, 50));
+        md_familia.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 40, 210, 68));
 
         panel_modificar.add(md_familia, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
@@ -247,29 +272,32 @@ public class modificar extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField15CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jTextField15CaretUpdate
-        if(jLabel125.getForeground().equals(new Color(153,153,153))){
-           cargarFamilia(jTextField15.getText());
+        if (jLabel125.getForeground().equals(new Color(153, 153, 153))) {
+            if (jTextField15.getText().trim().equals("Buscar..") == false) {
+                cargarFamilia(jTextField15.getText());
+            }
         }
     }//GEN-LAST:event_jTextField15CaretUpdate
 
     private void jComboBox13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox13ActionPerformed
-            if(seleccion != null){
-               jTable1.setValueAt((String)jComboBox13.getSelectedItem(), seleccion, 0);
-            }else{
-               JOptionPane.showMessageDialog(null, "Seleccione una persona");
-             }            
+        if (seleccion != null) {
+            jTable1.setValueAt((String) jComboBox13.getSelectedItem(), seleccion, 0);
+        } else {
+            JOptionPane.showMessageDialog(null, "Seleccione una persona");
+        }
     }//GEN-LAST:event_jComboBox13ActionPerformed
 
     private void jLabel124MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel124MouseClicked
-        if(jLabel124.getForeground().equals(disponible) == true && jLabel3.getForeground().equals(disponible) == true){
+        if (jLabel124.getForeground().equals(disponible) == true && jLabel3.getForeground().equals(disponible) == true) {
+            jLabel4.setVisible(true);
             persona.buscar(persona.getId());
             ArrayList<String[]> lista = persona.buscarPersonaXhause(house.getIdCasa(), "");
             modelo = new DefaultTableModel();
-            String[] colums = {"Rol familiar","Nombre y Apellido","Cedula","COD"};
+            String[] colums = {"Rol familiar", "Nombre y Apellido", "Cedula", "COD"};
             modelo.setColumnIdentifiers(colums);
 
-            for(String [] aux : lista){           
-                modelo.addRow(new String[]{aux[12],aux[1]+" "+aux[2]+" "+aux[3]+" "+aux[4],aux[5],aux[0]});
+            for (String[] aux : lista) {
+                modelo.addRow(new String[]{aux[12], aux[1] + " " + aux[2] + " " + aux[3] + " " + aux[4], aux[5], aux[0]});
             }
             jComboBox13.setVisible(true);
             jTable1.setModel(modelo);
@@ -279,18 +307,19 @@ public class modificar extends javax.swing.JFrame {
             jLabel3.setForeground(nulo);
             seleccion = null;
         }
-        
+
     }//GEN-LAST:event_jLabel124MouseClicked
 
     private void jLabel125MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel125MouseClicked
-        if(jLabel125.getForeground().equals(disponible)){
+        if (jLabel125.getForeground().equals(disponible)) {
             cargarFamilia("");
             jLabel125.setForeground(nulo);
             jLabel122.setForeground(nulo);
             jLabel124.setForeground(nulo);
             jLabel3.setForeground(nulo);
             seleccion = null;
-            jComboBox13.setVisible(false);            
+            jComboBox13.setVisible(false);
+            jLabel4.setVisible(false);
         }
     }//GEN-LAST:event_jLabel125MouseClicked
 
@@ -307,45 +336,28 @@ public class modificar extends javax.swing.JFrame {
     }//GEN-LAST:event_panelBarraMousePressed
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
-       this.setState(JFrame.ICONIFIED);
+        this.setState(JFrame.ICONIFIED);
     }//GEN-LAST:event_jLabel1MouseClicked
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-       this.setVisible(false);
+        this.setVisible(false);
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        seleccion = jTable1.getSelectedRow();
-        persona.setId(Integer.parseInt((String) jTable1.getValueAt(jTable1.getSelectedRow(), 3)));
-        //relacionesForaneas.setId_rolFamiliar(Integer.parseInt((String)jTable1.getValueAt(jTable1.getSelectedRow(), 0)));
-        System.out.println(relacionesForaneas.nRolFamiliar());
-        if(jLabel3.getForeground().equals(nulo) == true && jLabel124.getForeground().equals(seleccionado) == true){
-            int i = 0;
-            for(String aux : listaRf){                   
-                if(aux.equals((String)jTable1.getValueAt(jTable1.getSelectedRow(), 0))){
-                    jComboBox13.setSelectedIndex(i);
-                    break;
-                }
-                i++;
-            }
-        }
-        if(jLabel3.getForeground().equals(nulo) && jLabel124.getForeground().equals(nulo)){
-            jLabel3.setForeground(disponible);
-            jLabel124.setForeground(disponible);
-        }        
+
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void jLabel122MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel122MouseClicked
-        if(jLabel122.getForeground().equals(disponible)){
-            
-            if(jLabel3.getForeground().equals(seleccionado)){
+        if (jLabel122.getForeground().equals(disponible)) {
+
+            if (jLabel3.getForeground().equals(seleccionado)) {
                 /*@Cambiar a una persona de familia*/
                 int id = persona.getId();
                 persona.buscar(idPcambiarF);
                 relacionesForaneas.setId_rolFamiliar(persona.getRolFamiliar());
-                if(relacionesForaneas.nRolFamiliar().equals("Jefe de Familia") == false){
+                if (relacionesForaneas.nRolFamiliar().equals("Jefe de Familia") == false) {
                     System.out.println("fayando x_.");
-                    persona.cambiardFamilia(idPcambiarF , id);
+                    persona.cambiardFamilia(idPcambiarF, id);
                     JOptionPane.showMessageDialog(null, "se cambio de familia");
                     jLabel3.setForeground(nulo);
                     jLabel124.setForeground(nulo);
@@ -354,30 +366,35 @@ public class modificar extends javax.swing.JFrame {
                     cargarFamilia("");
                     seleccion = null;
                     jComboBox13.setVisible(false);
-                }else{
+                    jLabel4.setVisible(false);
+                    jLabel4.setVisible(true);
+                } else {
                     JOptionPane.showMessageDialog(null, "¡¡No se puede puede cambiar un 'Jefe de Familia a otra Familia'!! primero tienes que cambiarle el rol de Jefe de Familia");
-                }               
-            }else{
-                if(jLabel124.getForeground().equals(seleccionado)){
-                    /*@Modificar los roles familiares de una familia*/                    
+                }
+            } else {
+                if (jLabel124.getForeground().equals(seleccionado)) {
+                    /*@Modificar los roles familiares de una familia*/
                     int estdJF = 0;
                     int estdCC = 0;
                     ArrayList<Integer[]> lista = new ArrayList<>();
-                    for(int i = 0; i < jTable1.getRowCount();i++){
-                        relacionesForaneas.setRolFamiliar((String)jTable1.getValueAt(i, 0));
-                        if(jTable1.getValueAt(i, 0).equals("Jefe de Familia")){
+                    for (int i = 0; i < jTable1.getRowCount(); i++) {
+                        relacionesForaneas.setRolFamiliar((String) jTable1.getValueAt(i, 0));
+                        System.out.println("esto es lo de la tabla " + (String) jTable1.getValueAt(i, 0));
+                        System.out.println("y esto es lo otro " + relacionesForaneas.getRolFamiliar());
+                        if (jTable1.getValueAt(i, 0).equals("Jefe de Familia")) {
                             estdJF++;
                         }
-                        if(jTable1.getValueAt(i, 0).equals("Esposo(a)")){
+                        if (jTable1.getValueAt(i, 0).equals("Esposo(a)")) {
                             estdCC++;
                         }
-                        lista.add(new Integer[]{relacionesForaneas.buscarRolFamiliar(),Integer.parseInt((String)jTable1.getValueAt(i, 3))});
+                        lista.add(new Integer[]{relacionesForaneas.buscarRolFamiliar(), Integer.parseInt((String) jTable1.getValueAt(i, 3))});
                     }
-                    if(estdJF >= 1){
-                        if(estdJF == 1){
-                            if(estdCC < 2){
+                    if (estdJF >= 1) {
+                        if (estdJF == 1) {
+                            if (estdCC < 2) {
+                                jLabel4.setVisible(true);
                                 persona.modificarFamilia(lista);
-                                Color cl = new Color(153,153,153);
+                                Color cl = new Color(153, 153, 153);
                                 jLabel125.setForeground(cl);
                                 jLabel122.setForeground(cl);
                                 cargarFamilia("");
@@ -388,34 +405,90 @@ public class modificar extends javax.swing.JFrame {
                                 seleccion = null;
                                 jComboBox13.setVisible(false);
                                 JOptionPane.showMessageDialog(null, "Se modifico la familia sin problema");
-                            }else{                               
-                                JOptionPane.showMessageDialog(null,"¡¡ERROR!! 'Solo no puede haber mas de un Cuncuno(a)'");
-                            }                            
-                        }else{
+                            } else {
+                                JOptionPane.showMessageDialog(null, "¡¡ERROR!! 'Solo no puede haber mas de un Cuncuno(a)'");
+                            }
+                        } else {
                             JOptionPane.showMessageDialog(null, "¡¡ERROR!! 'Solo puede haber un Jefe de Familia'");
                         }
-                        
-                    }else{
+
+                    } else {
                         JOptionPane.showMessageDialog(null, "¡¡ERROR!! 'Debe de habre un Jefe de Famila'");
-                    }                    
+                    }
                 }
-            }                        
-        }                
+            }
+        }
     }//GEN-LAST:event_jLabel122MouseClicked
 
     private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
         System.out.println(jLabel3.getForeground());
-        if(jLabel124.getForeground().equals(disponible) == true && jLabel3.getForeground().equals(disponible) == true){                  
-            
+        if (jLabel124.getForeground().equals(disponible) == true && jLabel3.getForeground().equals(disponible) == true) {
+
             jLabel3.setForeground(seleccionado);
             jLabel122.setForeground(disponible);
             jLabel125.setForeground(disponible);
             jLabel124.setForeground(nulo);
             cargarFamilia("");
-            idPcambiarF = persona.getId(); 
-            JOptionPane.showMessageDialog(null, "Seleccione la persona a la que se le va añadir la carga familiar"); 
-        }        
+            idPcambiarF = persona.getId();
+            JOptionPane.showMessageDialog(null, "Seleccione la persona a la que se le va añadir la carga familiar");
+        }
     }//GEN-LAST:event_jLabel3MouseClicked
+
+    private void jTable1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MousePressed
+        seleccion = jTable1.getSelectedRow();
+        String contRow = (String) jTable1.getValueAt(jTable1.getSelectedRow(), 3);
+        if (contRow.trim().equals("") == false) {
+            persona.setId(Integer.parseInt(contRow));
+            if (jLabel3.getForeground().equals(nulo) && jLabel124.getForeground().equals(nulo)) {
+                jLabel3.setForeground(disponible);
+                jLabel124.setForeground(disponible);
+            }
+        } else {
+            jLabel3.setForeground(nulo);
+            jLabel124.setForeground(nulo);
+            persona.setId(0);
+        }
+        //relacionesForaneas.setId_rolFamiliar(Integer.parseInt((String)jTable1.getValueAt(jTable1.getSelectedRow(), 0)));
+        System.out.println(relacionesForaneas.nRolFamiliar());
+        if (jLabel3.getForeground().equals(nulo) == true && jLabel124.getForeground().equals(seleccionado) == true) {
+            int i = 0;
+            for (String aux : listaRf) {
+                if (aux.equals((String) jTable1.getValueAt(jTable1.getSelectedRow(), 0))) {
+                    jComboBox13.setSelectedIndex(i);
+                    break;
+                }
+                i++;
+            }
+        }
+
+    }//GEN-LAST:event_jTable1MousePressed
+
+    private void jTextField15MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField15MouseEntered
+        if (jTextField15.getText().equals("Buscar..") == true) {
+            jTextField15.setText("");
+        }
+    }//GEN-LAST:event_jTextField15MouseEntered
+
+    private void jTextField15MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField15MouseExited
+        if (jTextField15.getText().trim().equals("")) {
+            jTextField15.setText("Buscar..");
+        }
+    }//GEN-LAST:event_jTextField15MouseExited
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        if (JOptionPane.showConfirmDialog(null, "Realmente estas seguro de que quieres eliminar esta familia \nTodas las personas de esta familia se eliminaran si aceptas") == JOptionPane.OK_OPTION) {
+            persona.deleteFamilia(house.getIdCasa());
+            JOptionPane.showMessageDialog(null, "La familia se eliminos sin ningun problema");
+            cargarFamilia("");
+            jLabel125.setForeground(nulo);
+            jLabel122.setForeground(nulo);
+            jLabel124.setForeground(nulo);
+            jLabel3.setForeground(nulo);
+            seleccion = null;
+            jComboBox13.setVisible(false);
+            jLabel4.setVisible(false);
+        }
+    }//GEN-LAST:event_jLabel4MouseClicked
 
     /**
      * @param args the command line arguments
@@ -461,6 +534,7 @@ public class modificar extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel125;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private static javax.swing.JTable jTable1;
@@ -470,27 +544,29 @@ public class modificar extends javax.swing.JFrame {
     private javax.swing.JPanel panelBarra;
     private javax.swing.JPanel panel_modificar;
     // End of variables declaration//GEN-END:variables
-    public static void cargarFamilia(String busqueda){
-        ArrayList<String[]> lista = persona.RecuperarAll(busqueda);        
-        modelo = new DefaultTableModel(){            
-            boolean[] canEdit = new boolean [] {
-            false, false, false, false
-                };
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return canEdit [columnIndex];           
+    public static void cargarFamilia(String busqueda) {
+        ArrayList<String[]> lista = persona.RecuperarAll(busqueda);
+        modelo = new DefaultTableModel() {
+            boolean[] canEdit = new boolean[]{
+                false, false, false, false
             };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        ;
         };
-        String[] colums = {"Rol familiar","Nombres y Apellidos","Cedula","COD"};
+        String[] colums = {"Rol familiar", "Nombres y Apellidos", "Cedula", "COD"};
         modelo.setColumnIdentifiers(colums);
         Integer i = 0;
-        for(String [] aux : lista){
-            if(i == Integer.parseInt(aux[13])){
-                modelo.addRow(new String[]{aux[12],aux[1]+" "+aux[2]+" "+aux[3]+" "+aux[4],aux[5],aux[0]});
-            }else{
-                modelo.addRow(new String[]{"","","",""});
-                modelo.addRow(new String[]{aux[12],aux[1]+" "+aux[2]+" "+aux[3]+" "+aux[4],aux[5],aux[0]});
+        for (String[] aux : lista) {
+            if (i == Integer.parseInt(aux[13])) {
+                modelo.addRow(new String[]{aux[12], aux[1] + " " + aux[2] + " " + aux[3] + " " + aux[4], aux[5], aux[0]});
+            } else {
+                modelo.addRow(new String[]{"", "", "", ""});
+                modelo.addRow(new String[]{aux[12], aux[1] + " " + aux[2] + " " + aux[3] + " " + aux[4], aux[5], aux[0]});
                 i = Integer.parseInt(aux[13]);
-            }            
+            }
         }
         jTable1.setModel(modelo);
     }

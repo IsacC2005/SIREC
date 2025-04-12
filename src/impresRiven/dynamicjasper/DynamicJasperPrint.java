@@ -30,7 +30,7 @@ public class DynamicJasperPrint {
 
     private JasperReportBuilder report;
     private Template template;
-
+    
     public DynamicJasperPrint() {
     }
 

@@ -4,9 +4,12 @@
  * and open the template in the editor.
  */
 package conect;
+import com.mysql.jdbc.CommunicationsException;
+import conect.error_manager.error_manager;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -24,8 +27,9 @@ public class OpenBd {
       
         try {
             con = DriverManager.getConnection(host, user, clave);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+            
+        }  catch(SQLException ex){
+            error_manager.error(ex);
         }
       
       return con;
@@ -34,7 +38,7 @@ public class OpenBd {
         try {
             con.close();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            error_manager.error(ex);
         }
       return con;
   } 
